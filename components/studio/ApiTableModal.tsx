@@ -649,7 +649,7 @@ interface FieldRowProps {
 }
 function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
   const [showFkPicker, setShowFkPicker] = useState(Boolean(field.isForeignKey));
-  const otherTables = allTables.filter((t) => true);
+  const otherTables = allTables;
   const inputStyle: React.CSSProperties = {
     background: C.input,
     border: `1px solid ${C.border}`,

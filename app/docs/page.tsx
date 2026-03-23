@@ -96,12 +96,12 @@ const docCategories = [
 ];
 
 const quickLinks = [
-  "Quickstart",
-  "Canvas keybindings",
-  "Export formats",
-  "AI prompting guide",
-  "API rate limits",
-  "Changelog",
+  { label: "Quickstart", href: "/docs" },
+  { label: "Canvas keybindings", href: "/docs" },
+  { label: "Export formats", href: "/docs" },
+  { label: "AI prompting guide", href: "/docs" },
+  { label: "API rate limits", href: "/docs" },
+  { label: "Changelog", href: "/changelog" },
 ];
 
 const changelogItems = [
@@ -279,11 +279,12 @@ export default function DocsPage() {
               <span className="text-white/18 text-xs">Popular:</span>
               {quickLinks.map((link) => (
                 <button
-                  key={link}
+                  key={link.label}
                   type="button"
+                  onClick={() => router.push(link.href)}
                   className="text-white/35 hover:text-white/65 text-xs transition-colors border-b border-white/[0.1] hover:border-white/25 pb-px"
                 >
-                  {link}
+                  {link.label}
                 </button>
               ))}
             </motion.div>

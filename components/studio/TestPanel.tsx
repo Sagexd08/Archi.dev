@@ -7,7 +7,6 @@ import type {
   DatabaseBlock,
   QueueBlock,
   InfraBlock,
-  InputField,
 } from "@/lib/schema/node";
 import type { Node, Edge } from "@xyflow/react";
 import type { NodeData } from "@/lib/schema/node";
@@ -572,45 +571,6 @@ function runIntegrationChecks(
     });
   }
   return checks;
-}
-function FieldInputs({
-  label, fields, values, onChange,
-}: {
-  label: string; fields: InputField[];
-  values: Record<string, string>;
-  onChange: (k: string, v: string) => void;
-}) {
-  if (!fields.length) return null;
-  return (
-    <div>
-      <SLabel>{label}</SLabel>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {fields.map((f) => (
-          <div key={f.name}>
-            <label style={{ fontSize: 11, color: C.muted, display: "flex", gap: 4, alignItems: "center", marginBottom: 4 }}>
-              <span style={{ color: C.fg, fontWeight: 500 }}>{f.name}</span>
-              {f.required && <span style={{ color: C.red }}>*</span>}
-              {f.type !== "string" && <span>({f.type})</span>}
-            </label>
-            {f.type === "boolean" ? (
-              <select style={INPUT} value={values[f.name] ?? "true"} onChange={(e) => onChange(f.name, e.target.value)}>
-                <option value="true">true</option>
-                <option value="false">false</option>
-              </select>
-            ) : f.type === "object" || f.type === "array" ? (
-              <textarea style={{ ...INPUT, minHeight: 56, resize: "vertical", fontFamily: "monospace" }}
-                value={values[f.name] ?? ""} onChange={(e) => onChange(f.name, e.target.value)}
-                placeholder={f.type === "object" ? '{"key": "value"}' : '["item1"]'} spellCheck={false} />
-            ) : (
-              <input style={INPUT} value={values[f.name] ?? ""} onChange={(e) => onChange(f.name, e.target.value)}
-                placeholder={mockForField(f.name, f.type)} type={f.type === "number" ? "number" : "text"} />
-            )}
-            {f.description && <div style={{ fontSize: 10, color: C.muted, marginTop: 3 }}>{f.description}</div>}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 type AuthType = "None" | "Bearer" | "API Key" | "Basic";
 type BodyMode = "none" | "json" | "form";

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ReactLenis } from "lenis/react";
 import Navbar from "@/components/landing/Navbar";
 import CTAFooter from "@/components/landing/CTAFooter";
-import { Zap, Bug, Layers, Shield, Cpu, Globe } from "lucide-react";
+import { Zap, Layers, Cpu, Globe } from "lucide-react";
 
 type TagType = "feature" | "fix" | "performance" | "security" | "infrastructure" | "ai";
 

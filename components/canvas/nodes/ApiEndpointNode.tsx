@@ -2,7 +2,7 @@ import React, { memo, useMemo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { ApiEndpointBlock, ApiBinding } from "@/lib/schema/node";
 import { useStore } from "@/store/useStore";
-export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
+export const ApiEndpointNode = memo(({ data, selected }: NodeProps) => {
     const epData = data as unknown as ApiEndpointBlock;
     const graphs = useStore((s) => s.graphs);
     const resolvedApi = useMemo<ApiBinding | null>(() => {
@@ -53,8 +53,17 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
                 boxShadow: selected
                     ? "0 0 0 2px rgba(124, 108, 255, 0.2)"
                     : "0 4px 12px rgba(0, 0, 0, 0.3)",
+                overflow: "hidden",
             }}
         >
+            <div
+                style={{
+                    height: 2,
+                    width: "100%",
+                    background: accentColor,
+                    boxShadow: `0 0 14px ${accentColor}80`,
+                }}
+            />
             <div
                 style={{
                     display: "flex",

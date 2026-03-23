@@ -124,7 +124,7 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
       Boolean(environmentData.overrides?.enabled);
     return count + (isConfigured ? 1 : 0);
   }, 0);
-  const tables = dbData.tables || [];
+  const tables = useMemo(() => dbData.tables || [], [dbData.tables]);
   const relationships = dbData.relationships || [];
   const handleAddTable = useCallback(
     (e: React.MouseEvent) => {

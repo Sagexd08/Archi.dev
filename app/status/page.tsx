@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ReactLenis } from "lenis/react";
-import { useRouter } from "next/navigation";
 import { CheckCircle2, AlertCircle, XCircle, RefreshCw } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 import CTAFooter from "@/components/landing/CTAFooter";
@@ -79,7 +78,6 @@ function StatusBadge({ status }: { status: Status }) {
 }
 
 export default function StatusPage() {
-  const router = useRouter();
   const [expandedIncident, setExpandedIncident] = useState<number | null>(null);
 
   const allOperational = services.every((s) => s.status === "operational");

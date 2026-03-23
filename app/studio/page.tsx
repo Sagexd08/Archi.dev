@@ -82,7 +82,7 @@ export default function Home() {
     } catch {
       // Ignore malformed persisted graph data and keep the current graph state.
     }
-  }, []);
+  }, [importGraphs]);
   useEffect(() => {
     if (!user) return;
     const fetchCredits = async () => {

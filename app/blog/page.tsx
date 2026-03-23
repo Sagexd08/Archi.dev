@@ -141,7 +141,6 @@ export default function BlogPage() {
     : posts.filter((p) => p.category === activeCategory);
 
   const featured = posts.filter((p) => p.featured);
-  const regular = filtered.filter((p) => !p.featured || activeCategory !== "all");
   const showFeatured = activeCategory === "all";
 
   return (
@@ -303,7 +302,7 @@ export default function BlogPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {(showFeatured ? posts.filter((p) => !p.featured) : filtered).map((post, i) => (
+                {(showFeatured ? filtered.filter((p) => !p.featured) : filtered).map((post, i) => (
                   <motion.article
                     key={post.slug}
                     initial={{ opacity: 0, y: 20 }}
