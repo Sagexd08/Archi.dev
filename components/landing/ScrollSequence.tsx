@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 const steps = [
   {
@@ -27,19 +27,220 @@ const steps = [
   },
 ];
 
-const videoSources = [
-  "https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-network-connections-loop-28828-large.mp4",
-  "https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screens-41716-large.mp4",
-  "https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-network-connections-loop-28828-large.mp4",
-];
+// --- Advanced Visual Components for each Step ---
+
+function VisualNode({ x, y, label, color, delay = 0, floatY = 15 }: any) {
+  return (
+    <motion.div
+      className="absolute flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.08] bg-black/60 backdrop-blur-md shadow-2xl"
+      style={{ left: x, top: y }}
+      animate={{ y: [0, floatY, 0] }}
+      transition={{ duration: 4 + Math.random(), repeat: Infinity, ease: "easeInOut", delay }}
+    >
+      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color, boxShadow: `0 0 12px ${color}` }} />
+      <span className="text-xs font-medium tracking-wide text-white/80">{label}</span>
+    </motion.div>
+  );
+}
+
+function Step1Visual() {
+  return (
+    <div className="absolute inset-0 bg-[#030303] overflow-hidden flex items-center justify-center">
+      {/* Grid background */}
+      <div 
+        className="absolute inset-0 opacity-[0.15]" 
+        style={{ backgroundImage: 'radial-gradient(circle at center, #ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }} 
+      />
+      
+      {/* Pulse rings */}
+      <motion.div 
+        className="absolute w-[500px] h-[500px] rounded-full border border-[#00F0FF]/10" 
+        animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }} 
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
+      />
+      <motion.div 
+        className="absolute w-[300px] h-[300px] rounded-full border border-[#00F0FF]/20" 
+        animate={{ scale: [1, 0.8, 1], opacity: [0.3, 0.6, 0.3] }} 
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
+      />
+      
+      <div className="relative w-full h-full">
+        <VisualNode x="12%" y="25%" label="API Gateway" color="#00F0FF" delay={0} floatY={-12} />
+        <VisualNode x="62%" y="15%" label="Auth Service" color="#8A2BE2" delay={1} floatY={10} />
+        <VisualNode x="72%" y="65%" label="PostgreSQL" color="#28C840" delay={2} floatY={-15} />
+        <VisualNode x="22%" y="70%" label="Worker Node" color="#F5A623" delay={0.5} floatY={12} />
+        
+        {/* Central Orchestrator */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-28 h-28 rounded-2xl border border-[#00F0FF]/20 bg-gradient-to-br from-[#00F0FF]/10 to-transparent backdrop-blur-xl"
+          animate={{ rotate: [0, 90, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        >
+          <div className="w-12 h-12 rounded-xl border border-[#00F0FF]/40 shadow-[0_0_30px_rgba(0,240,255,0.2)]" />
+        </motion.div>
+        
+        {/* Animated connection line mockups */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+          <motion.path d="M 200 150 Q 300 200 400 150" fill="none" stroke="#00F0FF" strokeWidth="1.5" strokeDasharray="4 4" animate={{ strokeDashoffset: [0, -20] }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+          <motion.path d="M 450 300 Q 350 400 250 350" fill="none" stroke="#8A2BE2" strokeWidth="1.5" strokeDasharray="4 4" animate={{ strokeDashoffset: [0, -20] }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+function Step2Visual() {
+  return (
+    <div className="absolute inset-0 bg-[#050308] overflow-hidden flex items-stretch">
+      {/* Split pane: left is Graph abstract, right is Code */}
+      <div className="flex-1 relative border-r border-white/[0.05] p-8 flex items-center justify-center overflow-hidden hidden sm:flex">
+         <motion.div className="absolute inset-0 bg-gradient-to-br from-[#8A2BE2]/10 to-transparent" animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 4, repeat: Infinity }} />
+         {/* Graph abstract */}
+         <div className="flex flex-col gap-6 relative z-10 w-full max-w-[200px]">
+           <motion.div className="h-12 w-[80%] rounded-xl bg-white/[0.03] border border-white/[0.08] shadow-lg flex items-center px-4" animate={{ x: [0, 5, 0] }} transition={{ duration: 3, repeat: Infinity }}>
+             <div className="w-3 h-3 rounded-full bg-[#8A2BE2]/50" />
+           </motion.div>
+           <motion.div className="h-12 w-full rounded-xl bg-white/[0.03] border border-white/[0.08] shadow-lg flex items-center px-4 ml-4" animate={{ x: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}>
+             <div className="w-3 h-3 rounded-full bg-[#00F0FF]/50" />
+           </motion.div>
+           <motion.div className="h-12 w-[90%] rounded-xl bg-white/[0.03] border border-white/[0.08] shadow-lg flex items-center px-4 ml-2" animate={{ x: [0, 8, 0] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }}>
+             <div className="w-3 h-3 rounded-full bg-[#28C840]/50" />
+           </motion.div>
+         </div>
+      </div>
+      
+      <div className="flex-[1.5] relative p-8 font-mono text-[11px] sm:text-[13px] text-white/60 flex flex-col justify-center overflow-hidden bg-[#0A0A0A]">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          className="space-y-3 relative z-10"
+        >
+          <div className="text-[#8A2BE2] mb-4">/** <br/> * Generated by Archi.dev AI <br/> * Scaffolded from Graph layout <br/> */</div>
+          <div><span className="text-[#00F0FF]">import</span> <span>{`{ Router }`}</span> <span className="text-[#00F0FF]">from</span> <span className="text-[#28C840]">'express'</span>;</div>
+          <div><span className="text-[#00F0FF]">import</span> <span>{`{ PrismaClient }`}</span> <span className="text-[#00F0FF]">from</span> <span className="text-[#28C840]">'@prisma/client'</span>;</div>
+          <br/>
+          <div><span className="text-[#00F0FF]">const</span> prisma = <span className="text-[#00F0FF]">new</span> <span className="text-[#E5C07B]">PrismaClient</span>();</div>
+          <div><span className="text-[#00F0FF]">export const</span> router = <span className="text-[#E5C07B]">Router</span>();</div>
+          <br/>
+          <div>
+            <span>router.</span><span className="text-[#61affe]">post</span>(
+            <span className="text-[#28C840]">`'/api/users'`</span>, <span className="text-[#00F0FF]">async</span> (req, res) {`=>`} {`{`}
+          </div>
+          <div className="pl-6 space-y-1 border-l-2 border-white/[0.05] ml-2 my-2">
+            <div className="text-white/30">// Validate request input</div>
+            <div><span className="text-[#00F0FF]">const</span> {`{ email, name } = req.body;`}</div>
+            <br/>
+            <div><span className="text-[#00F0FF]">const</span> user = <span className="text-[#00F0FF]">await</span> prisma.user.<span className="text-[#61affe]">create</span>({`{`}</div>
+            <div className="pl-6">data: {`{ email, name }`}</div>
+            <div>{`});`}</div>
+            <br/>
+            <div><span className="text-[#00F0FF]">return</span> res.<span className="text-[#61affe]">status</span>(201).<span className="text-[#61affe]">json</span>(user);</div>
+          </div>
+          <div>{`});`}</div>
+        </motion.div>
+        
+        {/* Scanning beam */}
+        <motion.div
+          className="absolute left-0 right-0 h-40 bg-gradient-to-b from-transparent via-[#8A2BE2]/10 to-transparent pointer-events-none"
+          animate={{ top: ['-30%', '130%'] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Step3Visual() {
+  return (
+    <div className="absolute inset-0 bg-[#030503] overflow-hidden flex flex-col items-center justify-center p-8">
+      {/* Map abstract */}
+      <motion.div 
+        className="absolute inset-0 opacity-20" 
+        style={{ background: 'radial-gradient(ellipse at center, #28C840 0%, transparent 60%)' }} 
+        animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15] }}
+        transition={{ duration: 5, repeat: Infinity }}
+      />
+      
+      <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#0A0A0A]/80 backdrop-blur-xl overflow-hidden flex flex-col shadow-2xl relative z-10">
+        <div className="px-5 py-3 border-b border-white/[0.05] flex items-center gap-2 bg-black/40">
+          <div className="flex gap-1.5 mr-4">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
+          </div>
+          <span className="text-[11px] font-mono text-white/40 font-medium tracking-wider">archi deploy --prod</span>
+        </div>
+        
+        <div className="p-6 font-mono text-[12px] space-y-4">
+          <div className="space-y-3">
+            <motion.div className="flex justify-between items-center" animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }}>
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+                <span className="text-white/80">Edge Network Routing</span>
+              </div>
+              <span className="text-[#00F0FF] text-[10px] tracking-widest bg-[#00F0FF]/10 px-2 py-1 rounded">ACTIVE</span>
+            </motion.div>
+            
+            <motion.div className="flex justify-between items-center" animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}>
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-[#28C840] animate-pulse" />
+                <span className="text-white/80">PostgreSQL Cluster (us-east)</span>
+              </div>
+              <span className="text-[#28C840] text-[10px] tracking-widest bg-[#28C840]/10 px-2 py-1 rounded">HEALTHY</span>
+            </motion.div>
+          </div>
+          
+          <div className="mt-6 pt-5 border-t border-white/[0.05]">
+            <div className="flex justify-between text-white/40 mb-2 text-[10px] uppercase tracking-wider">
+              <span>Traffic Migration</span>
+              <span>100%</span>
+            </div>
+            <div className="h-2 w-full bg-white/[0.05] rounded-full overflow-hidden flex">
+              <motion.div 
+                className="h-full bg-gradient-to-r from-[#28C840]/50 to-[#28C840]" 
+                initial={{ width: "0%" }} 
+                animate={{ width: "100%" }} 
+                transition={{ duration: 3, repeat: Infinity, ease: "easeOut", repeatDelay: 1 }} 
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Floating particles (traffic) */}
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1.5 h-1.5 rounded-full bg-[#28C840]"
+          style={{ 
+            left: `${Math.random() * 100}%`,
+            bottom: '-20px',
+            boxShadow: '0 0 10px #28C840'
+          }}
+          animate={{ 
+            y: [-20, -600],
+            opacity: [0, 1, 0],
+            x: Math.random() * 100 - 50
+          }}
+          transition={{
+            duration: 3 + Math.random() * 3,
+            repeat: Infinity,
+            delay: Math.random() * 3,
+            ease: "easeOut"
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function stepTextOpacity(
   scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"],
   index: number
 ) {
   const fadeInStart = index / 3;
-  const peakStart = fadeInStart + 0.06;
-  const peakEnd = (index + 1) / 3 - 0.06;
+  const peakStart = fadeInStart + 0.08;
+  const peakEnd = (index + 1) / 3 - 0.08;
   const fadeOutEnd = (index + 1) / 3;
   const end = index === 2 ? 1.0 : fadeOutEnd;
   return useTransform(
@@ -54,13 +255,28 @@ function stepTextY(
   index: number
 ) {
   const fadeInStart = index / 3;
-  const peakStart = fadeInStart + 0.06;
-  const peakEnd = (index + 1) / 3 - 0.06;
+  const peakStart = fadeInStart + 0.08;
+  const peakEnd = (index + 1) / 3 - 0.08;
   const fadeOutEnd = index === 2 ? 1.0 : (index + 1) / 3;
   return useTransform(
     scrollYProgress,
     [fadeInStart, peakStart, peakEnd, fadeOutEnd],
-    [18, 0, 0, index === 2 ? 0 : -18]
+    [30, 0, 0, index === 2 ? 0 : -30]
+  );
+}
+
+function stepTextScale(
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"],
+  index: number
+) {
+  const fadeInStart = index / 3;
+  const peakStart = fadeInStart + 0.08;
+  const peakEnd = (index + 1) / 3 - 0.08;
+  const fadeOutEnd = index === 2 ? 1.0 : (index + 1) / 3;
+  return useTransform(
+    scrollYProgress,
+    [fadeInStart, peakStart, peakEnd, fadeOutEnd],
+    [0.95, 1, 1, index === 2 ? 1 : 0.95]
   );
 }
 
@@ -95,137 +311,159 @@ export default function ScrollSequence() {
     offset: ["start start", "end end"],
   });
 
-  const textOpacities = steps.map((_, i) => stepTextOpacity(scrollYProgress, i));
-  const textYOffsets = steps.map((_, i) => stepTextY(scrollYProgress, i));
-  const videoOpacities = videoSources.map((_, i) =>
-    stepVideoOpacity(scrollYProgress, i)
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  const textOpacities = steps.map((_, i) => stepTextOpacity(smoothProgress, i));
+  const textYOffsets = steps.map((_, i) => stepTextY(smoothProgress, i));
+  const textScales = steps.map((_, i) => stepTextScale(smoothProgress, i));
+  
+  const videoOpacities = [0, 1, 2].map((i) =>
+    stepVideoOpacity(smoothProgress, i)
   );
-  const barScales = steps.map((_, i) => stepBarScale(scrollYProgress, i));
+  const barScales = steps.map((_, i) => stepBarScale(smoothProgress, i));
+
+  // Determine active step index for border color interpolation
+  const activeColor = useTransform(smoothProgress, [0, 0.33, 0.66, 1], [steps[0].color, steps[0].color, steps[1].color, steps[2].color]);
+
+  const VisualComponents = [Step1Visual, Step2Visual, Step3Visual];
 
   return (
     <section ref={containerRef} className="h-[400vh] relative bg-black">
-      <div className="sticky top-0 h-[100vh] flex flex-col lg:flex-row items-center justify-center px-6 lg:px-16 xl:px-24 gap-12 overflow-hidden">
+      {/* Background ambient glow based on scroll */}
+      <motion.div 
+        className="sticky top-0 w-full h-screen pointer-events-none overflow-hidden"
+      >
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-[0.15] blur-[120px]"
+          style={{ backgroundColor: activeColor }}
+          transition={{ duration: 0.5 }}
+        />
+      </motion.div>
 
-        {/* Left — progressive text with Y parallax */}
-        <div className="flex-1 max-w-sm lg:max-w-md relative">
-          {/* Vertical step progress bar */}
-          <div className="absolute -left-8 top-0 bottom-0 hidden lg:flex flex-col justify-center gap-0 py-4">
-            {steps.map((step, i) => (
-              <div key={step.step} className="flex items-start gap-2 flex-1 min-h-0">
-                <div className="flex flex-col items-center h-full">
-                  {/* Dot */}
-                  <motion.div
-                    className="w-2 h-2 rounded-full shrink-0 mt-1"
-                    style={{ backgroundColor: step.color }}
-                    animate={{}}
-                  >
+      <div className="absolute inset-0">
+        <div className="sticky top-0 h-[100vh] flex flex-col lg:flex-row items-center justify-center px-6 lg:px-16 xl:px-24 gap-12 lg:gap-24 overflow-hidden">
+
+          {/* Left — progressive text with Y parallax */}
+          <div className="flex-1 max-w-sm lg:max-w-md relative z-10">
+            {/* Vertical step progress bar */}
+            <div className="absolute -left-12 top-0 bottom-0 hidden lg:flex flex-col justify-center gap-0 py-4">
+              {steps.map((step, i) => (
+                <div key={step.step} className="flex items-start gap-2 flex-1 min-h-0">
+                  <div className="flex flex-col items-center h-full">
+                    {/* Dot */}
                     <motion.div
-                      className="w-full h-full rounded-full"
-                      style={{ backgroundColor: step.color, opacity: textOpacities[i] }}
-                    />
-                  </motion.div>
-                  {/* Bar */}
-                  {i < steps.length - 1 && (
-                    <div className="flex-1 w-px bg-white/[0.06] relative overflow-hidden mt-1">
+                      className="w-2.5 h-2.5 rounded-full shrink-0 mt-1 relative"
+                      style={{ backgroundColor: step.color }}
+                    >
                       <motion.div
-                        className="absolute top-0 left-0 right-0 origin-top"
-                        style={{
-                          backgroundColor: step.color,
-                          scaleY: barScales[i],
-                          height: "100%",
-                          opacity: 0.6,
+                        className="absolute inset-0 rounded-full"
+                        style={{ 
+                          backgroundColor: step.color, 
+                          opacity: textOpacities[i],
+                          boxShadow: `0 0 15px ${step.color}`
                         }}
                       />
-                    </div>
-                  )}
+                    </motion.div>
+                    {/* Bar */}
+                    {i < steps.length - 1 && (
+                      <div className="flex-1 w-[2px] bg-white/[0.06] relative overflow-hidden mt-2">
+                        <motion.div
+                          className="absolute top-0 left-0 right-0 origin-top"
+                          style={{
+                            backgroundColor: step.color,
+                            scaleY: barScales[i],
+                            height: "100%",
+                            opacity: 0.8,
+                            boxShadow: `0 0 10px ${step.color}`
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* Text panels */}
-          <div className="relative h-52 lg:h-64">
-            {steps.map((step, i) => (
-              <motion.div
-                key={step.step}
-                style={{ opacity: textOpacities[i], y: textYOffsets[i] }}
-                className="absolute inset-0 flex flex-col justify-center"
-              >
-                <div
-                  className="text-[11px] font-bold uppercase tracking-[0.25em] mb-5"
-                  style={{ color: step.color }}
-                >
-                  Step {step.step}
-                </div>
-                <h2
-                  className="text-white font-medium tracking-tighter leading-[0.88] mb-6"
-                  style={{
-                    fontSize: "clamp(2rem, 4vw, 3.8rem)",
-                    whiteSpace: "pre-line",
-                  }}
-                >
-                  {step.title}
-                </h2>
-                <p className="text-white/45 text-base leading-relaxed max-w-sm">
-                  {step.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right — crossfading videos */}
-        <div className="flex-1 w-full max-w-2xl">
-          <div className="aspect-video rounded-2xl border border-white/[0.12] shadow-[0_0_100px_rgba(0,240,255,0.08)] overflow-hidden relative bg-black">
-            {videoSources.map((src, i) => (
-              <motion.div
-                key={src + i}
-                style={{ opacity: videoOpacities[i] }}
-                className="absolute inset-0"
-              >
-                <video
-                  src={src}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                  style={
-                    i === 1
-                      ? { filter: "hue-rotate(270deg) saturate(0.65)" }
-                      : {}
-                  }
-                />
-                {/* Per-step color overlay */}
-                <div
-                  className="absolute inset-0 mix-blend-overlay opacity-[0.18]"
-                  style={{
-                    background: [
-                      "linear-gradient(135deg, #00F0FF40, transparent)",
-                      "linear-gradient(135deg, #8A2BE240, transparent)",
-                      "linear-gradient(135deg, #28C84040, transparent)",
-                    ][i],
-                  }}
-                />
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Step indicator track */}
-          <div className="flex justify-center gap-4 mt-5">
-            {steps.map((step, i) => (
-              <div key={step.step} className="relative h-1 w-16 rounded-full bg-white/[0.08] overflow-hidden">
+            {/* Text panels */}
+            <div className="relative h-64 lg:h-80">
+              {steps.map((step, i) => (
                 <motion.div
-                  className="absolute inset-y-0 left-0 rounded-full"
-                  style={{
-                    backgroundColor: step.color,
-                    scaleX: barScales[i],
-                    transformOrigin: "left",
-                    opacity: 0.75,
+                  key={step.step}
+                  style={{ 
+                    opacity: textOpacities[i], 
+                    y: textYOffsets[i],
+                    scale: textScales[i]
                   }}
-                />
-              </div>
-            ))}
+                  className="absolute inset-0 flex flex-col justify-center"
+                >
+                  <motion.div
+                    className="text-[12px] font-bold uppercase tracking-[0.3em] mb-6 flex items-center gap-3"
+                    style={{ color: step.color }}
+                  >
+                    <span>Step {step.step}</span>
+                    <motion.div 
+                      className="h-px w-12" 
+                      style={{ backgroundColor: step.color, opacity: 0.5 }}
+                    />
+                  </motion.div>
+                  <h2
+                    className="text-white font-semibold tracking-tighter leading-[1.05] mb-8"
+                    style={{
+                      fontSize: "clamp(2.5rem, 5vw, 4.2rem)",
+                      whiteSpace: "pre-line",
+                      textShadow: "0 10px 30px rgba(0,0,0,0.5)"
+                    }}
+                  >
+                    {step.title}
+                  </h2>
+                  <p className="text-white/50 text-lg leading-relaxed max-w-sm font-light">
+                    {step.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — Custom Animated Visuals */}
+          <div className="flex-1 w-full max-w-3xl relative z-10">
+            <motion.div 
+              className="aspect-[16/10] rounded-3xl border border-white/[0.1] shadow-2xl overflow-hidden relative bg-black/50 backdrop-blur-sm"
+              style={{
+                boxShadow: useTransform(activeColor, color => `0 20px 80px -20px ${color}40, inset 0 0 0 1px ${color}20`)
+              }}
+            >
+              {VisualComponents.map((Visual, i) => (
+                <motion.div
+                  key={i}
+                  style={{ opacity: videoOpacities[i] }}
+                  className="absolute inset-0"
+                >
+                  <Visual />
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Step indicator track */}
+            <div className="flex justify-center gap-6 mt-10">
+              {steps.map((step, i) => (
+                <div key={step.step} className="relative h-1.5 w-20 rounded-full bg-white/[0.05] overflow-hidden">
+                  <motion.div
+                    className="absolute inset-y-0 left-0 rounded-full"
+                    style={{
+                      backgroundColor: step.color,
+                      scaleX: barScales[i],
+                      transformOrigin: "left",
+                      opacity: 0.9,
+                      boxShadow: `0 0 10px ${step.color}`
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

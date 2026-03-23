@@ -1,19 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const navLinks = ["Product", "Solutions", "Docs", "Pricing"];
 
 export default function Navbar() {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [activeLink, setActiveLink] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      setScrolled(currentScrollY > 20);
+
+      // Hide navbar when scrolling down past 100px, show when scrolling up
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setHidden(true);
+        setMobileOpen(false); // also close mobile menu if scrolling down
+      } else {
+        setHidden(false);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -23,12 +41,21 @@ export default function Navbar() {
 
   return (
     <>
-      <nav
-        className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-          scrolled ? "glass-panel shadow-2xl" : "bg-transparent"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
+        <motion.nav
+          initial={false}
+          animate={{
+            width: scrolled ? "100%" : "100%",
+            maxWidth: scrolled ? "1000px" : "1280px",
+            borderRadius: scrolled ? "999px" : "0px",
+            y: hidden ? -100 : scrolled ? 16 : 0,
+            opacity: hidden ? 0 : 1,
+          }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className={`pointer-events-auto w-full transition-colors duration-500 flex items-center justify-between px-6 py-4 ${
+            scrolled ? "glass-panel shadow-2xl border border-white/10 backdrop-blur-md bg-black/40" : "bg-transparent"
+          }`}
+        >
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2 w-2">
@@ -82,6 +109,7 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <motion.button
               type="button"
+              onClick={() => router.push("/login")}
               className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold cursor-pointer"
               whileHover={{
                 scale: 1.05,
@@ -101,8 +129,8 @@ export default function Navbar() {
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
-        </div>
-      </nav>
+        </motion.nav>
+      </div>
 
       {/* Mobile drawer */}
       <AnimatePresence>
@@ -132,6 +160,7 @@ export default function Navbar() {
             ))}
             <motion.button
               type="button"
+              onClick={() => router.push("/login")}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.22, ease: [0.16, 1, 0.3, 1] }}

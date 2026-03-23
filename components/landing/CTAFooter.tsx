@@ -1,14 +1,26 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useSpring } from "framer-motion";
+import { motion, useSpring, useTransform, useScroll } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const footerLinks = ["Privacy", "Terms", "Status", "GitHub"];
 
 export default function CTAFooter() {
+  const router = useRouter();
+  const containerRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const springConfig = { stiffness: 200, damping: 18, mass: 0.6 };
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end end"]
+  });
+
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["-20%", "0%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.5, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.95, 1]);
+
+  const springConfig = { stiffness: 400, damping: 25, mass: 0.5 };
   const x = useSpring(0, springConfig);
   const y = useSpring(0, springConfig);
 
@@ -17,8 +29,8 @@ export default function CTAFooter() {
     const rect = buttonRef.current.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    x.set((e.clientX - cx) * 0.28);
-    y.set((e.clientY - cy) * 0.28);
+    x.set((e.clientX - cx) * 0.15);
+    y.set((e.clientY - cy) * 0.15);
   };
 
   const handleMouseLeave = () => {
@@ -27,161 +39,199 @@ export default function CTAFooter() {
   };
 
   return (
-    <footer className="min-h-[80vh] flex flex-col items-center justify-center relative overflow-hidden border-t border-white/[0.07]">
+    <footer ref={containerRef} className="min-h-[100vh] flex flex-col items-center justify-center relative overflow-hidden bg-black">
+      {/* Animated Gradient Background */}
+      <motion.div 
+        className="absolute inset-0 z-0 pointer-events-none opacity-40"
+        style={{
+          background: "radial-gradient(circle at center, rgba(0,240,255,0.15) 0%, rgba(138,43,226,0.05) 50%, transparent 100%)",
+          y: backgroundY,
+          opacity
+        }}
+      />
+
       {/* Video BG — hue-rotated to green/teal */}
-      <video
+      <motion.video
+        style={{ y: backgroundY, scale }}
         src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-network-connections-loop-28828-large.mp4"
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-[0.18] mix-blend-screen pointer-events-none"
-        style={{ filter: "hue-rotate(90deg)" }}
+        className="absolute inset-0 w-full h-full object-cover opacity-[0.25] mix-blend-screen pointer-events-none"
       />
 
-      {/* Radial vignette — black edges */}
+      {/* Deep dark vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 85% 55% at 50% 100%, transparent 0%, #000000 65%)",
+            "radial-gradient(ellipse 90% 70% at 50% 50%, transparent 20%, #000000 80%)",
         }}
       />
 
       {/* Grain noise */}
-      <div className="bg-noise absolute inset-0" />
+      <div className="bg-noise absolute inset-0 opacity-50" />
 
-      {/* Decorative concentric rings */}
+      {/* Interactive Rings */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        {[320, 540, 760, 980, 1200].map((size, i) => (
+        {[320, 540, 760, 980, 1200, 1500].map((size, i) => (
           <motion.div
             key={size}
-            className="absolute rounded-full"
+            className="absolute rounded-full border border-white/[0.03]"
             style={{
               width: size,
               height: size,
-              border: "1px solid rgba(0,240,255,0.045)",
             }}
             animate={{
-              scale: [1, 1.015, 1],
-              opacity: [0.5, 0.9, 0.5],
+              rotate: [0, 360],
+              scale: [1, 1.02, 1],
             }}
             transition={{
-              duration: 5 + i * 0.8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.4,
+              rotate: { duration: 150 + i * 20, repeat: Infinity, ease: "linear" },
+              scale: { duration: 8 + i, repeat: Infinity, ease: "easeInOut" }
             }}
-          />
+          >
+            {/* Orbital dots */}
+            <motion.div 
+              className="absolute top-0 left-1/2 w-1 h-1 rounded-full bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]"
+              style={{ opacity: 0.3 + (i * 0.1) }}
+            />
+          </motion.div>
         ))}
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 max-w-6xl w-full">
+      <div className="relative z-10 text-center px-6 max-w-6xl w-full flex flex-col items-center justify-center flex-1 pt-32">
         {/* Eyebrow */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          viewport={{ once: true }}
-          className="text-[#00F0FF] text-xs font-semibold uppercase tracking-[0.2em] mb-8"
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-8"
         >
-          Start today
-        </motion.p>
+          <span className="glass-panel px-6 py-2.5 rounded-full text-[#00F0FF] text-xs font-semibold uppercase tracking-[0.25em] flex items-center gap-3 inline-flex">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-pulse" />
+            Start today
+          </span>
+        </motion.div>
 
         {/* Main heading */}
         <motion.h2
           initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
           whileInView={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-          viewport={{ once: true }}
-          className="text-gradient font-medium tracking-tighter leading-[0.85] mb-14"
-          style={{ fontSize: "clamp(4rem, 10vw, 10rem)" }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          className="text-white font-medium tracking-tighter leading-[0.9] mb-12"
+          style={{ 
+            fontSize: "clamp(4.5rem, 12vw, 12rem)",
+            textShadow: "0 20px 60px rgba(0,0,0,0.5)"
+          }}
         >
-          Ready to build?
+          Ready to <br className="md:hidden" /> build?
         </motion.h2>
 
         {/* CTA block */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-          viewport={{ once: true }}
-          className="flex flex-col items-center gap-5"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          className="flex flex-col items-center gap-8 relative"
         >
+          {/* Background glow for button */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-white/20 blur-[60px] rounded-full pointer-events-none" />
+          
           {/* Magnetic button */}
           <motion.button
             ref={buttonRef}
             type="button"
+            onClick={() => router.push("/login")}
             style={{ x, y }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="bg-white text-black px-14 py-5 rounded-full text-lg font-semibold cursor-pointer select-none"
-            whileHover={{
-              scale: 1.06,
-              boxShadow: "0 0 60px rgba(255,255,255,0.35)",
-            }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="group relative bg-white text-black px-12 py-6 rounded-full text-xl font-bold cursor-pointer select-none overflow-hidden"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            Start building for free →
+            {/* Button hover effect */}
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-r from-[#00F0FF]/20 to-[#8A2BE2]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
+            <span className="relative z-10 flex items-center gap-3">
+              Start building for free
+              <motion.span 
+                className="inline-block"
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              >
+                →
+              </motion.span>
+            </span>
           </motion.button>
 
-          <p className="text-white/[0.22] text-sm">
-            No credit card required · Deploy in 60 seconds
+          <p className="text-white/40 text-base font-light tracking-wide">
+            No credit card required <span className="mx-2 opacity-30">•</span> Deploy in 60 seconds
           </p>
 
           {/* Social proof */}
-          <div className="flex items-center gap-3 mt-1">
-            <div className="flex -space-x-2">
+          <motion.div 
+            className="flex items-center gap-4 mt-4 glass-panel px-6 py-3 rounded-full"
+            whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
+          >
+            <div className="flex -space-x-3">
               {[
                 "bg-gradient-to-br from-cyan-400 to-blue-600",
                 "bg-gradient-to-br from-violet-400 to-purple-600",
                 "bg-gradient-to-br from-emerald-400 to-teal-600",
                 "bg-gradient-to-br from-orange-400 to-red-500",
               ].map((gradient, i) => (
-                <div
+                <motion.div
                   key={i}
-                  className={`w-7 h-7 rounded-full border-2 border-black ${gradient}`}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + (i * 0.1) }}
+                  className={`w-8 h-8 rounded-full border-2 border-black shadow-lg ${gradient}`}
                 />
               ))}
             </div>
-            <span className="text-white/35 text-xs">
+            <span className="text-white/40 text-sm">
               Joined by{" "}
-              <span className="text-white/60 font-medium">3,200+</span>{" "}
+              <span className="text-white/80 font-semibold">3,200+</span>{" "}
               engineers this month
             </span>
-          </div>
+          </motion.div>
         </motion.div>
+      </div>
 
-        {/* Footer nav */}
+      {/* Footer nav */}
+      <div className="w-full max-w-7xl px-6 pb-8 z-10 mt-auto">
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.45 }}
-          viewport={{ once: true }}
-          className="mt-24 pt-8 border-t border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-4 text-white/25 text-xs"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="pt-8 border-t border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-6 text-white/40 text-sm"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span
-              className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] inline-block"
-              style={{ boxShadow: "0 0 6px #00F0FF" }}
+              className="w-2 h-2 rounded-full bg-[#00F0FF] inline-block shadow-[0_0_10px_#00F0FF]"
             />
-            <span className="font-medium text-white/40">Archi.dev</span>
+            <span className="font-semibold text-white/60 tracking-wide">Archi.dev</span>
           </div>
 
-          <div className="flex gap-6">
+          <div className="flex gap-8">
             {footerLinks.map((link) => (
               <button
                 key={link}
                 type="button"
-                className="hover:text-white/55 transition-colors duration-200 cursor-pointer"
+                className="hover:text-white transition-colors duration-300 cursor-pointer relative group"
               >
                 {link}
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full" />
               </button>
             ))}
           </div>
 
-          <span>© 2025 Archi.dev. All rights reserved.</span>
+          <span className="text-xs">© 2025 Archi.dev. All rights reserved.</span>
         </motion.div>
       </div>
     </footer>

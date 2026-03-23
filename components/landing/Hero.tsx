@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Play, ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const stats = [
   { value: 10, suffix: "x", label: "Faster" },
@@ -49,6 +50,7 @@ function Counter({
 }
 
 export default function Hero() {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const statsInView = useInView(statsRef, { once: true });
@@ -69,7 +71,7 @@ export default function Hero() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[100vh] w-full flex flex-col justify-center bg-black overflow-hidden"
+      className="relative min-h-[100vh] w-full flex flex-col justify-center bg-black overflow-hidden pb-28 md:pb-32"
     >
       {/* Video BG */}
       <video
@@ -119,7 +121,7 @@ export default function Hero() {
       {/* Parallax content */}
       <motion.div
         style={{ y, opacity }}
-        className="relative z-10 px-6 md:px-16 xl:px-24 max-w-7xl mx-auto w-full pt-36 pb-40"
+        className="relative z-10 px-6 md:px-16 xl:px-24 max-w-7xl mx-auto w-full pt-36 pb-52 md:pb-44"
       >
         {/* Badge with pulsing glow border */}
         <motion.div
@@ -181,6 +183,7 @@ export default function Hero() {
         >
           <motion.button
             type="button"
+            onClick={() => router.push("/login")}
             className="bg-white text-black px-8 py-4 rounded-full text-base font-semibold cursor-pointer"
             whileHover={{
               scale: 1.05,
@@ -193,6 +196,7 @@ export default function Hero() {
 
           <motion.button
             type="button"
+            onClick={() => router.push("/login")}
             className="glass-panel flex items-center gap-3 px-8 py-4 rounded-full text-white text-base font-medium cursor-pointer"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
