@@ -293,7 +293,8 @@ function SpotlightCard({
 }
 export default function BentoGrid() {
   return (
-    <section className="py-32 px-6 md:px-16 xl:px-24 bg-black relative z-20">
+    <section id="product" className="py-32 px-6 md:px-16 xl:px-24 bg-black relative z-20">
+      <div className="section-top-line" />
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
@@ -398,6 +399,11 @@ export default function BentoGrid() {
               Export clean Dockerfiles and JSON configs. Your architecture, your
               infrastructure, forever.
             </p>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {["Dockerfile", "docker-compose.yml", "openapi.json", "schema.prisma", "deploy.zip"].map((fmt) => (
+                <span key={fmt} className="format-badge">{fmt}</span>
+              ))}
+            </div>
             <DockerVisual />
           </SpotlightCard>
           <SpotlightCard

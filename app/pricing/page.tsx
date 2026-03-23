@@ -25,7 +25,7 @@ export default function PricingPage() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <span className="inline-flex items-center gap-2 glass-panel px-5 py-2 rounded-full text-[#00F0FF] text-xs font-semibold uppercase tracking-[0.2em] mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-glow-cyan" />
               Plans & Pricing
             </span>
           </motion.div>

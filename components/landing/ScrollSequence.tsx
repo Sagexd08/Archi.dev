@@ -390,7 +390,8 @@ export default function ScrollSequence() {
   const Visuals = [StepOneVisual, StepTwoVisual, StepThreeVisual];
 
   return (
-    <section className="bg-black px-6 py-24 md:px-16 md:py-32 xl:px-24">
+    <section id="solutions" className="bg-black px-6 py-24 md:px-16 md:py-32 xl:px-24 relative">
+      <div className="section-top-line" />
       <div className="mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
@@ -399,14 +400,17 @@ export default function ScrollSequence() {
           viewport={{ once: true }}
           className="mb-12 max-w-3xl"
         >
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-[#00F0FF]">
-            Workflow
-          </p>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="section-line-accent" />
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#00F0FF]">
+              Workflow
+            </p>
+          </div>
           <h2 className="text-gradient text-[clamp(2.6rem,5vw,5rem)] font-medium leading-[0.92] tracking-tighter">
-            A scroll story that actually explains the product.
+            Three steps.<br />Zero boilerplate.
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/45">
-            Instead of a disconnected animation, each scene now tracks one clear phase of the workflow and hands off smoothly to the next.
+            From a blank canvas to a deployed, production-ready API — without writing a single line of configuration.
           </p>
         </motion.div>
 
@@ -479,7 +483,8 @@ export default function ScrollSequence() {
                       {step.metrics.map((metric) => (
                         <div
                           key={metric}
-                          className="rounded-2xl border border-white/[0.06] bg-black/20 px-4 py-3 text-sm font-medium text-white/75"
+                          className="rounded-2xl border border-white/[0.06] bg-black/20 px-4 py-3 text-sm font-semibold text-white/85"
+                          style={{ borderLeftColor: `${step.color}60`, borderLeftWidth: "2px" }}
                         >
                           {metric}
                         </div>

@@ -117,21 +117,18 @@ export default function Hero() {
           className="inline-block mb-10"
         >
           <motion.span
-            className="glass-panel px-5 py-2 rounded-full text-sm text-white/70 font-medium tracking-wide inline-flex items-center gap-2"
+            className="glass-panel px-5 py-2.5 rounded-full text-xs text-white/65 font-semibold tracking-[0.18em] uppercase inline-flex items-center gap-2.5 border border-white/[0.06]"
             animate={{
               boxShadow: [
                 "0 0 0px rgba(0,240,255,0)",
-                "0 0 22px rgba(0,240,255,0.22)",
+                "0 0 24px rgba(0,240,255,0.2)",
                 "0 0 0px rgba(0,240,255,0)",
               ],
             }}
             transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
           >
-            <span
-              className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] inline-block"
-              style={{ boxShadow: "0 0 6px #00F0FF" }}
-            />
-            The platform for backend architects
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-glow-cyan inline-block shrink-0" />
+            Backend architecture platform
           </motion.span>
         </motion.div>
         <motion.h1
@@ -176,15 +173,13 @@ export default function Hero() {
           <motion.button
             type="button"
             onClick={() => router.push("/login")}
-            className="glass-panel flex items-center gap-3 px-8 py-4 rounded-full text-white text-base font-medium cursor-pointer"
-            whileHover={{ scale: 1.02 }}
+            className="glass-panel flex items-center gap-3 px-8 py-4 rounded-full text-white/80 hover:text-white text-base font-medium cursor-pointer border border-white/[0.1] hover:border-white/[0.18] transition-colors"
+            whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(255,255,255,0.05)" }}
             transition={{ duration: 0.2 }}
           >
-            <Play
-              size={15}
-              className="text-white/70"
-              fill="rgba(255,255,255,0.7)"
-            />
+            <span className="w-6 h-6 rounded-full bg-white/[0.08] flex items-center justify-center shrink-0">
+              <Play size={10} className="text-white/80 ml-0.5" fill="rgba(255,255,255,0.8)" />
+            </span>
             Watch demo
           </motion.button>
         </motion.div>
@@ -259,12 +254,16 @@ export default function Hero() {
               className="px-6 py-6 text-center group"
             >
               <div
-                className="text-2xl md:text-3xl font-semibold tracking-tighter"
+                className="text-2xl md:text-3xl font-semibold tracking-tighter stat-tabular"
                 style={{
                   background:
                     i === 0
-                      ? "linear-gradient(180deg, #00F0FF, rgba(0,240,255,0.6))"
-                      : "linear-gradient(180deg, #FFFFFF, rgba(255,255,255,0.5))",
+                      ? "linear-gradient(180deg, #00F0FF, rgba(0,240,255,0.55))"
+                      : i === 1
+                      ? "linear-gradient(180deg, #a78bfa, rgba(138,43,226,0.55))"
+                      : i === 2
+                      ? "linear-gradient(180deg, #34d399, rgba(40,200,64,0.55))"
+                      : "linear-gradient(180deg, #fbbf24, rgba(245,166,35,0.55))",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",

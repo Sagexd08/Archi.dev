@@ -286,6 +286,7 @@ export default function Pricing() {
       ref={sectionRef}
       className="relative py-32 px-6 overflow-hidden bg-black"
     >
+      <div className="section-top-line" />
       <div
         className="absolute inset-0 pointer-events-none"
         style={{

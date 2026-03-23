@@ -110,7 +110,7 @@ export default function CTAFooter() {
           className="mb-8"
         >
           <span className="glass-panel px-6 py-2.5 rounded-full text-[#00F0FF] text-xs font-semibold uppercase tracking-[0.25em] flex items-center gap-3 inline-flex">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-glow-cyan" />
             Start today
           </span>
         </motion.div>
