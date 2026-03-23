@@ -110,13 +110,14 @@ function Step2Visual() {
           </div>
           <div className="pl-6 space-y-1 border-l-2 border-white/[0.05] ml-2 my-2">
             <div className="text-white/30">
-            <div><span className="text-[#00F0FF]">const</span> {`{ email, name } = req.body;`}</div>
-            <br/>
-            <div><span className="text-[#00F0FF]">const</span> user = <span className="text-[#00F0FF]">await</span> prisma.user.<span className="text-[#61affe]">create</span>({`{`}</div>
-            <div className="pl-6">data: {`{ email, name }`}</div>
-            <div>{`});`}</div>
-            <br/>
-            <div><span className="text-[#00F0FF]">return</span> res.<span className="text-[#61affe]">status</span>(201).<span className="text-[#61affe]">json</span>(user);</div>
+              <div><span className="text-[#00F0FF]">const</span> {`{ email, name } = req.body;`}</div>
+              <br/>
+              <div><span className="text-[#00F0FF]">const</span> user = <span className="text-[#00F0FF]">await</span> prisma.user.<span className="text-[#61affe]">create</span>({`{`}</div>
+              <div className="pl-6">data: {`{ email, name }`}</div>
+              <div>{`});`}</div>
+              <br/>
+              <div><span className="text-[#00F0FF]">return</span> res.<span className="text-[#61affe]">status</span>(201).<span className="text-[#61affe]">json</span>(user);</div>
+            </div>
           </div>
           <div>{`});`}</div>
         </motion.div>
