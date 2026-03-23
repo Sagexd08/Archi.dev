@@ -164,10 +164,10 @@ export default function Hero() {
           <motion.button
             type="button"
             onClick={() => router.push("/login")}
-            className="bg-white text-black px-8 py-4 rounded-full text-base font-semibold cursor-pointer"
+            className="shimmer-btn bg-white text-black px-8 py-4 rounded-full text-base font-semibold cursor-pointer"
             whileHover={{
               scale: 1.05,
-              boxShadow: "0 0 30px rgba(255,255,255,0.35)",
+              boxShadow: "0 0 36px rgba(255,255,255,0.38)",
             }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
@@ -187,6 +187,44 @@ export default function Hero() {
             />
             Watch demo
           </motion.button>
+        </motion.div>
+
+        {/* Social proof row */}
+        <motion.div
+          initial={{ y: 24, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
+          className="flex flex-wrap items-center gap-5 mt-5"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2.5">
+              {[
+                "from-cyan-400 to-blue-500",
+                "from-violet-400 to-purple-600",
+                "from-emerald-400 to-teal-600",
+                "from-amber-400 to-orange-500",
+                "from-rose-400 to-pink-600",
+              ].map((gradient, i) => (
+                <div
+                  key={i}
+                  className={`w-7 h-7 rounded-full border-[2px] border-black bg-gradient-to-br ${gradient} shrink-0`}
+                  style={{ zIndex: 5 - i }}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-white/40">
+              <span className="text-white/72 font-semibold">3,200+</span>{" "}
+              engineers this month
+            </span>
+          </div>
+          <div className="hidden md:block h-4 w-px bg-white/[0.12]" />
+          <div className="flex items-center gap-1.5 text-sm text-white/35">
+            <span className="tracking-tight" style={{ color: "#FFD700" }}>
+              ★★★★★
+            </span>
+            <span className="text-white/60 font-semibold">4.9</span>
+            <span>/ 5 rating</span>
+          </div>
         </motion.div>
       </motion.div>
       <motion.div

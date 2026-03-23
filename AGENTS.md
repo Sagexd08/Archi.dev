@@ -7,7 +7,7 @@
 - `store/`: Zustand state management.
 - `prisma/`: Prisma schema and migrations.
 - `public/`: static assets (e.g., `public/preview.png`).
-- `scripts/`: maintenance scripts (e.g., `scripts/test-db.js`).
+- `scripts/`: maintenance scripts (e.g., `scripts/runtime-queue-worker.mjs`).
 - `doc/`: product and design docs.
 
 ## Build, Test, and Development Commands
@@ -15,9 +15,11 @@
 - `npm run build`: production build.
 - `npm run start`: serve the built app.
 - `npm run lint`: run ESLint.
+- `npm run test`: run the Vitest suite.
+- `npm run test:e2e`: run the Playwright suite.
 - `npm run prisma:generate`: generate the Prisma client.
 - `npm run prisma:migrate -- --name <name>`: apply a dev migration.
-- `node scripts/test-db.js`: check Postgres connectivity using `DIRECT_URL`.
+- `npm run runtime:worker`: start the runtime queue worker.
 
 ## Coding Style & Naming Conventions
 - TypeScript/React with Next.js App Router. Use 2-space indentation, semicolons, and double quotes as seen in `app/` files.
@@ -26,9 +28,9 @@
 - Run `npm run lint` before pushing; ESLint config lives in `eslint.config.mjs`.
 
 ## Testing Guidelines
-- No automated test runner is configured in `package.json` yet.
-- For database-related changes, validate connectivity with `node scripts/test-db.js`.
-- If you add a test framework, update this file with the command and location conventions.
+- Unit tests run with Vitest via `npm run test`.
+- End-to-end tests run with Playwright via `npm run test:e2e`.
+- For database-related changes, verify the relevant flows against a configured `DATABASE_URL` and `DIRECT_URL`.
 
 ## Commit & Pull Request Guidelines
 - Commit history is mixed: recent commits use Conventional Commits (`feat:`, `feat(canvas):`), older entries are free-form (`init`, `V1 of ermiz`, `readme update`).

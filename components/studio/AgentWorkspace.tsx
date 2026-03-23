@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useStore } from "@/store/useStore";
 export function AgentWorkspace() {
   const nodes = useStore((state) => state.nodes);

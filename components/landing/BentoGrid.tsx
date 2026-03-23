@@ -143,6 +143,103 @@ function SwaggerMock() {
     </div>
   );
 }
+function RegionStatusPanel() {
+  const regions = [
+    { name: "iad1", label: "Virginia", latency: 23, color: "#00F0FF" },
+    { name: "fra1", label: "Frankfurt", latency: 34, color: "#8A2BE2" },
+    { name: "sin1", label: "Singapore", latency: 41, color: "#28C840" },
+    { name: "gru1", label: "Sao Paulo", latency: 52, color: "#F5A623" },
+  ];
+
+  return (
+    <div className="bento-card relative overflow-hidden rounded-[1.75rem] p-5">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,240,255,0.14),transparent_58%)] opacity-60" />
+      <div className="relative z-10">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/35">
+              Fleet
+            </p>
+            <h4 className="mt-1 text-lg font-semibold tracking-tight text-white">
+              Region health
+            </h4>
+          </div>
+          <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+            Stable
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {regions.map((region, index) => (
+            <motion.div
+              key={region.name}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.08, duration: 0.35 }}
+              viewport={{ once: true }}
+              className="rounded-2xl border border-white/[0.06] bg-black/30 p-3"
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{
+                      backgroundColor: region.color,
+                      boxShadow: `0 0 14px ${region.color}`,
+                    }}
+                  />
+                  <div>
+                    <div className="text-sm font-medium text-white/90">
+                      {region.label}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-[0.22em] text-white/30">
+                      {region.name}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-sm font-semibold text-white/70">
+                  {region.latency}ms
+                </div>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                <motion.div
+                  className="h-full rounded-full"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${Math.max(24, 100 - region.latency)}%` }}
+                  transition={{ delay: 0.15 + index * 0.08, duration: 0.7 }}
+                  viewport={{ once: true }}
+                  style={{
+                    background: `linear-gradient(90deg, ${region.color}, rgba(255,255,255,0.85))`,
+                    boxShadow: `0 0 18px ${region.color}55`,
+                  }}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {[
+            { label: "P95 cold start", value: "410ms" },
+            { label: "Error budget", value: "99.98%" },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3"
+            >
+              <div className="text-[10px] uppercase tracking-[0.22em] text-white/28">
+                {item.label}
+              </div>
+              <div className="mt-1 text-base font-semibold text-white/85">
+                {item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 function SpotlightCard({
   children,
   colSpan = "",
@@ -165,7 +262,7 @@ function SpotlightCard({
   return (
     <motion.div
       ref={cardRef}
-      className={`glass-panel rounded-3xl p-8 group relative overflow-hidden cursor-default ${colSpan} ${className}`}
+      className={`bento-card rounded-3xl p-8 group relative overflow-hidden cursor-default ${colSpan} ${className}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -205,17 +302,23 @@ export default function BentoGrid() {
           viewport={{ once: true }}
           className="mb-16"
         >
-          <p className="text-[#00F0FF] text-xs font-semibold uppercase tracking-[0.2em] mb-4">
-            Platform
-          </p>
+          <div className="flex items-center gap-3 mb-5">
+            <span className="section-line-accent" />
+            <p className="text-[#00F0FF] text-xs font-semibold uppercase tracking-[0.2em]">
+              Platform
+            </p>
+          </div>
           <h2
-            className="text-gradient font-medium tracking-tighter leading-[0.87]"
+            className="text-gradient font-medium tracking-tighter leading-[0.87] mb-5"
             style={{ fontSize: "clamp(2.5rem, 5vw, 5rem)" }}
           >
             Visually construct
             <br />
             the impossible.
           </h2>
+          <p className="text-white/35 text-lg max-w-xl leading-relaxed">
+            Every feature you need to design, generate, and ship backend systems — in one canvas.
+          </p>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <SpotlightCard
@@ -319,8 +422,8 @@ export default function BentoGrid() {
             accentColor="rgba(0,240,255,0.05)"
             className="overflow-hidden"
           >
-            <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
-              <div className="flex-1 shrink-0 max-w-sm">
+            <div className="grid items-center gap-8 lg:grid-cols-[0.9fr_1.15fr_0.8fr]">
+              <div className="max-w-sm">
                 <div className="text-[10px] font-bold text-[#00F0FF] uppercase tracking-[0.22em] mb-2">
                   Global
                 </div>
@@ -339,21 +442,28 @@ export default function BentoGrid() {
                   ))}
                 </div>
               </div>
-              <div className="flex-1 w-full max-w-2xl -my-8 -mr-8">
-                <Globe3D
-                  markers={globeMarkers}
-                  config={{
-                    atmosphereColor: "#00F0FF",
-                    atmosphereIntensity: 8,
-                    showAtmosphere: true,
-                    bumpScale: 5,
-                    autoRotateSpeed: 0.3,
-                    enableZoom: false,
-                    enablePan: false,
-                  }}
-                  className="h-[380px]"
-                />
+
+              <div className="relative w-full">
+                <div className="absolute inset-x-10 inset-y-12 rounded-full bg-[radial-gradient(circle,rgba(0,240,255,0.16),transparent_64%)] blur-3xl" />
+                <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.06] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))]">
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.08),transparent_42%)]" />
+                  <Globe3D
+                    markers={globeMarkers}
+                    config={{
+                      showAtmosphere: false,
+                      bumpScale: 4,
+                      autoRotateSpeed: 0.22,
+                      enableZoom: false,
+                      enablePan: false,
+                      ambientIntensity: 0.85,
+                      pointLightIntensity: 1.8,
+                    }}
+                    className="h-[380px]"
+                  />
+                </div>
               </div>
+
+              <RegionStatusPanel />
             </div>
           </SpotlightCard>
         </div>

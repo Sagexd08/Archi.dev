@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { AgentWorkspace } from "@/components/studio/AgentWorkspace";
 import { WorkspaceCanvas } from "@/components/studio/WorkspaceCanvas";
 import {

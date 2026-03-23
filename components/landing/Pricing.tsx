@@ -178,12 +178,14 @@ function PlanCard({ plan, yearly, index }: { plan: Plan; yearly: boolean; index:
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 40, scale: plan.highlight ? 1.02 : 1 }}
+      whileInView={{ opacity: 1, y: 0, scale: plan.highlight ? 1.03 : 1 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: index * 0.08 }}
-      className={`relative flex flex-col rounded-2xl p-7 bg-white/[0.03] border ${
-        plan.highlight ? borderClass : "border-white/[0.08]"
+      className={`relative flex flex-col rounded-2xl p-7 border transition-shadow duration-300 ${
+        plan.highlight
+          ? `pricing-card-highlighted ${borderClass}`
+          : "pricing-card-base border-white/[0.08]"
       }`}
     >
       {(isAccentCyan || isAccentPurple) && plan.highlight && topLineStyle && (
@@ -249,7 +251,9 @@ function PlanCard({ plan, yearly, index }: { plan: Plan; yearly: boolean; index:
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className={`w-full py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${btnClass}`}
+        className={`w-full py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
+          plan.highlight ? `shimmer-btn ${btnClass}` : btnClass
+        }`}
       >
         {plan.cta}
       </motion.button>
@@ -305,7 +309,7 @@ export default function Pricing() {
           className="text-center mb-16"
         >
           <span className="inline-flex items-center gap-2 glass-panel px-5 py-2 rounded-full text-[#00F0FF] text-xs font-semibold uppercase tracking-[0.2em] mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-glow-cyan" />
             Pricing
           </span>
 

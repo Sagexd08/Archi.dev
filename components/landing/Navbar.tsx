@@ -39,7 +39,6 @@ export default function Navbar() {
         <motion.nav
           initial={false}
           animate={{
-            width: scrolled ? "100%" : "100%",
             maxWidth: scrolled ? "1000px" : "1280px",
             borderRadius: scrolled ? "999px" : "0px",
             y: hidden ? -100 : scrolled ? 16 : 0,
@@ -50,16 +49,25 @@ export default function Navbar() {
             scrolled ? "glass-panel shadow-2xl border border-white/10 backdrop-blur-md bg-black/40" : "bg-transparent"
           }`}
         >
-          <div className="flex items-center gap-2.5">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00F0FF] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00F0FF]" />
-            </span>
+          <button
+            type="button"
+            className="flex items-center gap-2.5 cursor-pointer"
+            onClick={() => router.push("/")}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <polygon points="12,2 20,7 20,17 12,22 4,17 4,7" stroke="#00F0FF" strokeWidth="1.5" strokeLinejoin="round" fill="none" opacity="0.92"/>
+              <circle cx="12" cy="12" r="2.4" fill="#00F0FF" opacity="0.85"/>
+              <line x1="12" y1="2" x2="12" y2="9.6" stroke="#00F0FF" strokeWidth="1" strokeOpacity="0.38"/>
+              <line x1="20" y1="7" x2="14.1" y2="10.3" stroke="#00F0FF" strokeWidth="1" strokeOpacity="0.38"/>
+              <line x1="20" y1="17" x2="14.1" y2="13.7" stroke="#00F0FF" strokeWidth="1" strokeOpacity="0.38"/>
+              <line x1="12" y1="22" x2="12" y2="14.4" stroke="#00F0FF" strokeWidth="1" strokeOpacity="0.38"/>
+              <line x1="4" y1="17" x2="9.9" y2="13.7" stroke="#00F0FF" strokeWidth="1" strokeOpacity="0.38"/>
+              <line x1="4" y1="7" x2="9.9" y2="10.3" stroke="#00F0FF" strokeWidth="1" strokeOpacity="0.38"/>
+            </svg>
             <span
               className="font-semibold text-lg tracking-tight select-none"
               style={{
-                background:
-                  "linear-gradient(90deg, #FFFFFF 55%, rgba(0,240,255,0.75) 100%)",
+                background: "linear-gradient(90deg, #FFFFFF 55%, rgba(0,240,255,0.75) 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -67,7 +75,7 @@ export default function Navbar() {
             >
               Archi.dev
             </span>
-          </div>
+          </button>
           <div
             className="hidden md:flex items-center gap-8"
             onMouseLeave={() => setHoveredLink(null)}
@@ -92,14 +100,21 @@ export default function Navbar() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => router.push("/login")}
+              className="hidden md:block text-white/45 hover:text-white transition-colors duration-200 text-sm font-medium cursor-pointer"
+            >
+              Sign in
+            </button>
             <motion.button
               type="button"
               onClick={() => router.push("/login")}
-              className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold cursor-pointer"
+              className="shimmer-btn bg-white text-black px-5 py-2 rounded-full text-sm font-semibold cursor-pointer"
               whileHover={{
                 scale: 1.05,
-                boxShadow: "0 0 20px rgba(255,255,255,0.3)",
+                boxShadow: "0 0 22px rgba(255,255,255,0.32)",
               }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >

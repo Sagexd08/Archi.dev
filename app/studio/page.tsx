@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { StudioHeader, StudioUser } from "@/components/studio/StudioHeader";
 import { StudioLayout } from "@/components/studio/StudioLayout";
@@ -80,6 +80,7 @@ export default function Home() {
         importGraphs(JSON.parse(saved));
       }
     } catch {
+      // Ignore malformed persisted graph data and keep the current graph state.
     }
   }, []);
   useEffect(() => {
@@ -98,6 +99,7 @@ export default function Home() {
           setCreditUsed(Math.max(0, monthly - available));
         }
       } catch {
+        // Keep the default credit display when the balance request is unavailable.
       }
     };
     fetchCredits();
@@ -172,6 +174,7 @@ export default function Home() {
     try {
       localStorage.setItem(STORAGE_KEYS.activeTab, activeTab);
     } catch {
+      // Ignore storage write failures so tab switching still works in constrained browsers.
     }
   }, [activeTab]);
   useEffect(() => {
@@ -230,13 +233,9 @@ export default function Home() {
     }
     setIsGenerating(true);
     try {
-      console.log("🔹 Starting code generation...");
       const graphs = exportGraphs();
-      console.log("📦 Exported graphs:", graphs);
       const allNodes = Object.values(graphs).flatMap((g) => g.nodes);
-      const alleges = Object.values(graphs).flatMap((g) => g.edges);
-      console.log("🧩 Total Nodes:", allNodes.length);
-      console.log("🔗 Total Edges:", alleges.length);
+      const allEdges = Object.values(graphs).flatMap((g) => g.edges);
       const isJs = language === "javascript";
       const techStack = {
         frontend: "none",
@@ -250,17 +249,13 @@ export default function Home() {
         architectureStyle: "monolithic",
         generatedBy: "ermiz-studio",
       };
-      console.log("🛠 Tech Stack:", techStack);
-      console.log("🧾 Metadata:", metadata);
       const requestPayload = {
         nodes: allNodes,
-        edges: alleges,
+        edges: allEdges,
         techStack,
         metadata,
         language,
       };
-      console.log("JSON PAYLOAD EXPORT:\n" + JSON.stringify(requestPayload, null, 2));
-      console.log("🚀 Sending request to /api/gen...");
       const res = await fetch("/api/gen", {
         method: "POST",
         headers: {
@@ -268,7 +263,6 @@ export default function Home() {
         },
         body: JSON.stringify(requestPayload),
       });
-      console.log("📡 Response received. Status:", res.status);
       if (!res.ok) {
         let userMessage = "Code generation failed. Please try again.";
         let quotaRetryAfter: number | null = null;
@@ -283,6 +277,7 @@ export default function Home() {
             userMessage = body.error;
           }
         } catch {
+          // Fall back to the generic message when the error response is not valid JSON.
         }
         setGenError(userMessage);
         if (quotaRetryAfter !== null) {
@@ -302,18 +297,14 @@ export default function Home() {
         }
         return;
       }
-      console.log("📦 Receiving ZIP blob...");
       const geminiRequests = Number(res.headers.get("X-Gemini-Requests") ?? 0);
       const generatedFiles = Number(res.headers.get("X-Generated-Files") ?? 0);
       const blob = await res.blob();
-      console.log("✅ Blob size (bytes):", blob.size);
       const url = window.URL.createObjectURL(blob);
-      console.log("🔗 Created download URL");
       const a = document.createElement("a");
       a.href = url;
       a.download = "generated-project.zip";
       document.body.appendChild(a);
-      console.log("⬇️ Triggering download...");
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
@@ -322,7 +313,6 @@ export default function Home() {
         files: generatedFiles,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       });
-      console.log(`🎉 Generation complete. Gemini requests: ${geminiRequests}, files: ${generatedFiles}.`);
     } catch (error) {
       console.error("🔥 Unexpected error during generation:", error);
       setGenError("An unexpected error occurred. Please try again.");
@@ -336,6 +326,7 @@ export default function Home() {
     try {
       localStorage.setItem(STORAGE_KEYS.graphs, JSON.stringify(exportGraphs()));
     } catch {
+      // Ignore storage write failures so the manual save action remains non-blocking.
     }
     setSaveState("Saved");
   };
@@ -404,6 +395,7 @@ export default function Home() {
       options: { redirectTo },
     });
     if (error) {
+      console.error("Login failed:", error.message);
     }
   };
   const handleLogout = async () => {
@@ -411,10 +403,12 @@ export default function Home() {
     try {
       await supabaseClient?.auth.signOut();
     } catch {
+      // Continue local sign-out cleanup even if the remote auth session is already gone.
     }
     try {
       await fetch("/auth/logout", { method: "POST" });
     } catch {
+      // Ignore logout endpoint failures and still clear the local UI state.
     }
     setIsProfileOpen(false);
     applyUser(null);

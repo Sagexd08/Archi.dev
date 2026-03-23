@@ -717,3 +717,90 @@ aside {
     animation: sidebar-slide-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 }
+
+/* ============================================
+   Enhanced UI Utilities — v2
+   ============================================ */
+
+/* Bento grid card — visible on pure black backgrounds */
+.bento-card {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.068) 0%,
+    rgba(255, 255, 255, 0.024) 100%
+  );
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Pricing card base */
+.pricing-card-base {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.055) 0%,
+    rgba(255, 255, 255, 0.018) 100%
+  );
+}
+
+/* Highlighted pricing card — scale + cyan tint */
+.pricing-card-highlighted {
+  background: linear-gradient(
+    160deg,
+    rgba(0, 240, 255, 0.07) 0%,
+    rgba(0, 240, 255, 0.022) 100%
+  ) !important;
+}
+
+/* Shimmer sweep for CTA buttons */
+@keyframes shimmer-slide {
+  from { transform: translateX(-110%) skewX(-18deg); }
+  to   { transform: translateX(210%) skewX(-18deg); }
+}
+
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 70%
+  );
+  animation: shimmer-slide 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Glow pulse for accent dots */
+@keyframes glow-pulse-cyan {
+  0%, 100% { box-shadow: 0 0 4px rgba(0, 240, 255, 0.25); }
+  50%       { box-shadow: 0 0 18px rgba(0, 240, 255, 0.75); }
+}
+
+.animate-glow-cyan {
+  animation: glow-pulse-cyan 2.5s ease-in-out infinite;
+}
+
+/* Section eyebrow accent line */
+.section-line-accent {
+  display: inline-block;
+  width: 28px;
+  height: 1.5px;
+  background: linear-gradient(90deg, #00F0FF, rgba(0, 240, 255, 0.3));
+  border-radius: 999px;
+}
+
+/* Stat label */
+.stat-tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}

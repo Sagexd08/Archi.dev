@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { DatabaseRelationship, DatabaseTable } from "@/lib/schema/node";
 type DatabaseERDViewerProps = {
   tables: DatabaseTable[];

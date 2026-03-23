@@ -5,7 +5,7 @@ import Hero from "@/components/landing/Hero";
 import BentoGrid from "@/components/landing/BentoGrid";
 import ScrollSequence from "@/components/landing/ScrollSequence";
 import CTAFooter from "@/components/landing/CTAFooter";
-import Pricing from "@/components/landing/Pricing";
+
 export default function LandingPage() {
   return (
     <ReactLenis root>
@@ -14,7 +14,6 @@ export default function LandingPage() {
         <Hero />
         <BentoGrid />
         <ScrollSequence />
-        <Pricing />
         <CTAFooter />
       </main>
     </ReactLenis>

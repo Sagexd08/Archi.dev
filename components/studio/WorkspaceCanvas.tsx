@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { PropertyInspector } from "@/components/panels/PropertyInspector";
 import { DatabaseSchemaDesigner } from "@/components/panels/DatabaseSchemaDesigner";
@@ -259,11 +259,19 @@ export function WorkspaceCanvas({
       if (state.side === "dbHeight") {
         const deltaY = state.startY - event.clientY;
         const finalH = Math.max(120, Math.min(window.innerHeight * 0.75, state.startHeight + deltaY));
-        try { localStorage.setItem(STORAGE_KEYS.dbPanelHeight, String(finalH)); } catch {  }
+        try {
+          localStorage.setItem(STORAGE_KEYS.dbPanelHeight, String(finalH));
+        } catch {
+          // Ignore storage write failures while keeping the resized panel height in memory.
+        }
       } else if (state.side === "dbSplit") {
         const deltaY = event.clientY - state.startY;
         const finalR = Math.max(0.2, Math.min(0.8, state.startRatio + deltaY / state.startHeight));
-        try { localStorage.setItem(STORAGE_KEYS.dbSplitRatio, String(finalR)); } catch {  }
+        try {
+          localStorage.setItem(STORAGE_KEYS.dbSplitRatio, String(finalR));
+        } catch {
+          // Ignore storage write failures while keeping the resized split ratio in memory.
+        }
       }
       resizeStateRef.current.side = null;
     };
@@ -300,6 +308,7 @@ export function WorkspaceCanvas({
       localStorage.setItem(STORAGE_KEYS.leftSidebarWidth, String(leftSidebarWidth));
       localStorage.setItem(STORAGE_KEYS.inspectorWidth, String(inspectorWidth));
     } catch {
+      // Ignore storage write failures so layout changes still apply for the current session.
     }
   }, [isLeftSidebarCollapsed, isInspectorCollapsed, leftSidebarWidth, inspectorWidth]);
   useEffect(() => {
