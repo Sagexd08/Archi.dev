@@ -11,9 +11,6 @@ importers:
       '@google/genai':
         specifier: ^1.43.0
         version: 1.43.0
-      '@next/swc-win32-x64-msvc':
-        specifier: ^16.1.6
-        version: 16.1.6
       '@prisma/client':
         specifier: ^6.1.0
         version: 6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3)
@@ -4061,7 +4058,8 @@ snapshots:
   '@next/swc-win32-arm64-msvc@16.1.6':
     optional: true
 
-  '@next/swc-win32-x64-msvc@16.1.6': {}
+  '@next/swc-win32-x64-msvc@16.1.6':
+    optional: true
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:

@@ -484,10 +484,13 @@ function LoginMenu({ handleLogin }: LoginMenuProps) {
       >
         {HEADER_MENU_TEXT.loginHint}
       </div>
-      <button onClick={handleLogin} style={getActionStyle({ id: "gen", label: HEADER_MENU_TEXT.signInWithGoogle, onClick: handleLogin, highlighted: true }, "menu")}>
+      <button
+        onClick={handleLogin}
         onMouseMove={handleInteractiveMove}
         onMouseLeave={handleInteractiveLeave}
         className="magnetic-btn hover-trail"
+        style={getActionStyle({ id: "gen", label: HEADER_MENU_TEXT.signInWithGoogle, onClick: handleLogin, highlighted: true }, "menu")}
+      >
         {HEADER_MENU_TEXT.signInWithGoogle}
       </button>
     </div>
