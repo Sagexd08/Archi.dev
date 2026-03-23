@@ -42,6 +42,22 @@ const baseActionStyle: React.CSSProperties = {
   lineHeight: 1.1,
   cursor: "pointer",
 };
+
+const handleInteractiveMove = (event: React.MouseEvent<HTMLElement>) => {
+  const rect = event.currentTarget.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  event.currentTarget.style.setProperty("--mx", `${x}px`);
+  event.currentTarget.style.setProperty("--my", `${y}px`);
+  const tx = (x - rect.width / 2) * 0.08;
+  const ty = (y - rect.height / 2) * 0.08;
+  event.currentTarget.style.transform = `translate(${tx}px, ${ty}px)`;
+};
+
+const handleInteractiveLeave = (event: React.MouseEvent<HTMLElement>) => {
+  event.currentTarget.style.transform = "translate(0px, 0px)";
+};
+
 function getActionStyle(action: HeaderAction, variant: "desktop" | "menu"): React.CSSProperties {
   const isPrimary = action.id === "gen" || action.highlighted;
   return {
@@ -157,6 +173,9 @@ function HeaderTabs({
             key={tab}
             type="button"
             onClick={() => setActiveTab(tab)}
+            onMouseMove={handleInteractiveMove}
+            onMouseLeave={handleInteractiveLeave}
+            className="magnetic-btn hover-trail"
             style={{
               border: "1px solid transparent",
               borderRadius: 12,
@@ -254,8 +273,11 @@ function HeaderActionButtons({ actions, variant }: HeaderActionButtonsProps) {
           key={action.id}
           type="button"
           onClick={action.onClick}
+          onMouseMove={handleInteractiveMove}
+          onMouseLeave={handleInteractiveLeave}
           title={action.title}
           disabled={action.isLoading}
+          className="magnetic-btn hover-trail"
           style={getActionStyle(action, variant)}
         >
           {action.isLoading && action.id === "gen" ? "Generating…" : action.label}
@@ -286,10 +308,12 @@ function ProfileButton({
     <button
       type="button"
       onClick={() => setIsProfileOpen((prev) => !prev)}
+      onMouseMove={handleInteractiveMove}
+      onMouseLeave={handleInteractiveLeave}
       aria-label="Open profile menu"
       aria-haspopup="menu"
       aria-expanded={isProfileOpen}
-      className="studio-card-raised"
+      className="studio-card-raised magnetic-btn hover-trail"
       style={{
         width: 42,
         height: 42,
@@ -382,6 +406,9 @@ function ProfileMenu({
         <button
           type="button"
           onClick={handleNewProject}
+          onMouseMove={handleInteractiveMove}
+          onMouseLeave={handleInteractiveLeave}
+          className="magnetic-btn hover-trail"
           style={{
             ...baseActionStyle,
             width: "100%",
@@ -400,6 +427,9 @@ function ProfileMenu({
         <button
           type="button"
           onClick={handleBuyPro}
+          onMouseMove={handleInteractiveMove}
+          onMouseLeave={handleInteractiveLeave}
+          className="magnetic-btn hover-trail"
           style={getActionStyle({ id: "commit", label: HEADER_MENU_TEXT.buyPro, onClick: handleBuyPro, highlighted: true }, "menu")}
         >
           {HEADER_MENU_TEXT.buyPro}
@@ -407,6 +437,9 @@ function ProfileMenu({
         <button
           type="button"
           onClick={handleLogout}
+          onMouseMove={handleInteractiveMove}
+          onMouseLeave={handleInteractiveLeave}
+          className="magnetic-btn hover-trail"
           style={{
             ...baseActionStyle,
             width: "100%",
@@ -452,6 +485,9 @@ function LoginMenu({ handleLogin }: LoginMenuProps) {
         {HEADER_MENU_TEXT.loginHint}
       </div>
       <button onClick={handleLogin} style={getActionStyle({ id: "gen", label: HEADER_MENU_TEXT.signInWithGoogle, onClick: handleLogin, highlighted: true }, "menu")}>
+        onMouseMove={handleInteractiveMove}
+        onMouseLeave={handleInteractiveLeave}
+        className="magnetic-btn hover-trail"
         {HEADER_MENU_TEXT.signInWithGoogle}
       </button>
     </div>
@@ -648,8 +684,11 @@ export function StudioHeader({
             <button
               type="button"
               onClick={() => setIsLoginOpen((prev) => !prev)}
+              onMouseMove={handleInteractiveMove}
+              onMouseLeave={handleInteractiveLeave}
               aria-haspopup="dialog"
               aria-expanded={isLoginOpen}
+              className="magnetic-btn hover-trail"
               style={getActionStyle({ id: "gen", label: HEADER_MENU_TEXT.signIn, onClick: () => setIsLoginOpen((prev) => !prev), highlighted: true }, "desktop")}
             >
               {HEADER_MENU_TEXT.signIn}

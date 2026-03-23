@@ -1,6 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useInView,
+  useMotionValue,
+  useSpring,
+} from "framer-motion";
 import { Play, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import LineWaves from "@/components/ui/LineWaves";
@@ -46,6 +53,14 @@ export default function Hero() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  const primaryX = useMotionValue(0);
+  const primaryY = useMotionValue(0);
+  const secondaryX = useMotionValue(0);
+  const secondaryY = useMotionValue(0);
+  const primarySpringX = useSpring(primaryX, { stiffness: 220, damping: 20, mass: 0.3 });
+  const primarySpringY = useSpring(primaryY, { stiffness: 220, damping: 20, mass: 0.3 });
+  const secondarySpringX = useSpring(secondaryX, { stiffness: 220, damping: 20, mass: 0.3 });
+  const secondarySpringY = useSpring(secondaryY, { stiffness: 220, damping: 20, mass: 0.3 });
   const statsInView = useInView(statsRef, { once: true });
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -58,6 +73,42 @@ export default function Hero() {
     [0, 0.12],
     [1, 0]
   );
+  const headingContainer = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.09,
+      },
+    },
+  };
+  const headingLine = {
+    hidden: { y: 44, opacity: 0, filter: "blur(10px)" },
+    show: {
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      transition: { duration: 0.82, ease: [0.16, 1, 0.3, 1] },
+    },
+  };
+
+  const applyTrail = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    setX: (x: number) => void,
+    setY: (y: number) => void,
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    event.currentTarget.style.setProperty("--mx", `${x}px`);
+    event.currentTarget.style.setProperty("--my", `${y}px`);
+    setX((x - rect.width / 2) * 0.12);
+    setY((y - rect.height / 2) * 0.12);
+  };
+
+  const resetMagnetic = (setX: (x: number) => void, setY: (y: number) => void) => {
+    setX(0);
+    setY(0);
+  };
   return (
     <section
       ref={containerRef}
@@ -132,15 +183,19 @@ export default function Hero() {
           </motion.span>
         </motion.div>
         <motion.h1
-          initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
-          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          variants={headingContainer}
+          initial="hidden"
+          animate="show"
           className="text-gradient font-medium tracking-tighter leading-[0.85] mb-10"
           style={{ fontSize: "clamp(4rem, 10vw, 11rem)" }}
         >
-          The canvas
+          <motion.span className="block" variants={headingLine}>
+            The canvas
+          </motion.span>
           <br />
-          to ship.
+          <motion.span className="block" variants={headingLine}>
+            to ship.
+          </motion.span>
         </motion.h1>
         <motion.p
           initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
@@ -161,7 +216,10 @@ export default function Hero() {
           <motion.button
             type="button"
             onClick={() => router.push("/login")}
-            className="shimmer-btn bg-white text-black px-8 py-4 rounded-full text-base font-semibold cursor-pointer"
+            className="shimmer-btn magnetic-btn hover-trail bg-white text-black px-8 py-4 rounded-full text-base font-semibold cursor-pointer"
+            style={{ x: primarySpringX, y: primarySpringY }}
+            onMouseMove={(event) => applyTrail(event, primaryX.set, primaryY.set)}
+            onMouseLeave={() => resetMagnetic(primaryX.set, primaryY.set)}
             whileHover={{
               scale: 1.05,
               boxShadow: "0 0 36px rgba(255,255,255,0.38)",
@@ -173,7 +231,10 @@ export default function Hero() {
           <motion.button
             type="button"
             onClick={() => router.push("/login")}
-            className="glass-panel flex items-center gap-3 px-8 py-4 rounded-full text-white/80 hover:text-white text-base font-medium cursor-pointer border border-white/[0.1] hover:border-white/[0.18] transition-colors"
+            className="glass-panel magnetic-btn hover-trail flex items-center gap-3 px-8 py-4 rounded-full text-white/80 hover:text-white text-base font-medium cursor-pointer border border-white/[0.1] hover:border-white/[0.18] transition-colors"
+            style={{ x: secondarySpringX, y: secondarySpringY }}
+            onMouseMove={(event) => applyTrail(event, secondaryX.set, secondaryY.set)}
+            onMouseLeave={() => resetMagnetic(secondaryX.set, secondaryY.set)}
             whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(255,255,255,0.05)" }}
             transition={{ duration: 0.2 }}
           >
@@ -182,6 +243,30 @@ export default function Hero() {
             </span>
             Watch demo
           </motion.button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.52, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-wrap items-center gap-2 mt-6"
+        >
+          {[
+            "AI architecture guidance",
+            "One-click runtime scaffolding",
+            "Production-ready exports",
+          ].map((chip, index) => (
+            <motion.span
+              key={chip}
+              className="studio-badge"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.58 + index * 0.08, duration: 0.45 }}
+              whileHover={{ y: -1 }}
+            >
+              {chip}
+            </motion.span>
+          ))}
         </motion.div>
 
         {/* Social proof row */}

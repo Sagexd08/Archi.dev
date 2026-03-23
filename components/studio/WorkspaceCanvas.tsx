@@ -73,6 +73,19 @@ export function WorkspaceCanvas({
   const [inspectorWidth, setInspectorWidth] = useState(DEFAULT_INSPECTOR_WIDTH);
   const [dbPanelHeight, setDbPanelHeight] = useState(DEFAULT_DB_PANEL_HEIGHT);
   const [dbSplitRatio, setDbSplitRatio] = useState(DEFAULT_DB_SPLIT_RATIO);
+  const handleInteractiveMove = (event: React.MouseEvent<HTMLElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    event.currentTarget.style.setProperty("--mx", `${x}px`);
+    event.currentTarget.style.setProperty("--my", `${y}px`);
+    const tx = (x - rect.width / 2) * 0.06;
+    const ty = (y - rect.height / 2) * 0.06;
+    event.currentTarget.style.transform = `translate(${tx}px, ${ty}px)`;
+  };
+  const handleInteractiveLeave = (event: React.MouseEvent<HTMLElement>) => {
+    event.currentTarget.style.transform = "translate(0px, 0px)";
+  };
   const resizeStateRef = useRef<{
     side: "left" | "right" | "dbHeight" | "dbSplit" | null;
     startX: number;
@@ -597,7 +610,10 @@ export function WorkspaceCanvas({
               <button
                 type="button"
                 onClick={handleCopilotSubmit}
+                onMouseMove={handleInteractiveMove}
+                onMouseLeave={handleInteractiveLeave}
                 disabled={isCopilotLoading || !copilotPrompt.trim()}
+                className="magnetic-btn hover-trail"
                 style={{
                   border: "1px solid color-mix(in srgb, var(--primary) 36%, transparent)",
                   background: isCopilotLoading
@@ -673,9 +689,11 @@ export function WorkspaceCanvas({
                   {filteredFlatItems.map((item) => (
                     <div
                       key={item.key}
-                      className="sidebar-item"
+                          className="sidebar-item magnetic-btn hover-trail"
                       style={{ color: item.muted ? "var(--muted)" : "var(--secondary)" }}
                       onClick={() => addNode(item.kind)}
+                          onMouseMove={handleInteractiveMove}
+                          onMouseLeave={handleInteractiveLeave}
                       onMouseOver={(e) => { e.currentTarget.style.color = item.hoverColor; }}
                       onMouseOut={(e) => { e.currentTarget.style.color = item.muted ? "var(--muted)" : "var(--secondary)"; }}
                     >
@@ -808,9 +826,11 @@ export function WorkspaceCanvas({
                       {section.items.map((item, index) => (
                         <div
                           key={`${section.id}-${item.kind}-${item.label}-${index}`}
-                          className="sidebar-item"
+                          className="sidebar-item magnetic-btn hover-trail"
                           style={{ color: section.muted ? "var(--muted)" : "var(--secondary)" }}
                           onClick={() => addNode(item.kind)}
+                          onMouseMove={handleInteractiveMove}
+                          onMouseLeave={handleInteractiveLeave}
                           onMouseOver={(e) => { e.currentTarget.style.color = item.hoverColor; }}
                           onMouseOut={(e) => { e.currentTarget.style.color = section.muted ? "var(--muted)" : "var(--secondary)"; }}
                         >

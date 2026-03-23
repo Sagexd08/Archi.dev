@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -60,11 +61,74 @@ const recentProjects = [
 ];
 
 const stats = [
-  { label: "Projects", value: "4", suffix: "", color: "#00F0FF" },
-  { label: "Credits used", value: "312", suffix: "/500", color: "#8A2BE2" },
-  { label: "Deployments", value: "2", suffix: "", color: "#28C840" },
-  { label: "AI generations", value: "47", suffix: "", color: "#F5A623" },
+  { label: "Projects", value: 4, suffix: "", color: "#00F0FF" },
+  { label: "Credits used", value: 312, suffix: "/500", color: "#8A2BE2" },
+  { label: "Deployments", value: 2, suffix: "", color: "#28C840" },
+  { label: "AI generations", value: 47, suffix: "", color: "#F5A623" },
 ];
+
+const analyticsWidgets = [
+  {
+    title: "Generation success rate",
+    value: 97,
+    suffix: "%",
+    accent: "#34d399",
+    trend: [72, 78, 80, 84, 88, 92, 97],
+  },
+  {
+    title: "Avg build time",
+    value: 58,
+    suffix: "s",
+    accent: "#00F0FF",
+    trend: [110, 101, 90, 80, 72, 64, 58],
+  },
+  {
+    title: "Weekly active canvases",
+    value: 126,
+    suffix: "",
+    accent: "#a78bfa",
+    trend: [44, 57, 70, 82, 96, 112, 126],
+  },
+];
+
+function AnimatedCounter({
+  value,
+  suffix,
+  prefix = "",
+  duration = 1200,
+}: {
+  value: number;
+  suffix?: string;
+  prefix?: string;
+  duration?: number;
+}) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let frame = 0;
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(value * eased));
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [duration, value]);
+
+  return (
+    <>
+      {prefix}
+      {count}
+      {suffix}
+    </>
+  );
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -165,13 +229,51 @@ export default function DashboardPage() {
                     backgroundClip: "text",
                   }}
                 >
-                  {stat.value}
+                  <AnimatedCounter value={stat.value} />
                   <span className="text-base font-normal" style={{ WebkitTextFillColor: "rgba(255,255,255,0.3)" }}>
                     {stat.suffix}
                   </span>
                 </div>
               </motion.div>
             ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 mt-6">
+            {analyticsWidgets.map((widget, index) => {
+              const maxTrend = Math.max(...widget.trend, 1);
+              return (
+                <motion.div
+                  key={widget.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, delay: 0.25 + index * 0.08 }}
+                  className="cyber-glass rounded-2xl p-5"
+                >
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-white/35 mb-2">{widget.title}</div>
+                  <div className="text-2xl font-semibold tracking-tight mb-4" style={{ color: widget.accent }}>
+                    <AnimatedCounter value={widget.value} suffix={widget.suffix} duration={1400 + index * 120} />
+                  </div>
+                  <div className="flex items-end gap-1.5 h-14">
+                    {widget.trend.map((point, pointIndex) => (
+                      <motion.div
+                        key={`${widget.title}-${pointIndex}`}
+                        initial={{ height: 2, opacity: 0.3 }}
+                        animate={{
+                          height: `${Math.max((point / maxTrend) * 100, 8)}%`,
+                          opacity: 1,
+                        }}
+                        transition={{ duration: 0.45, delay: 0.4 + pointIndex * 0.04 }}
+                        className="rounded-sm flex-1"
+                        style={{
+                          background: `linear-gradient(180deg, ${widget.accent}, ${widget.accent}55)`,
+                          boxShadow: `0 0 10px ${widget.accent}40`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
 
           <div className="flex items-center gap-3 mb-5">

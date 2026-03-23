@@ -532,6 +532,48 @@ aside {
   will-change: transform;
 }
 
+.magnetic-btn,
+.hover-trail {
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+}
+
+.hover-trail {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hover-trail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(140px circle at var(--mx) var(--my), rgba(127, 197, 255, 0.24), transparent 68%);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.hover-trail:hover::after,
+.hover-trail:focus-visible::after {
+  opacity: 1;
+}
+
+.magnetic-btn > *,
+.hover-trail > * {
+  position: relative;
+  z-index: 1;
+}
+
+.magnetic-btn {
+  transition: transform 0.14s ease, box-shadow 0.2s ease;
+}
+
+.magnetic-btn:hover {
+  box-shadow: 0 12px 28px rgba(3, 10, 22, 0.34);
+}
+
 .sidebar-item:hover {
   background: var(--floating);
   border-color: var(--border);
