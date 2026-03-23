@@ -3,7 +3,12 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-const navLinks = ["Product", "Solutions", "Docs", "Pricing"];
+const navLinks = [
+  { label: "Product", href: "/#product" },
+  { label: "Solutions", href: "/#solutions" },
+  { label: "Docs", href: "/docs" },
+  { label: "Pricing", href: "/pricing" },
+];
 export default function Navbar() {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
@@ -67,23 +72,20 @@ export default function Navbar() {
             className="hidden md:flex items-center gap-8"
             onMouseLeave={() => setHoveredLink(null)}
           >
-            {navLinks.map((link) => (
+            {navLinks.map(({ label, href }) => (
               <button
-                key={link}
+                key={label}
                 type="button"
                 className="relative text-white/60 hover:text-white transition-colors duration-200 text-sm font-medium py-1"
-                onMouseEnter={() => setHoveredLink(link)}
-                onClick={() => setActiveLink(link)}
+                onMouseEnter={() => setHoveredLink(label)}
+                onClick={() => { setActiveLink(label); router.push(href); }}
               >
-                {link}
-                {indicatorLink === link && (
+                {label}
+                {indicatorLink === label && (
                   <motion.span
                     layoutId="nav-underline"
                     className="absolute -bottom-0.5 left-0 right-0 h-px"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, transparent, #00F0FF, transparent)",
-                    }}
+                    style={{ background: "linear-gradient(90deg, transparent, #00F0FF, transparent)" }}
                     transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                   />
                 )}
@@ -123,20 +125,21 @@ export default function Navbar() {
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className="fixed top-[72px] left-4 right-4 z-40 glass-panel rounded-2xl p-6 md:hidden"
           >
-            {navLinks.map((link, i) => (
+            {navLinks.map(({ label, href }, i) => (
               <motion.button
-                key={link}
+                key={label}
                 type="button"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
                 className="block w-full text-left text-white/70 hover:text-white py-3.5 text-base font-medium border-b border-white/[0.06] last:border-0 transition-colors"
                 onClick={() => {
-                  setActiveLink(link);
+                  setActiveLink(label);
                   setMobileOpen(false);
+                  router.push(href);
                 }}
               >
-                {link}
+                {label}
               </motion.button>
             ))}
             <motion.button
