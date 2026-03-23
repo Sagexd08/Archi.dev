@@ -170,40 +170,24 @@ export default function LineWaves({
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let program: any;
-    let currentMouse = [0.5, 0.5];
-    let targetMouse = [0.5, 0.5];
+    const currentMouse = [0.5, 0.5];
+    const targetMouse = [0.5, 0.5];
 
     function handleMouseMove(e: MouseEvent) {
       const rect = gl.canvas.getBoundingClientRect();
-      targetMouse = [
-        (e.clientX - rect.left) / rect.width,
-        1.0 - (e.clientY - rect.top) / rect.height,
-      ];
+      targetMouse[0] = (e.clientX - rect.left) / rect.width;
+      targetMouse[1] = 1.0 - (e.clientY - rect.top) / rect.height;
     }
 
     function handleMouseLeave() {
-      targetMouse = [0.5, 0.5];
+      targetMouse[0] = 0.5;
+      targetMouse[1] = 0.5;
     }
-
-    function resize() {
-      renderer.setSize(container.offsetWidth, container.offsetHeight);
-      if (program) {
-        program.uniforms.uResolution.value = [
-          gl.canvas.width,
-          gl.canvas.height,
-          gl.canvas.width / gl.canvas.height,
-        ];
-      }
-    }
-    window.addEventListener("resize", resize);
-    resize();
 
     const geometry = new Triangle(gl);
     const rotationRad = (rotation * Math.PI) / 180;
 
-    program = new Program(gl, {
+    const program = new Program(gl, {
       vertex: vertexShader,
       fragment: fragmentShader,
       uniforms: {
@@ -227,6 +211,17 @@ export default function LineWaves({
         uEnableMouse: { value: enableMouseInteraction },
       },
     });
+
+    function resize() {
+      renderer.setSize(container.offsetWidth, container.offsetHeight);
+      program.uniforms.uResolution.value = [
+        gl.canvas.width,
+        gl.canvas.height,
+        gl.canvas.width / gl.canvas.height,
+      ];
+    }
+    window.addEventListener("resize", resize);
+    resize();
 
     const mesh = new Mesh(gl, { geometry, program });
 

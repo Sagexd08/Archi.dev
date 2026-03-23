@@ -1117,7 +1117,6 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
         <>
           <div>
             <SLabel>Table</SLabel>
-            <select style={INPUT} value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)}>
             <select
               style={INPUT}
               value={selectedTable}
@@ -1856,7 +1855,7 @@ export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
       ) : (
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
           <div style={{ width: 240, flexShrink: 0, borderRight: `1px solid ${C.border}`, background: C.bg, overflowY: "auto", paddingTop: 8, paddingBottom: 16 }}>
-            <SidebarGroup title="APIs" icon="⬡" items={groups.apis} selected={selected} onSelect={handleSelectNode} sv={sv} />
+            <SidebarGroup title="APIs" icon="⬡" items={groups.apis} selected={viewMode ? null : resolvedSelected} onSelect={handleSelectNode} sv={sv} />
             <SidebarGroup title="Functions" icon="⚡" items={groups.functions} selected={viewMode ? null : resolvedSelected} onSelect={handleSelectNode} sv={sv} />
             <SidebarGroup title="Databases" icon="◈" items={groups.databases} selected={viewMode ? null : resolvedSelected} onSelect={handleSelectNode} sv={sv} />
             <SidebarGroup title="Queues" icon="⇌" items={groups.queues} selected={viewMode ? null : resolvedSelected} onSelect={handleSelectNode} sv={sv} />

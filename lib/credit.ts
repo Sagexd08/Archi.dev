@@ -7,7 +7,7 @@ const resetDay =
   Number(process.env.FREE_RESET_DAY_OF_MONTH ?? 1) <= 28
     ? Number(process.env.FREE_RESET_DAY_OF_MONTH ?? 1)
     : 1;
-export function serializeBalance<T extends Record<string, any>>(obj: T | null): T | null {
+export function serializeBalance<T extends Record<string, unknown>>(obj: T | null): T | null {
   if (!obj) return null;
   const out = { ...obj } as Record<string, unknown>;
   for (const key of Object.keys(out)) {

@@ -272,16 +272,20 @@ function RotatingGlobe({
     config.bumpMapUrl,
   ]);
 
-  // Configure textures
-  useMemo(() => {
-    if (earthTexture) {
-      earthTexture.colorSpace = THREE.SRGBColorSpace;
-      earthTexture.anisotropy = 16;
-    }
-    if (bumpTexture) {
-      bumpTexture.anisotropy = 8;
-    }
-  }, [earthTexture, bumpTexture]);
+  const earthTextureMaterial = useMemo(() => {
+    const cloned = earthTexture.clone();
+    cloned.colorSpace = THREE.SRGBColorSpace;
+    cloned.anisotropy = 16;
+    cloned.needsUpdate = true;
+    return cloned;
+  }, [earthTexture]);
+
+  const bumpTextureMaterial = useMemo(() => {
+    const cloned = bumpTexture.clone();
+    cloned.anisotropy = 8;
+    cloned.needsUpdate = true;
+    return cloned;
+  }, [bumpTexture]);
 
   // Create geometries
   const geometry = useMemo(() => {
@@ -297,8 +301,8 @@ function RotatingGlobe({
       {/* Main globe mesh with Earth texture */}
       <mesh geometry={geometry}>
         <meshStandardMaterial
-          map={earthTexture}
-          bumpMap={bumpTexture}
+          map={earthTextureMaterial}
+          bumpMap={bumpTextureMaterial}
           bumpScale={config.bumpScale * 0.05}
           roughness={0.7}
           metalness={0.0}
