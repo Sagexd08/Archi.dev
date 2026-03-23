@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import JSZip from "jszip";
-import { Edge } from "@xyflow/react";
+import { Edge, Node } from "@xyflow/react";
 import { GoogleGenAI } from "@google/genai";
 import Groq from "groq-sdk";
 export const runtime = "nodejs";
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash-lite";
 const GROQ_MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+type PlannedFile = { path: string; description: string };
+type ArchitecturePlan = {
+  projectName: string;
+  description: string;
+  files: PlannedFile[];
+};
 class QuotaExceededError extends Error {
   retryAfter: number;
   constructor(retryAfter = 60) {
@@ -188,6 +194,288 @@ interface GenRequestBody {
   techStack?: { frontend?: string; backend?: string; database?: string; deployment?: string };
   metadata?: Record<string, unknown>;
 }
+function stripMarkdownFences(text: string): string {
+  return text.replace(/```[\w]*\n?/g, "").replace(/```/g, "").trim();
+}
+function extractJsonObject(text: string): string | null {
+  const start = text.indexOf("{");
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+    if (ch === "\"") {
+      inString = true;
+      continue;
+    }
+    if (ch === "{") depth++;
+    if (ch === "}") {
+      depth--;
+      if (depth === 0) {
+        return text.slice(start, i + 1);
+      }
+    }
+  }
+  return null;
+}
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function looksLikeFilePath(value: string): boolean {
+  return (
+    /(^|\/)[^/]+\.[a-z0-9]+$/i.test(value) ||
+    /(^|\/)(Dockerfile|README(?:\.md)?|Makefile|Procfile|requirements\.txt|tsconfig\.json|package\.json|\.env(?:\.example)?|\.gitignore)$/i.test(
+      value,
+    )
+  );
+}
+function joinPlanPath(prefix: string, segment: string): string {
+  const cleanPrefix = prefix.replace(/^\/+|\/+$/g, "");
+  const cleanSegment = segment.replace(/^\/+|\/+$/g, "");
+  if (!cleanPrefix) return cleanSegment;
+  if (!cleanSegment) return cleanPrefix;
+  return `${cleanPrefix}/${cleanSegment}`;
+}
+function collectPlanFiles(value: unknown, prefix = ""): PlannedFile[] {
+  if (!value) return [];
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed || !looksLikeFilePath(trimmed)) return [];
+    return [
+      {
+        path: joinPlanPath(prefix, trimmed),
+        description: "Generated file planned from AI output.",
+      },
+    ];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => collectPlanFiles(entry, prefix));
+  }
+  if (!isRecord(value)) return [];
+
+  const directPath =
+    typeof value.path === "string"
+      ? value.path
+      : typeof value.filePath === "string"
+        ? value.filePath
+        : typeof value.filename === "string"
+          ? value.filename
+          : typeof value.name === "string" && looksLikeFilePath(value.name)
+            ? value.name
+            : null;
+  if (directPath) {
+    const description =
+      typeof value.description === "string"
+        ? value.description
+        : typeof value.purpose === "string"
+          ? value.purpose
+          : typeof value.responsibility === "string"
+            ? value.responsibility
+            : "Generated file planned from AI output.";
+    return [{ path: joinPlanPath(prefix, directPath), description }];
+  }
+
+  const branchName =
+    typeof value.name === "string" && !looksLikeFilePath(value.name)
+      ? value.name
+      : typeof value.path === "string" && !looksLikeFilePath(value.path)
+        ? value.path
+        : "";
+  const nextPrefix = branchName ? joinPlanPath(prefix, branchName) : prefix;
+  const nestedKeys = ["files", "children", "items", "entries", "structure", "tree"];
+  for (const key of nestedKeys) {
+    if (key in value) {
+      const collected = collectPlanFiles(value[key], nextPrefix);
+      if (collected.length > 0) return collected;
+    }
+  }
+
+  return Object.entries(value).flatMap(([key, nested]) => {
+    if (key === "description" || key === "purpose" || key === "responsibility") return [];
+    if (looksLikeFilePath(key)) {
+      if (typeof nested === "string") {
+        return [{ path: joinPlanPath(prefix, key), description: nested }];
+      }
+      if (isRecord(nested)) {
+        const description =
+          typeof nested.description === "string"
+            ? nested.description
+            : typeof nested.purpose === "string"
+              ? nested.purpose
+              : "Generated file planned from AI output.";
+        return [{ path: joinPlanPath(prefix, key), description }];
+      }
+      return [{ path: joinPlanPath(prefix, key), description: "Generated file planned from AI output." }];
+    }
+    return collectPlanFiles(nested, joinPlanPath(prefix, key));
+  });
+}
+function ensureRequiredPlanFiles(files: PlannedFile[], language: GenLanguage): PlannedFile[] {
+  const required =
+    language === "python"
+      ? [
+          ["main.py", "FastAPI entry point and application bootstrap."],
+          ["requirements.txt", "Pinned Python dependencies for the generated service."],
+          [".env.example", "Documented environment variables required to run the service."],
+          ["Dockerfile", "Container build definition for deployment."],
+          ["README.md", "Setup and run instructions for the generated service."],
+        ]
+      : [
+          ["src/index.ts", "Express server entry point and runtime bootstrap."],
+          ["package.json", "Project scripts, dependencies, and runtime metadata."],
+          ["tsconfig.json", "TypeScript compiler configuration for the service."],
+          [".env.example", "Documented environment variables required to run the service."],
+          ["Dockerfile", "Container build definition for deployment."],
+          ["README.md", "Setup and run instructions for the generated service."],
+        ];
+  const map = new Map<string, PlannedFile>();
+  for (const file of files) {
+    const path = file.path.replace(/^\/+/, "").trim();
+    if (!path || path.includes("..")) continue;
+    map.set(path, {
+      path,
+      description: file.description?.trim() || "Generated file planned from AI output.",
+    });
+  }
+  for (const [path, description] of required) {
+    if (!map.has(path)) {
+      map.set(path, { path, description });
+    }
+  }
+  return Array.from(map.values());
+}
+function buildFallbackArchitecturePlan(input: {
+  nodes: unknown[];
+  language: GenLanguage;
+}): ArchitecturePlan {
+  const nodeCount = input.nodes.length;
+  const sharedFiles: PlannedFile[] = [
+    {
+      path: ".env.example",
+      description: "Document required environment variables for local development and deployment.",
+    },
+    {
+      path: "Dockerfile",
+      description: "Package the generated backend for deployment.",
+    },
+    {
+      path: "README.md",
+      description: "Explain how to install, run, and extend the generated backend.",
+    },
+  ];
+  const files =
+    input.language === "python"
+      ? [
+          {
+            path: "main.py",
+            description: "FastAPI entry point that wires routes, config, and application startup.",
+          },
+          {
+            path: "app/routes.py",
+            description: "Primary HTTP routes generated from the architecture graph.",
+          },
+          {
+            path: "app/services.py",
+            description: "Business logic layer coordinating the modeled nodes and flows.",
+          },
+          {
+            path: "requirements.txt",
+            description: "Pinned Python dependencies required to run the service.",
+          },
+          ...sharedFiles,
+        ]
+      : [
+          {
+            path: "src/index.ts",
+            description: "Express server entry point that wires middleware, routes, and startup.",
+          },
+          {
+            path: "src/routes.ts",
+            description: "Primary HTTP routes generated from the architecture graph.",
+          },
+          {
+            path: "src/services/runtime.ts",
+            description: "Business logic layer coordinating the modeled nodes and flows.",
+          },
+          {
+            path: "package.json",
+            description: "Project scripts, dependencies, and runtime metadata for the generated backend.",
+          },
+          {
+            path: "tsconfig.json",
+            description: "TypeScript compiler configuration for the generated backend.",
+          },
+          ...sharedFiles,
+        ];
+  return {
+    projectName: "generated-project",
+    description: `Fallback plan generated from ${nodeCount} architecture node${nodeCount === 1 ? "" : "s"} when AI plan formatting was incomplete.`,
+    files: ensureRequiredPlanFiles(files, input.language),
+  };
+}
+function normalizeArchitecturePlan(
+  raw: unknown,
+  input: { nodes: unknown[]; language: GenLanguage },
+): ArchitecturePlan {
+  const projectName =
+    isRecord(raw) && typeof raw.projectName === "string" && raw.projectName.trim()
+      ? raw.projectName.trim()
+      : "generated-project";
+  const description =
+    isRecord(raw) && typeof raw.description === "string"
+      ? raw.description.trim()
+      : "";
+
+  const candidateCollections: unknown[] = [];
+  if (isRecord(raw)) {
+    candidateCollections.push(raw.files);
+    candidateCollections.push(raw.plan);
+    candidateCollections.push(raw.structure);
+    candidateCollections.push(raw.output);
+    candidateCollections.push(raw.project);
+    candidateCollections.push(raw.fileStructure);
+    candidateCollections.push(raw.file_structure);
+    candidateCollections.push(raw.tree);
+    candidateCollections.push(raw.items);
+  }
+  candidateCollections.push(raw);
+
+  for (const candidate of candidateCollections) {
+    const files = ensureRequiredPlanFiles(collectPlanFiles(candidate), input.language);
+    if (files.length > 0) {
+      return { projectName, description, files };
+    }
+  }
+  return buildFallbackArchitecturePlan(input);
+}
+function parseArchitecturePlan(text: string, input: {
+  nodes: unknown[];
+  language: GenLanguage;
+}): ArchitecturePlan {
+  const clean = stripMarkdownFences(text);
+  const attempts = [clean, extractJsonObject(clean)].filter(
+    (candidate): candidate is string => Boolean(candidate && candidate.trim()),
+  );
+  for (const candidate of attempts) {
+    try {
+      return normalizeArchitecturePlan(JSON.parse(candidate), input);
+    } catch {
+      // Try the next candidate before falling back.
+    }
+  }
+  return buildFallbackArchitecturePlan(input);
+}
 export async function POST(req: NextRequest) {
   try {
     const body: GenRequestBody = await req.json();
@@ -262,6 +550,7 @@ export async function POST(req: NextRequest) {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": 'attachment; filename="generated-project.zip"',
+        "X-Gemini-Requests": String(aiCallCount),
         "X-AI-Requests": String(aiCallCount),
         "X-AI-Provider": usedProvider.value,
         "X-AI-Model": providerModel,
@@ -299,7 +588,7 @@ async function planArchitectureAi(input: {
   rotator: KeyRotator;
   usedProvider: { value: "gemini" | "groq" };
   onRequest?: () => void;
-}): Promise<{ projectName: string; description: string; files: { path: string; description: string }[] }> {
+}): Promise<ArchitecturePlan> {
   const langSpec =
     input.language === "python"
       ? `Python 3.12+, FastAPI, pip
@@ -330,16 +619,10 @@ ${JSON.stringify({ nodes: input.nodes, edges: input.edges, techStack: input.tech
   try {
     const text = await callAI(input.rotator, prompt, input.usedProvider, input.onRequest);
     if (!text) throw new Error("Empty response from AI");
-    const clean = text.replace(/```[\w]*\n?/g, "").replace(/```/g, "").trim();
-    const parsed = JSON.parse(clean);
-    if (!parsed.files || !Array.isArray(parsed.files)) {
-      throw new Error("Invalid file structure returned by AI");
-    }
-    return {
-      projectName: parsed.projectName || "generated-project",
-      description: parsed.description || "",
-      files: parsed.files,
-    };
+    return parseArchitecturePlan(text, {
+      nodes: input.nodes,
+      language: input.language,
+    });
   } catch (error) {
     if (error instanceof QuotaExceededError) throw error;
     console.error("PLAN ARCHITECTURE ERROR:", error);

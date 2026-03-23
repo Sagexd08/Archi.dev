@@ -452,7 +452,7 @@ export default function ScrollSequence() {
   const Visuals = [StepOneVisual, StepTwoVisual, StepThreeVisual];
 
   return (
-    <section id="solutions" className="bg-black px-6 py-24 md:px-16 md:py-32 xl:px-24 relative">
+    <section id="solutions" className="relative bg-black px-6 py-20 md:px-16 md:py-24 xl:px-24">
       <div className="section-top-line" />
       <div className="mx-auto max-w-7xl">
         <motion.div
@@ -468,7 +468,7 @@ export default function ScrollSequence() {
               Workflow
             </p>
           </div>
-          <h2 className="text-gradient text-[clamp(2.6rem,5vw,5rem)] font-medium leading-[0.92] tracking-tighter">
+          <h2 className="text-gradient text-[clamp(2.4rem,4.6vw,4.4rem)] font-medium leading-[0.94] tracking-tighter">
             Three steps.<br />Zero boilerplate.
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/45">
@@ -482,17 +482,17 @@ export default function ScrollSequence() {
           ))}
         </div>
 
-        <div ref={containerRef} className="relative hidden h-[320vh] lg:block">
-          <div className="sticky top-0 flex h-screen items-center gap-12 overflow-hidden">
+        <div ref={containerRef} className="relative hidden h-[240vh] lg:block">
+          <div className="sticky top-6 flex h-[calc(100vh-3rem)] items-center gap-10 overflow-hidden">
             <motion.div
               className="pointer-events-none absolute left-[22%] top-1/2 h-[36rem] w-[36rem] -translate-y-1/2 rounded-full blur-[140px]"
               style={{ backgroundColor: activeGlow, opacity: 0.15 }}
             />
 
-            <div className="relative z-10 flex w-[34rem] shrink-0 flex-col justify-center">
+            <div className="relative z-10 flex w-[30rem] shrink-0 flex-col justify-center">
               <div className="mb-8 flex gap-3">
                 {steps.map((step, index) => (
-                  <div key={step.step} className="h-1.5 w-20 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div key={step.step} className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.06]">
                     <motion.div
                       className="h-full origin-left rounded-full"
                       style={{
@@ -506,7 +506,7 @@ export default function ScrollSequence() {
                 ))}
               </div>
 
-              <div className="relative h-[29rem]">
+              <div className="relative h-[25rem]">
                 {steps.map((step, index) => (
                   <motion.div
                     key={step.step}
@@ -525,10 +525,10 @@ export default function ScrollSequence() {
                     <p className="text-[12px] uppercase tracking-[0.24em]" style={{ color: step.color }}>
                       {step.eyebrow}
                     </p>
-                    <h3 className="mt-4 text-[clamp(2.7rem,4.5vw,4.4rem)] font-semibold leading-[1.02] tracking-tighter text-white">
+                    <h3 className="mt-4 text-[clamp(2.2rem,3.5vw,3.6rem)] font-semibold leading-[1.04] tracking-tighter text-white">
                       {step.title}
                     </h3>
-                    <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/48">
+                    <p className="mt-5 max-w-xl text-base leading-relaxed text-white/48">
                       {step.description}
                     </p>
                     <div className="mt-7 flex flex-wrap gap-2.5">
@@ -541,7 +541,7 @@ export default function ScrollSequence() {
                         </span>
                       ))}
                     </div>
-                    <div className="mt-8 grid max-w-md grid-cols-3 gap-3">
+                    <div className="mt-7 grid max-w-md grid-cols-3 gap-3">
                       {step.metrics.map((metric) => (
                         <div
                           key={metric}
@@ -562,7 +562,7 @@ export default function ScrollSequence() {
               style={{ rotate: panelTilt, y: panelLift }}
             >
               <motion.div
-                className="relative aspect-[1.18/1] overflow-hidden rounded-[2.25rem] border border-white/[0.08] bg-white/[0.03] shadow-[0_28px_120px_rgba(0,0,0,0.38)]"
+              className="relative aspect-[1.12/1] overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.03] shadow-[0_28px_120px_rgba(0,0,0,0.38)]"
                 style={{
                   boxShadow: useTransform(
                     activeGlow,

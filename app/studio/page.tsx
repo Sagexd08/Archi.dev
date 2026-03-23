@@ -273,6 +273,10 @@ export default function Home() {
             userMessage =
               "Gemini free-tier quota exhausted. Retrying automatically in {SECS}s, " +
               "or upgrade at ai.google.dev for unlimited usage.";
+          } else if (typeof body.detail === "string" && body.detail.trim()) {
+            userMessage = body.detail;
+          } else if (typeof body.message === "string" && body.message.trim()) {
+            userMessage = body.message;
           } else if (body.error) {
             userMessage = body.error;
           }
@@ -297,7 +301,11 @@ export default function Home() {
         }
         return;
       }
-      const geminiRequests = Number(res.headers.get("X-Gemini-Requests") ?? 0);
+      const geminiRequests = Number(
+        res.headers.get("X-Gemini-Requests") ??
+          res.headers.get("X-AI-Requests") ??
+          0,
+      );
       const generatedFiles = Number(res.headers.get("X-Generated-Files") ?? 0);
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);

@@ -336,24 +336,28 @@ describe("POST /api/gen", () => {
     expect(body.retryAfter).toBeGreaterThan(0);
   });
 
-  it("returns 500 when AI returns malformed plan JSON", async () => {
+  it("falls back to a safe plan when AI returns malformed plan JSON", async () => {
     mockGenerateContent.mockResolvedValueOnce({ text: "not json at all" });
+    mockGenerateContent.mockResolvedValue({ text: "// generated fallback code" });
 
     const res = await POST(makeRequest({ nodes: VALID_NODES, edges: VALID_EDGES }));
-    expect(res.status).toBe(500);
-    const body = await res.json();
-    expect(body.error).toBe("Internal server error");
+    expect(res.status).toBe(200);
+    const zip = await JSZip.loadAsync(await res.arrayBuffer());
+    expect(Object.keys(zip.files)).toContain("src/index.ts");
+    expect(Object.keys(zip.files)).toContain("package.json");
   });
 
-  it("returns 500 when AI returns plan with no files array", async () => {
+  it("falls back to required files when AI returns a plan with no files array", async () => {
     mockGenerateContent.mockResolvedValueOnce({
       text: JSON.stringify({ projectName: "x", description: "y" }),
     });
+    mockGenerateContent.mockResolvedValue({ text: "// generated fallback code" });
 
     const res = await POST(makeRequest({ nodes: VALID_NODES, edges: VALID_EDGES }));
-    expect(res.status).toBe(500);
-    const body = await res.json();
-    expect(body.error).toBe("Internal server error");
+    expect(res.status).toBe(200);
+    const zip = await JSZip.loadAsync(await res.arrayBuffer());
+    expect(Object.keys(zip.files)).toContain("src/index.ts");
+    expect(Object.keys(zip.files)).toContain("README.md");
   });
 
   it("returns 500 when genCodeAi rejects with a non-quota error", async () => {
@@ -385,6 +389,35 @@ describe("POST /api/gen", () => {
 
     const zip = await JSZip.loadAsync(await res.arrayBuffer());
     expect(Object.keys(zip.files)).toContain("index.js");
+  });
+
+  it("normalizes alternate AI file structures into a valid plan", async () => {
+    mockGenerateContent
+      .mockResolvedValueOnce({
+        text: JSON.stringify({
+          projectName: "normalized",
+          structure: {
+            files: [
+              {
+                name: "src",
+                children: [
+                  { path: "index.ts", description: "Entrypoint" },
+                  { path: "routes.ts", description: "Routes" },
+                ],
+              },
+              { path: "package.json", description: "Manifest" },
+            ],
+          },
+        }),
+      })
+      .mockResolvedValue({ text: "// code" });
+
+    const res = await POST(makeRequest({ nodes: VALID_NODES, edges: VALID_EDGES }));
+    expect(res.status).toBe(200);
+
+    const zip = await JSZip.loadAsync(await res.arrayBuffer());
+    expect(Object.keys(zip.files)).toContain("src/index.ts");
+    expect(Object.keys(zip.files)).toContain("package.json");
   });
 
   it("uses the correct AI model (gemini-2.5-flash-lite)", async () => {
@@ -454,5 +487,15 @@ describe("POST /api/gen", () => {
     expect(res.status).toBe(200);
     // Both keys healthy → "2/2"
     expect(res.headers.get("X-Gemini-Keys")).toBe("2/2");
+  });
+
+  it("returns the request count header expected by the studio UI", async () => {
+    mockGenerateContent
+      .mockResolvedValueOnce(PLAN_RESPONSE)
+      .mockResolvedValue({ text: "// code" });
+
+    const res = await POST(makeRequest({ nodes: VALID_NODES, edges: VALID_EDGES }));
+    expect(res.status).toBe(200);
+    expect(Number(res.headers.get("X-Gemini-Requests"))).toBeGreaterThan(0);
   });
 });
