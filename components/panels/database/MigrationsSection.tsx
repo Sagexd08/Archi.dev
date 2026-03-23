@@ -1,15 +1,12 @@
 "use client";
-
 import React, { useState } from "react";
 import { DatabaseBlock, DatabaseMigration } from "@/lib/schema/node";
-
 type MigrationsSectionProps = {
   database: DatabaseBlock;
   onChange: (updates: Partial<DatabaseBlock>) => void;
   inputStyle: React.CSSProperties;
   sectionStyle: React.CSSProperties;
 };
-
 export function MigrationsSection({
   database,
   onChange,
@@ -18,17 +15,13 @@ export function MigrationsSection({
 }: MigrationsSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [expandedMigrations, setExpandedMigrations] = useState<Record<number, boolean>>({});
-
   const migrations = database.migrations || [];
-
   const updateMigrations = (next: DatabaseMigration[]) => {
     onChange({ migrations: next });
   };
-
   const exportMigrationsAsFiles = () => {
     if (typeof window === "undefined") return;
     if (migrations.length === 0) return;
-
     migrations.forEach((migration) => {
       const version = migration.version || "v_unknown";
       const upFile = new Blob([migration.upScript || "-- up script"], {
@@ -39,13 +32,11 @@ export function MigrationsSection({
       });
       const upUrl = URL.createObjectURL(upFile);
       const downUrl = URL.createObjectURL(downFile);
-
       const upAnchor = document.createElement("a");
       upAnchor.href = upUrl;
       upAnchor.download = `${version}__up.sql`;
       upAnchor.click();
       URL.revokeObjectURL(upUrl);
-
       const downAnchor = document.createElement("a");
       downAnchor.href = downUrl;
       downAnchor.download = `${version}__down.sql`;
@@ -53,7 +44,6 @@ export function MigrationsSection({
       URL.revokeObjectURL(downUrl);
     });
   };
-
   return (
     <div style={sectionStyle}>
       <button
@@ -77,7 +67,6 @@ export function MigrationsSection({
         <span>{isExpanded ? "▾" : "▸"}</span>
         <span>Schema Migrations</span>
       </button>
-
       {isExpanded && (
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ display: "flex", gap: 6 }}>
@@ -127,13 +116,11 @@ export function MigrationsSection({
               Export Migrations
             </button>
           </div>
-
           {migrations.length === 0 && (
             <div style={{ fontSize: 11, color: "var(--muted)" }}>
               No migrations yet.
             </div>
           )}
-
           {migrations.map((migration, migrationIndex) => {
             const open = expandedMigrations[migrationIndex] ?? false;
             return (
@@ -220,7 +207,6 @@ export function MigrationsSection({
                     x
                   </button>
                 </div>
-
                 {open && (
                   <div
                     style={{
@@ -302,4 +288,3 @@ export function MigrationsSection({
     </div>
   );
 }
-

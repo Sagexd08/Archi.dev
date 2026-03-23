@@ -3,9 +3,7 @@ import { z } from "zod";
 import { ProcessNodeSchema } from "@/lib/schema/node";
 import { EdgeSchema } from "@/lib/schema/graph";
 import { analyzeDesignSystem } from "@/lib/runtime/architecture";
-
 export const runtime = "nodejs";
-
 const AgentRequestSchema = z.object({
   prompt: z.string().trim().min(1),
   currentGraph: z.object({
@@ -22,9 +20,7 @@ const AgentRequestSchema = z.object({
     .default({}),
   includePatch: z.boolean().default(false),
 });
-
 type AgentRequest = z.infer<typeof AgentRequestSchema>;
-
 function summarizeGraphs(allGraphs: AgentRequest["allGraphs"]) {
   const tabs = Object.entries(allGraphs).map(([tab, graph]) => ({
     tab,
@@ -36,14 +32,12 @@ function summarizeGraphs(allGraphs: AgentRequest["allGraphs"]) {
       kind: (node.data as { kind?: string }).kind || node.type,
     })),
   }));
-
   const designReport = analyzeDesignSystem({
     api: allGraphs.api,
     database: allGraphs.database,
     functions: allGraphs.functions,
     agent: allGraphs.agent,
   });
-
   return {
     tabs,
     runtimeIssues: designReport.runtimeModel.issues.slice(0, 8),
@@ -52,10 +46,8 @@ function summarizeGraphs(allGraphs: AgentRequest["allGraphs"]) {
     deploy: designReport.deploy,
   };
 }
-
 function generateExecutionPlan(input: AgentRequest) {
   const architectureSummary = summarizeGraphs(input.allGraphs);
-
   const plan = {
     generatedAt: new Date().toISOString(),
     prompt: input.prompt,
@@ -78,23 +70,15 @@ function generateExecutionPlan(input: AgentRequest) {
       "Document agent decision points and policies",
     ],
   };
-
   return plan;
 }
-
 function generateAgentPatch(input: AgentRequest) {
   const prompt = input.prompt.toLowerCase();
   const nodes = input.currentGraph.nodes;
-
   const existingAgentNodes = nodes.filter((node) => (node.data as { kind?: string }).kind === "process");
   const existingServiceBoundaries = nodes.filter((node) => (node.data as { kind?: string }).kind === "service_boundary");
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const patchNodes: any[] = [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const patchEdges: any[] = [];
-
-  // Simple heuristic: if no agent nodes exist, create a starter orchestrator
   if (existingAgentNodes.length === 0) {
     const orchestratorId = `agent_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const orchestratorNode = {
@@ -121,8 +105,6 @@ function generateAgentPatch(input: AgentRequest) {
     };
     patchNodes.push(orchestratorNode);
   }
-
-  // If no service boundaries exist and prompt suggests microservices, create one
   if (existingServiceBoundaries.length === 0 && (prompt.includes("microservice") || prompt.includes("service"))) {
     const serviceId = `svc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const serviceNode = {
@@ -149,16 +131,12 @@ function generateAgentPatch(input: AgentRequest) {
     };
     patchNodes.push(serviceNode);
   }
-
   return {
     summary: `Agent expansion: added ${patchNodes.length} agent-oriented node${patchNodes.length !== 1 ? "s" : ""} to the graph.`,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     nodes: patchNodes as any[],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     edges: patchEdges as any[],
   };
 }
-
 export async function POST(req: NextRequest) {
   let body: unknown;
   try {
@@ -166,16 +144,13 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
-
   const parsed = AgentRequestSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid_payload", details: parsed.error.flatten() }, { status: 400 });
   }
-
   const input = parsed.data;
   const plan = generateExecutionPlan(input);
   const patch = input.includePatch ? generateAgentPatch(input) : null;
-
   return NextResponse.json({
     plan,
     patch,

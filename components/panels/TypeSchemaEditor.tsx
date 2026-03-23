@@ -1,8 +1,6 @@
 "use client";
-
 import React, { useState } from "react";
 import { NestedProperty } from "@/lib/schema/node";
-
 const inputStyle: React.CSSProperties = {
   width: "100%",
   background: "var(--background)",
@@ -13,19 +11,16 @@ const inputStyle: React.CSSProperties = {
   color: "var(--foreground)",
   outline: "none",
 };
-
 const selectStyle: React.CSSProperties = {
   ...inputStyle,
   cursor: "pointer",
 };
-
 const labelStyle: React.CSSProperties = {
   fontSize: 9,
   color: "var(--muted)",
   textTransform: "uppercase",
   marginBottom: 2,
 };
-
 interface TypeSchemaEditorProps {
   field: {
     name: string;
@@ -44,7 +39,6 @@ interface TypeSchemaEditorProps {
   onRemove?: () => void;
   depth?: number;
 }
-
 export function TypeSchemaEditor({
   field,
   onChange,
@@ -53,9 +47,7 @@ export function TypeSchemaEditor({
 }: TypeSchemaEditorProps) {
   const [expanded, setExpanded] = useState(depth === 0);
   const [newPropName, setNewPropName] = useState("");
-
   const bgColor = depth % 2 === 0 ? "var(--background)" : "var(--floating)";
-
   const addProperty = () => {
     if (!newPropName.trim()) return;
     const newProp: NestedProperty = {
@@ -69,22 +61,18 @@ export function TypeSchemaEditor({
     });
     setNewPropName("");
   };
-
   const updateProperty = (index: number, updated: NestedProperty) => {
     const props = [...(field.properties || [])];
     props[index] = updated;
     onChange({ ...field, properties: props });
   };
-
   const removeProperty = (index: number) => {
     const props = (field.properties || []).filter((_, i) => i !== index);
     onChange({ ...field, properties: props });
   };
-
   const updateItems = (items: NestedProperty) => {
     onChange({ ...field, items });
   };
-
   return (
     <div
       style={{
@@ -95,7 +83,6 @@ export function TypeSchemaEditor({
         marginBottom: 4,
       }}
     >
-      {/* Header Row */}
       <div
         style={{
           display: "flex",
@@ -119,8 +106,6 @@ export function TypeSchemaEditor({
             {expanded ? "▼" : "▶"}
           </button>
         )}
-
-        {/* Field Name */}
         <input
           type="text"
           value={field.name}
@@ -128,8 +113,6 @@ export function TypeSchemaEditor({
           placeholder="field name"
           style={{ ...inputStyle, flex: 1 }}
         />
-
-        {/* Type Selector */}
         <select
           value={field.type}
           onChange={(e) =>
@@ -152,8 +135,6 @@ export function TypeSchemaEditor({
           <option value="array">array</option>
           <option value="any">any</option>
         </select>
-
-        {/* Required Toggle */}
         {field.required !== undefined && (
           <label
             style={{
@@ -176,8 +157,6 @@ export function TypeSchemaEditor({
             req
           </label>
         )}
-
-        {/* Remove Button */}
         {onRemove && (
           <button
             onClick={onRemove}
@@ -193,11 +172,8 @@ export function TypeSchemaEditor({
           </button>
         )}
       </div>
-
-      {/* Expanded Content */}
       {expanded && (
         <div style={{ marginLeft: 12, marginTop: 8 }}>
-          {/* String Options */}
           {field.type === "string" && (
             <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
               <div style={{ flex: 1 }}>
@@ -257,8 +233,6 @@ export function TypeSchemaEditor({
               </div>
             </div>
           )}
-
-          {/* Number Options */}
           {field.type === "number" && (
             <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
               <div style={{ flex: 1 }}>
@@ -295,8 +269,6 @@ export function TypeSchemaEditor({
               </div>
             </div>
           )}
-
-          {/* Object Properties */}
           {field.type === "object" && (
             <div>
               <div style={{ ...labelStyle, marginBottom: 6 }}>Properties</div>
@@ -335,8 +307,6 @@ export function TypeSchemaEditor({
               </div>
             </div>
           )}
-
-          {/* Array Items */}
           {field.type === "array" && field.items && (
             <div>
               <div style={{ ...labelStyle, marginBottom: 6 }}>
@@ -349,8 +319,6 @@ export function TypeSchemaEditor({
               />
             </div>
           )}
-
-          {/* Description */}
           <div style={{ marginTop: 6 }}>
             <div style={labelStyle}>Description</div>
             <input

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { useStore } from "@/store/useStore";
 import type {
@@ -11,11 +10,6 @@ import type {
   NodeData,
 } from "@/lib/schema/node";
 import type { Node as RFNode } from "@xyflow/react";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Style tokens (matches GenCodeModal palette)
-// ─────────────────────────────────────────────────────────────────────────────
-
 const C = {
   panel:   "#151b24",
   float:   "#1a2230",
@@ -28,24 +22,15 @@ const C = {
   red:     "#ef4444",
   input:   "#0f151e",
 };
-
 const FIELD_TYPES: DatabaseFieldType[] = [
   "string", "number", "date", "text", "int", "bigint",
   "float", "decimal", "boolean", "datetime", "json", "uuid",
 ];
-
 const RELATION_TYPES: DatabaseRelationType[] = [
   "one_to_one", "one_to_many", "many_to_many",
 ];
-
 const ON_DELETE_OPTIONS = ["cascade", "restrict", "set_null", "no_action"] as const;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
 const mkId = () => Math.random().toString(36).slice(2);
-
 const defaultPkField = (): DatabaseTableField => ({
   id: mkId(),
   name: "id",
@@ -53,30 +38,17 @@ const defaultPkField = (): DatabaseTableField => ({
   isPrimaryKey: true,
   nullable: false,
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Props
-// ─────────────────────────────────────────────────────────────────────────────
-
 export interface ApiTableModalProps {
   nodeId: string;
   onClose: () => void;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Modal
-// ─────────────────────────────────────────────────────────────────────────────
-
 export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
   const updateNodeData = useStore((s) => s.updateNodeData);
   const pushTablesToDb = useStore((s) => s.pushTablesToDb);
   const graphs = useStore((s) => s.graphs);
-
-  // Read initial data from the node
   const apiNodes = graphs.api.nodes;
   const thisNode = apiNodes.find((n) => n.id === nodeId);
   const nodeData = thisNode?.data as (NodeData & { kind: "api_binding" }) | undefined;
-
   const [tables, setTables] = useState<DatabaseTable[]>(() =>
     (nodeData?.kind === "api_binding" ? nodeData.tables ?? [] : []),
   );
@@ -88,8 +60,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
   );
   const [pushDropdownOpen, setPushDropdownOpen] = useState(false);
   const pushBtnRef = useRef<HTMLButtonElement>(null);
-
-  // Database nodes for the "Push to DB" dropdown
   const dbNodes = graphs.database.nodes as RFNode[];
   const dbNodeOptions = dbNodes
     .map((n) => {
@@ -98,17 +68,12 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
       return { id: n.id, label: (d as { label: string }).label || n.id };
     })
     .filter(Boolean) as { id: string; label: string }[];
-
   const selectedTable = tables.find((t) => t.id === selectedTableId) ?? null;
-
-  // Close on Escape
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
-
-  // Close push dropdown on outside click
   useEffect(() => {
     if (!pushDropdownOpen) return;
     const h = (e: MouseEvent) => {
@@ -119,9 +84,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, [pushDropdownOpen]);
-
-  // ── Table list actions ────────────────────────────────────────────────────
-
   const addTable = () => {
     const id = mkId();
     const newTable: DatabaseTable = {
@@ -132,7 +94,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
     setTables((prev) => [...prev, newTable]);
     setSelectedTableId(id);
   };
-
   const removeTable = (id: string) => {
     setTables((prev) => prev.filter((t) => t.id !== id));
     setSelectedTableId((prev) => {
@@ -140,18 +101,13 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
       const remaining = tables.filter((t) => t.id !== id);
       return remaining[0]?.id ?? null;
     });
-    // Remove any relationships referencing this table
     setRelationships((prev) =>
       prev.filter((r) => r.fromTableId !== id && r.toTableId !== id),
     );
   };
-
   const updateTableName = (id: string, name: string) => {
     setTables((prev) => prev.map((t) => (t.id === id ? { ...t, name } : t)));
   };
-
-  // ── Column actions ────────────────────────────────────────────────────────
-
   const addField = (tableId: string) => {
     const field: DatabaseTableField = {
       id: mkId(),
@@ -165,7 +121,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
       ),
     );
   };
-
   const updateField = (
     tableId: string,
     fieldId: string,
@@ -183,7 +138,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
       }),
     );
   };
-
   const removeField = (tableId: string, fieldId: string) => {
     setTables((prev) =>
       prev.map((t) => {
@@ -192,9 +146,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
       }),
     );
   };
-
-  // ── Relation actions ──────────────────────────────────────────────────────
-
   const addRelation = () => {
     if (tables.length < 2) return;
     const rel: DatabaseRelationship = {
@@ -206,7 +157,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
     };
     setRelationships((prev) => [...prev, rel]);
   };
-
   const updateRelation = (
     relId: string,
     patch: Partial<DatabaseRelationship>,
@@ -215,13 +165,9 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
       prev.map((r) => (r.id === relId ? { ...r, ...patch } : r)),
     );
   };
-
   const removeRelation = (relId: string) => {
     setRelationships((prev) => prev.filter((r) => r.id !== relId));
   };
-
-  // ── Footer actions ────────────────────────────────────────────────────────
-
   const handleSave = () => {
     updateNodeData(nodeId, {
       tables,
@@ -229,17 +175,11 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
     } as Partial<NodeData>);
     onClose();
   };
-
   const handlePushToDb = (dbNodeId: string) => {
     setPushDropdownOpen(false);
     pushTablesToDb(dbNodeId, tables, relationships);
     updateNodeData(nodeId, { linkedDbNodeId: dbNodeId } as Partial<NodeData>);
   };
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Render
-  // ─────────────────────────────────────────────────────────────────────────
-
   return (
     <div
       onClick={onClose}
@@ -269,7 +209,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
           boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
         }}
       >
-        {/* ── Header ──────────────────────────────────────────────────── */}
         <div
           style={{
             display: "flex",
@@ -298,8 +237,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
             ✕
           </button>
         </div>
-
-        {/* ── Body ────────────────────────────────────────────────────── */}
         <div
           style={{
             flex: 1,
@@ -308,7 +245,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
             minHeight: 0,
           }}
         >
-          {/* LEFT: table list */}
           <div
             style={{
               width: 200,
@@ -406,8 +342,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
               </button>
             </div>
           </div>
-
-          {/* CENTER: column editor */}
           <div
             style={{
               flex: 1,
@@ -419,7 +353,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
           >
             {selectedTable ? (
               <>
-                {/* Table name header */}
                 <div
                   style={{
                     padding: "10px 16px",
@@ -452,10 +385,7 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
                     }}
                   />
                 </div>
-
-                {/* Column rows */}
                 <div style={{ flex: 1, overflowY: "auto", padding: "10px 16px" }}>
-                  {/* Column header row */}
                   <div
                     style={{
                       display: "grid",
@@ -481,7 +411,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
                       </span>
                     ))}
                   </div>
-
                   {selectedTable.fields.map((field) => (
                     <FieldRow
                       key={field.id}
@@ -496,7 +425,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
                       }
                     />
                   ))}
-
                   <button
                     type="button"
                     onClick={() => addField(selectedTable.id ?? "")}
@@ -514,8 +442,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
                   >
                     + Add Column
                   </button>
-
-                  {/* Relations section */}
                   <div
                     style={{
                       marginTop: 20,
@@ -560,7 +486,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
                         + Add
                       </button>
                     </div>
-
                     {relationships.length === 0 ? (
                       <span style={{ fontSize: 11, color: C.muted }}>
                         No relationships defined. Add at least 2 tables to create one.
@@ -597,8 +522,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
             )}
           </div>
         </div>
-
-        {/* ── Footer ──────────────────────────────────────────────────── */}
         <div
           style={{
             display: "flex",
@@ -626,8 +549,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
           >
             Cancel
           </button>
-
-          {/* Push to DB button + dropdown */}
           <div style={{ position: "relative" }}>
             <button
               ref={pushBtnRef}
@@ -698,7 +619,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
               </div>
             )}
           </div>
-
           <button
             type="button"
             onClick={handleSave}
@@ -720,11 +640,6 @@ export function ApiTableModal({ nodeId, onClose }: ApiTableModalProps) {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// FieldRow sub-component
-// ─────────────────────────────────────────────────────────────────────────────
-
 interface FieldRowProps {
   field: DatabaseTableField;
   allTables: DatabaseTable[];
@@ -732,12 +647,9 @@ interface FieldRowProps {
   onChange: (patch: Partial<DatabaseTableField>) => void;
   onRemove: () => void;
 }
-
 function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
   const [showFkPicker, setShowFkPicker] = useState(Boolean(field.isForeignKey));
-
-  const otherTables = allTables.filter((t) => true); // all tables available as FK target
-
+  const otherTables = allTables.filter((t) => true);
   const inputStyle: React.CSSProperties = {
     background: C.input,
     border: `1px solid ${C.border}`,
@@ -748,7 +660,6 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
     width: "100%",
     outline: "none",
   };
-
   const checkStyle = (active: boolean): React.CSSProperties => ({
     width: 16,
     height: 16,
@@ -762,7 +673,6 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
     flexShrink: 0,
     margin: "0 auto",
   });
-
   return (
     <div style={{ marginBottom: showFkPicker ? 8 : 4 }}>
       <div
@@ -773,15 +683,12 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
           alignItems: "center",
         }}
       >
-        {/* Name */}
         <input
           value={field.name}
           onChange={(e) => onChange({ name: e.target.value })}
           style={inputStyle}
           placeholder="field_name"
         />
-
-        {/* Type */}
         <select
           value={field.type}
           onChange={(e) => onChange({ type: e.target.value as DatabaseFieldType })}
@@ -793,8 +700,6 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
             </option>
           ))}
         </select>
-
-        {/* PK */}
         <div
           style={checkStyle(Boolean(field.isPrimaryKey))}
           onClick={() => onChange({ isPrimaryKey: !field.isPrimaryKey })}
@@ -804,8 +709,6 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
             <span style={{ fontSize: 9, color: C.primary }}>✓</span>
           )}
         </div>
-
-        {/* FK */}
         <div
           style={checkStyle(Boolean(field.isForeignKey))}
           onClick={() => {
@@ -819,8 +722,6 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
             <span style={{ fontSize: 9, color: C.primary }}>✓</span>
           )}
         </div>
-
-        {/* Nullable */}
         <div
           style={checkStyle(Boolean(field.nullable))}
           onClick={() => onChange({ nullable: !field.nullable })}
@@ -830,8 +731,6 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
             <span style={{ fontSize: 9, color: C.primary }}>✓</span>
           )}
         </div>
-
-        {/* Unique */}
         <div
           style={checkStyle(Boolean(field.unique))}
           onClick={() => onChange({ unique: !field.unique })}
@@ -841,16 +740,12 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
             <span style={{ fontSize: 9, color: C.primary }}>✓</span>
           )}
         </div>
-
-        {/* Default */}
         <input
           value={field.defaultValue ?? ""}
           onChange={(e) => onChange({ defaultValue: e.target.value || undefined })}
           style={inputStyle}
           placeholder="default"
         />
-
-        {/* Remove */}
         <button
           type="button"
           onClick={onRemove}
@@ -867,8 +762,6 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
           ✕
         </button>
       </div>
-
-      {/* FK reference picker */}
       {showFkPicker && field.isForeignKey && (
         <div
           style={{
@@ -938,18 +831,12 @@ function FieldRow({ field, allTables, onChange, onRemove }: FieldRowProps) {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RelationRow sub-component
-// ─────────────────────────────────────────────────────────────────────────────
-
 interface RelationRowProps {
   relation: DatabaseRelationship;
   tables: DatabaseTable[];
   onChange: (patch: Partial<DatabaseRelationship>) => void;
   onRemove: () => void;
 }
-
 function RelationRow({ relation, tables, onChange, onRemove }: RelationRowProps) {
   const selectStyle: React.CSSProperties = {
     background: C.input,
@@ -961,7 +848,6 @@ function RelationRow({ relation, tables, onChange, onRemove }: RelationRowProps)
     outline: "none",
     cursor: "pointer",
   };
-
   return (
     <div
       style={{
@@ -983,7 +869,6 @@ function RelationRow({ relation, tables, onChange, onRemove }: RelationRowProps)
           </option>
         ))}
       </select>
-
       <select
         value={relation.type}
         onChange={(e) => onChange({ type: e.target.value as DatabaseRelationType })}
@@ -995,7 +880,6 @@ function RelationRow({ relation, tables, onChange, onRemove }: RelationRowProps)
           </option>
         ))}
       </select>
-
       <select
         value={relation.toTableId}
         onChange={(e) => onChange({ toTableId: e.target.value })}
@@ -1007,7 +891,6 @@ function RelationRow({ relation, tables, onChange, onRemove }: RelationRowProps)
           </option>
         ))}
       </select>
-
       <span style={{ fontSize: 10, color: C.muted }}>onDelete:</span>
       <select
         value={relation.onDelete}
@@ -1024,7 +907,6 @@ function RelationRow({ relation, tables, onChange, onRemove }: RelationRowProps)
           </option>
         ))}
       </select>
-
       <button
         type="button"
         onClick={onRemove}

@@ -1,15 +1,12 @@
 "use client";
-
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-
 function LoginContent() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/studio";
   const error = searchParams.get("error") ?? undefined;
   const [localError, setLocalError] = useState<string | null>(null);
-
   const handleLogin = async () => {
     const supabaseClient = getSupabaseBrowserClient();
     if (!supabaseClient) {
@@ -25,14 +22,12 @@ function LoginContent() {
       setLocalError(authError.message);
     }
   };
-
   const errorText = useMemo(() => {
     if (localError) return localError;
     if (!error) return null;
     if (error === "session_expired") return "Your session expired. Please sign in again.";
     return "Sign-in required.";
   }, [error, localError]);
-
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10 text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(121,183,255,0.2),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(58,214,159,0.12),transparent_28%)]" />
@@ -59,7 +54,6 @@ function LoginContent() {
             </div>
           </div>
         </section>
-
         <section className="flex items-center px-8 py-10 lg:px-10 lg:py-14">
           <div className="w-full rounded-[24px] border border-white/10 bg-[rgba(255,255,255,0.04)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
             <div className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -75,9 +69,6 @@ function LoginContent() {
             >
               Sign in with Google
             </button>
-            <div className="mt-4 text-xs leading-6 text-slate-400">
-              Callback: <span className="text-slate-200">{callbackUrl}</span>
-            </div>
             {errorText && (
               <div className="mt-5 rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
                 {errorText}
@@ -89,7 +80,6 @@ function LoginContent() {
     </main>
   );
 }
-
 export default function LoginPage() {
   return (
     <Suspense

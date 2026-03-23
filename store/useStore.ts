@@ -31,7 +31,6 @@ import {
   type WorkspaceTab as TemplateWorkspaceTab,
 } from "@/lib/studio/graph-templates";
 import type { ValidationIssue } from "@/lib/validate-architecture";
-
 export type NodeKind =
   | "process"
   | "database"
@@ -56,13 +55,9 @@ export type NodeKind =
   | "infra_hpc"
   | "function_entry"
   | "api_endpoint";
-
 type GraphPreset = "empty" | "hello_world_api";
-
 type WorkspaceTab = TemplateWorkspaceTab;
-
 type GraphState = TemplateGraphState;
-
 type RFState = {
   activeTab: WorkspaceTab;
   graphs: Record<WorkspaceTab, GraphState>;
@@ -111,14 +106,11 @@ type RFState = {
     tables: DatabaseTable[],
     relationships: DatabaseRelationship[],
   ) => void;
-  /** Node to select + pan-to on the canvas (set by clicking an error in GenCodeModal) */
   focusNodeId: string | null;
   setFocusNodeId: (id: string | null) => void;
-  /** Live validation issues — synced from GenCodeModal so PropertyInspector can show them */
   validationIssues: ValidationIssue[];
   setValidationIssues: (issues: ValidationIssue[]) => void;
 };
-
 const cloneGraph = (graph: GraphState): GraphState => ({
   nodes: graph.nodes.map((node) => ({
     ...node,
@@ -127,12 +119,9 @@ const cloneGraph = (graph: GraphState): GraphState => ({
   })) as Node[],
   edges: graph.edges.map((edge) => ({ ...edge })),
 });
-
 const buildPresetGraphs = (preset: GraphPreset): Record<WorkspaceTab, GraphState> =>
   buildWorkspaceTemplateGraphs(preset === "empty" ? "blank" : "hello_world_api");
-
 const initialGraphs: Record<WorkspaceTab, GraphState> = buildPresetGraphs("hello_world_api");
-
 export const useStore = create<RFState>((set, get) => {
   const updateActiveGraph = (next: Partial<GraphState>) => {
     set((state) => {
@@ -149,7 +138,6 @@ export const useStore = create<RFState>((set, get) => {
       };
     });
   };
-
   return {
     activeTab: "api",
     graphs: initialGraphs,
@@ -158,7 +146,6 @@ export const useStore = create<RFState>((set, get) => {
     apiTableModalNodeId: null,
     focusNodeId: null,
     validationIssues: [],
-
     setActiveTab: (tab: WorkspaceTab) => {
       set((state) => {
         if (state.activeTab === tab) return {};
@@ -174,19 +161,15 @@ export const useStore = create<RFState>((set, get) => {
         };
       });
     },
-
     onNodesChange: (changes: NodeChange[]) => {
       updateActiveGraph({ nodes: applyNodeChanges(changes, get().nodes) });
     },
-
     onEdgesChange: (changes: EdgeChange[]) => {
       updateActiveGraph({ edges: applyEdgeChanges(changes, get().edges) });
     },
-
     onConnect: (connection: Connection) => {
       updateActiveGraph({ edges: addEdge(connection, get().edges) });
     },
-
     updateNodeData: (id: string, data: Partial<NodeData>) => {
       updateActiveGraph({
         nodes: get().nodes.map((node) => {
@@ -197,7 +180,6 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     deleteNode: (id: string) => {
       updateActiveGraph({
         nodes: get().nodes.filter((node) => node.id !== id),
@@ -206,7 +188,6 @@ export const useStore = create<RFState>((set, get) => {
         ),
       });
     },
-
     addNode: (kind: NodeKind, customPosition?: { x: number; y: number }) => {
       const nodes = get().nodes;
       const activeTab = get().activeTab;
@@ -218,8 +199,6 @@ export const useStore = create<RFState>((set, get) => {
       ) {
         return;
       }
-
-      // Only one Start Function allowed per canvas
       if (kind === "function_entry") {
         const existing = nodes.find((node) => {
           const d = node.data as NodeData;
@@ -235,7 +214,6 @@ export const useStore = create<RFState>((set, get) => {
           return;
         }
       }
-
       if (kind === "process" && activeTab === "api") {
         const existingApiProcess = nodes.find((node) => {
           const nodeData = node.data as NodeData;
@@ -251,7 +229,6 @@ export const useStore = create<RFState>((set, get) => {
           return;
         }
       }
-
       const id = `node-${Date.now()}`;
       const lastNode = nodes[nodes.length - 1];
       const position =
@@ -259,7 +236,6 @@ export const useStore = create<RFState>((set, get) => {
         (lastNode
           ? { x: lastNode.position.x + 50, y: lastNode.position.y + 150 }
           : { x: 200, y: 200 });
-
       const nodeConfigs: Record<NodeKind, { type: string; data: NodeData }> = {
         process: {
           type: "process",
@@ -907,7 +883,6 @@ export const useStore = create<RFState>((set, get) => {
           },
         },
       };
-
       const config = nodeConfigs[kind];
       const isApiKind = kind === "api_binding" || kind.startsWith("api_");
       let nodeData = { ...(config.data as object) } as NodeData;
@@ -915,14 +890,12 @@ export const useStore = create<RFState>((set, get) => {
         ...node,
         selected: false,
       }));
-
       if (activeTab === "api" && isApiKind && nodeData.kind === "api_binding") {
         const existingApiProcessNode = nextNodes.find((node) => {
           const data = node.data as NodeData;
           return data.kind === "process";
         });
         let apiProcessId = "";
-
         if (existingApiProcessNode) {
           const existingProcessData =
             existingApiProcessNode.data as NodeData & {
@@ -951,13 +924,11 @@ export const useStore = create<RFState>((set, get) => {
           } as Node;
           nextNodes.push(placeholderProcessNode);
         }
-
         nodeData = {
           ...(nodeData as object),
           processRef: apiProcessId,
         } as NodeData;
       }
-
       const newNode: Node = {
         id,
         type: config.type,
@@ -965,12 +936,10 @@ export const useStore = create<RFState>((set, get) => {
         data: nodeData,
         selected: true,
       };
-
       updateActiveGraph({
         nodes: [...nextNodes, newNode],
       });
     },
-
     addInput: (nodeId: string, input: InputField) => {
       updateActiveGraph({
         nodes: get().nodes.map((node) => {
@@ -988,7 +957,6 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     removeInput: (nodeId: string, inputName: string) => {
       updateActiveGraph({
         nodes: get().nodes.map((node) => {
@@ -1008,7 +976,6 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     updateInput: (nodeId: string, inputIndex: number, input: InputField) => {
       updateActiveGraph({
         nodes: get().nodes.map((node) => {
@@ -1028,7 +995,6 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     updateOutput: (
       nodeId: string,
       outputIndex: number,
@@ -1056,7 +1022,6 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     addOutput: (
       nodeId: string,
       output: OutputField,
@@ -1081,7 +1046,6 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     removeOutput: (
       nodeId: string,
       outputName: string,
@@ -1108,7 +1072,6 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     addStep: (nodeId: string, step: ProcessStep) => {
       updateActiveGraph({
         nodes: get().nodes.map((node) => {
@@ -1126,7 +1089,6 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     removeStep: (nodeId: string, stepId: string) => {
       updateActiveGraph({
         nodes: get().nodes.map((node) => {
@@ -1146,14 +1108,12 @@ export const useStore = create<RFState>((set, get) => {
         }),
       });
     },
-
     setGraph: (graph: ProcessGraph) => {
       updateActiveGraph({
         nodes: graph.nodes as unknown as Node[],
         edges: graph.edges as unknown as Edge[],
       });
     },
-
     loadGraphPreset: (preset: GraphPreset) => {
       const graph = cloneGraph(buildPresetGraphs(preset).api);
       updateActiveGraph({
@@ -1161,7 +1121,6 @@ export const useStore = create<RFState>((set, get) => {
         edges: graph.edges,
       });
     },
-
     loadWorkspaceTemplate: (templateId: WorkspaceTemplateId) => {
       const activeTab = get().activeTab;
       const graphs = buildWorkspaceTemplateGraphs(templateId);
@@ -1172,7 +1131,6 @@ export const useStore = create<RFState>((set, get) => {
         edges: currentGraph.edges,
       });
     },
-
     autoLayoutCurrentGraph: () => {
       const nodes = get().nodes;
       const edges = get().edges;
@@ -1181,18 +1139,15 @@ export const useStore = create<RFState>((set, get) => {
         nodes: autoLayoutNodes(nodes, edges),
       });
     },
-
     applyGraphPatch: (patch: { nodes?: Node[]; edges?: Edge[]; replace?: boolean }) => {
       const currentNodes = get().nodes;
       const currentEdges = get().edges;
-
       const nextNodes = patch.replace
         ? patch.nodes ?? []
         : [
             ...currentNodes.map((node) => ({ ...node, selected: false })),
             ...((patch.nodes ?? []).map((node) => ({ ...node, selected: true })) as Node[]),
           ];
-
       const nextEdges = patch.replace
         ? patch.edges ?? []
         : [
@@ -1206,15 +1161,12 @@ export const useStore = create<RFState>((set, get) => {
                 ),
             ) as Edge[]),
           ];
-
       updateActiveGraph({
         nodes: nextNodes,
         edges: nextEdges,
       });
     },
-
     exportGraphs: () => get().graphs,
-
     importGraphs: (graphs: Record<WorkspaceTab, GraphState>) => {
       const activeTab = get().activeTab;
       const currentGraph = graphs[activeTab] ?? cloneGraph(buildPresetGraphs("empty")[activeTab]);
@@ -1224,23 +1176,18 @@ export const useStore = create<RFState>((set, get) => {
         edges: currentGraph.edges,
       });
     },
-
     openApiTableModal: (nodeId: string) => {
       set({ apiTableModalNodeId: nodeId });
     },
-
     closeApiTableModal: () => {
       set({ apiTableModalNodeId: null });
     },
-
     setFocusNodeId: (id: string | null) => {
       set({ focusNodeId: id });
     },
-
     setValidationIssues: (issues: ValidationIssue[]) => {
       set({ validationIssues: issues });
     },
-
     pushTablesToDb: (
       dbNodeId: string,
       tables: DatabaseTable[],
@@ -1252,7 +1199,6 @@ export const useStore = create<RFState>((set, get) => {
           if (node.id !== dbNodeId) return node;
           const existing = node.data as NodeData & { kind: "database" };
           if (existing.kind !== "database") return node;
-          // Merge: replace tables with matching name, append new ones
           const existingTables = existing.tables ?? [];
           const incomingByName = new Map(tables.map((t: DatabaseTable) => [t.name, t]));
           const merged = existingTables.map((t: DatabaseTable) =>
@@ -1262,7 +1208,6 @@ export const useStore = create<RFState>((set, get) => {
           for (const t of tables) {
             if (!existingNames.has(t.name)) merged.push(t);
           }
-          // Same merge for relationships
           const existingRels = existing.relationships ?? [];
           const incomingRelById = new Map(relationships.map((r: DatabaseRelationship) => [r.id, r]));
           const mergedRels = existingRels.map((r: DatabaseRelationship) =>
@@ -1278,7 +1223,6 @@ export const useStore = create<RFState>((set, get) => {
           };
         });
         const newDbGraph = { ...dbGraph, nodes: updatedNodes };
-        // If the active tab is database, also update nodes/edges in state
         const isDbActive = state.activeTab === "database";
         return {
           graphs: { ...state.graphs, database: newDbGraph },

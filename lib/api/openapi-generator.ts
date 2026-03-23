@@ -1,9 +1,4 @@
 import { ApiBinding, InputField, OutputField } from "@/lib/schema/node";
-
-// ============================================================
-// OpenAPI 3.0 Generator
-// ============================================================
-
 function fieldTypeToOpenApi(field: InputField | OutputField): Record<string, unknown> {
   const base: Record<string, unknown> = { type: field.type };
   if (field.type === "object" && "properties" in field && field.properties?.length) {
@@ -25,14 +20,12 @@ function fieldTypeToOpenApi(field: InputField | OutputField): Record<string, unk
   if ("description" in field && field.description) base.description = field.description;
   return base;
 }
-
 function buildParameters(
   pathParams: InputField[],
   queryParams: InputField[],
   headers: InputField[],
 ): Record<string, unknown>[] {
   const params: Record<string, unknown>[] = [];
-
   for (const p of pathParams) {
     params.push({
       name: p.name,
@@ -60,10 +53,8 @@ function buildParameters(
       ...(h.description ? { description: h.description } : {}),
     });
   }
-
   return params;
 }
-
 function buildResponseSchema(fields: OutputField[]): Record<string, unknown> {
   if (!fields.length) return { type: "object" };
   const properties: Record<string, unknown> = {};
@@ -72,13 +63,11 @@ function buildResponseSchema(fields: OutputField[]): Record<string, unknown> {
   }
   return { type: "object", properties };
 }
-
 function buildSecuritySchemes(
   apiNode: ApiBinding,
 ): Record<string, Record<string, unknown>> {
   const security = apiNode.security;
   if (!security || security.type === "none") return {};
-
   if (security.type === "bearer") {
     return {
       bearerAuth: {
@@ -124,25 +113,17 @@ function buildSecuritySchemes(
   }
   return {};
 }
-
 function buildSecurityRequirement(apiNode: ApiBinding): Record<string, string[]>[] {
   const security = apiNode.security;
   if (!security || security.type === "none") return [];
-
   if (security.type === "bearer") return [{ bearerAuth: [] }];
   if (security.type === "api_key") return [{ apiKeyAuth: [] }];
   if (security.type === "oauth2") return [{ oauth2Auth: security.scopes || [] }];
   if (security.type === "basic") return [{ basicAuth: [] }];
   return [];
 }
-
-/**
- * Generates a minimal but valid OpenAPI 3.0 spec for a REST ApiBinding node.
- * Returns {} if the protocol is not REST.
- */
 export function generateOpenApiSpec(apiNode: ApiBinding): Record<string, unknown> {
   if (apiNode.protocol !== "rest") return {};
-
   const method = (apiNode.method || "GET").toLowerCase();
   const route = apiNode.route || "/";
   const pathParams = apiNode.request?.pathParams || [];
@@ -154,11 +135,9 @@ export function generateOpenApiSpec(apiNode: ApiBinding): Record<string, unknown
   const errorSchema = apiNode.responses?.error?.schema || [];
   const successCode = String(apiNode.responses?.success?.statusCode || 200);
   const errorCode = String(apiNode.responses?.error?.statusCode || 400);
-
   const parameters = buildParameters(pathParams, queryParams, headers);
   const securitySchemes = buildSecuritySchemes(apiNode);
   const securityRequirement = buildSecurityRequirement(apiNode);
-
   const operation: Record<string, unknown> = {
     summary: apiNode.label || route,
     ...(apiNode.description ? { description: apiNode.description } : {}),
@@ -182,7 +161,6 @@ export function generateOpenApiSpec(apiNode: ApiBinding): Record<string, unknown
       },
     },
   };
-
   if (["post", "put", "patch"].includes(method) && bodySchema.length > 0) {
     const properties: Record<string, unknown> = {};
     const required: string[] = [];
@@ -192,7 +170,6 @@ export function generateOpenApiSpec(apiNode: ApiBinding): Record<string, unknown
     }
     const schema: Record<string, unknown> = { type: "object", properties };
     if (required.length) schema.required = required;
-
     operation.requestBody = {
       required: true,
       content: {
@@ -200,15 +177,12 @@ export function generateOpenApiSpec(apiNode: ApiBinding): Record<string, unknown
       },
     };
   }
-
   if (securityRequirement.length) {
     operation.security = securityRequirement;
   }
-
   if (apiNode.deprecated) {
     operation.deprecated = true;
   }
-
   const spec: Record<string, unknown> = {
     openapi: "3.0.0",
     info: {
@@ -222,41 +196,24 @@ export function generateOpenApiSpec(apiNode: ApiBinding): Record<string, unknown
       },
     },
   };
-
   if (Object.keys(securitySchemes).length) {
     spec.components = {
       securitySchemes,
     };
   }
-
   return spec;
 }
-
-// ============================================================
-// cURL Command Generator
-// ============================================================
-
-/**
- * Generates a cURL command for a REST ApiBinding node.
- * Returns an empty string if the protocol is not REST.
- */
 export function generateCurlCommand(apiNode: ApiBinding): string {
   if (apiNode.protocol !== "rest") return "";
-
   const method = apiNode.method || "GET";
   const route = apiNode.route || "/";
   const baseUrl = "https://api.example.com";
   const url = `${baseUrl}${route}`;
-
   const lines: string[] = [`curl -X ${method} ${url}`];
-
-  // Content-Type for body methods
   if (["POST", "PUT", "PATCH"].includes(method)) {
     const contentType = apiNode.request?.body?.contentType || "application/json";
     lines.push(`  -H "Content-Type: ${contentType}"`);
   }
-
-  // Authorization header
   const security = apiNode.security;
   if (security && security.type !== "none") {
     if (security.type === "bearer") {
@@ -270,21 +227,14 @@ export function generateCurlCommand(apiNode: ApiBinding): string {
       lines.push(`  -H "Authorization: Bearer <oauth2-token>"`);
     }
   }
-
-  // Custom headers
   for (const h of apiNode.request?.headers || []) {
     lines.push(`  -H "${h.name}: <value>"`);
   }
-
-  // Query params appended as note
   const queryParams = apiNode.request?.queryParams || [];
   if (queryParams.length) {
     const qs = queryParams.map((q) => `${q.name}=<value>`).join("&");
-    // Replace the URL to include query string
     lines[0] = `curl -X ${method} "${url}?${qs}"`;
   }
-
-  // Body
   if (["POST", "PUT", "PATCH"].includes(method)) {
     const bodyFields = apiNode.request?.body?.schema || [];
     if (bodyFields.length > 0) {
@@ -309,10 +259,8 @@ export function generateCurlCommand(apiNode: ApiBinding): string {
       }
     }
   }
-
   return lines.join(" \\\n");
 }
-
 type OpenApiDocument = {
   openapi: string;
   info: {
@@ -325,13 +273,11 @@ type OpenApiDocument = {
     securitySchemes?: Record<string, Record<string, unknown>>;
   };
 };
-
 export function generateWorkspaceOpenApiSpec(
   apiNodes: ApiBinding[],
   options?: { title?: string; version?: string; description?: string },
 ): OpenApiDocument {
   const restNodes = apiNodes.filter((node) => node.protocol === "rest");
-
   const document: OpenApiDocument = {
     openapi: "3.0.0",
     info: {
@@ -341,9 +287,7 @@ export function generateWorkspaceOpenApiSpec(
     },
     paths: {},
   };
-
   const securitySchemes: Record<string, Record<string, unknown>> = {};
-
   for (const apiNode of restNodes) {
     const spec = generateOpenApiSpec(apiNode) as OpenApiDocument;
     const route = apiNode.route || "/";
@@ -351,61 +295,50 @@ export function generateWorkspaceOpenApiSpec(
     const pathItem = spec.paths?.[route];
     const operation = pathItem?.[method];
     if (!operation) continue;
-
     if (!document.paths[route]) {
       document.paths[route] = {};
     }
     document.paths[route][method] = operation;
-
     const nextSchemes = spec.components?.securitySchemes || {};
     for (const [schemeName, scheme] of Object.entries(nextSchemes)) {
       securitySchemes[schemeName] = scheme;
     }
   }
-
   if (Object.keys(securitySchemes).length > 0) {
     document.components = {
       securitySchemes,
     };
   }
-
   return document;
 }
-
 export function generateWorkspaceApiDocs(
   apiNodes: ApiBinding[],
   options?: { title?: string },
 ): string {
   const restNodes = apiNodes.filter((node) => node.protocol === "rest");
   const title = options?.title || "Archi.dev API Docs";
-
   const lines: string[] = [
     `# ${title}`,
     "",
     `Generated from ${restNodes.length} REST endpoint${restNodes.length === 1 ? "" : "s"}.`,
     "",
   ];
-
   if (restNodes.length === 0) {
     lines.push("No REST API bindings were found in the current studio graph.");
     return lines.join("\n");
   }
-
   lines.push("## Endpoints", "");
-
   for (const apiNode of restNodes) {
     const method = apiNode.method || "GET";
     const route = apiNode.route || "/";
     lines.push(`### ${method} ${route}`, "");
     lines.push(apiNode.description || apiNode.label || "Generated endpoint", "");
-
     const pathParams = apiNode.request?.pathParams || [];
     const queryParams = apiNode.request?.queryParams || [];
     const headers = apiNode.request?.headers || [];
     const bodyFields = apiNode.request?.body?.schema || [];
     const successFields = apiNode.responses?.success?.schema || [];
     const errorFields = apiNode.responses?.error?.schema || [];
-
     if (pathParams.length) {
       lines.push("#### Path Params", "");
       for (const field of pathParams) {
@@ -413,7 +346,6 @@ export function generateWorkspaceApiDocs(
       }
       lines.push("");
     }
-
     if (queryParams.length) {
       lines.push("#### Query Params", "");
       for (const field of queryParams) {
@@ -421,7 +353,6 @@ export function generateWorkspaceApiDocs(
       }
       lines.push("");
     }
-
     if (headers.length) {
       lines.push("#### Headers", "");
       for (const field of headers) {
@@ -429,7 +360,6 @@ export function generateWorkspaceApiDocs(
       }
       lines.push("");
     }
-
     if (bodyFields.length) {
       lines.push("#### Request Body", "");
       for (const field of bodyFields) {
@@ -437,7 +367,6 @@ export function generateWorkspaceApiDocs(
       }
       lines.push("");
     }
-
     if (successFields.length) {
       lines.push("#### Success Response", "");
       for (const field of successFields) {
@@ -445,7 +374,6 @@ export function generateWorkspaceApiDocs(
       }
       lines.push("");
     }
-
     if (errorFields.length) {
       lines.push("#### Error Response", "");
       for (const field of errorFields) {
@@ -453,12 +381,10 @@ export function generateWorkspaceApiDocs(
       }
       lines.push("");
     }
-
     const curl = generateCurlCommand(apiNode);
     if (curl) {
       lines.push("#### cURL", "", "```bash", curl, "```", "");
     }
   }
-
   return lines.join("\n");
 }

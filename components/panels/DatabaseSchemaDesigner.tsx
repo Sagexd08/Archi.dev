@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useMemo } from "react";
 import { useStore } from "@/store/useStore";
 import {
@@ -10,7 +9,6 @@ import {
   DatabaseTable,
   DatabaseTableField,
 } from "@/lib/schema/node";
-
 const fieldTypes: DatabaseFieldType[] = [
   "string",
   "text",
@@ -23,13 +21,11 @@ const fieldTypes: DatabaseFieldType[] = [
   "json",
   "uuid",
 ];
-
 const relationTypes: DatabaseRelationType[] = [
   "one_to_one",
   "one_to_many",
   "many_to_many",
 ];
-
 const inputStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   borderRadius: 8,
@@ -38,7 +34,6 @@ const inputStyle: React.CSSProperties = {
   color: "var(--foreground)",
   fontSize: 12,
 };
-
 const smallButton: React.CSSProperties = {
   border: "1px solid var(--border)",
   borderRadius: 8,
@@ -48,7 +43,6 @@ const smallButton: React.CSSProperties = {
   fontSize: 11,
   cursor: "pointer",
 };
-
 const getSqlType = (type: DatabaseFieldType): string => {
   switch (type) {
     case "string":
@@ -75,7 +69,6 @@ const getSqlType = (type: DatabaseFieldType): string => {
       return "TEXT";
   }
 };
-
 const getPrismaType = (type: DatabaseFieldType): string => {
   switch (type) {
     case "string":
@@ -100,7 +93,6 @@ const getPrismaType = (type: DatabaseFieldType): string => {
       return "String";
   }
 };
-
 const ensureDefaultField = (): DatabaseTableField => ({
   id: `field_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
   name: "id",
@@ -109,11 +101,9 @@ const ensureDefaultField = (): DatabaseTableField => ({
   unique: true,
   primaryKey: true,
 });
-
 export function DatabaseSchemaDesigner() {
   const nodes = useStore((state) => state.nodes);
   const updateNodeData = useStore((state) => state.updateNodeData);
-
   const databaseNodes = useMemo(
     () =>
       nodes.filter(
@@ -125,7 +115,6 @@ export function DatabaseSchemaDesigner() {
       ),
     [nodes],
   );
-
   const activeDatabaseNode =
     databaseNodes.find((node) => node.selected) || databaseNodes[0];
   const activeDatabaseData = activeDatabaseNode?.data;
@@ -134,7 +123,6 @@ export function DatabaseSchemaDesigner() {
     () => activeDatabaseData?.relationships ?? [],
     [activeDatabaseData],
   );
-
   const setDatabaseData = (updates: Partial<DatabaseBlock>) => {
     if (!activeDatabaseNode) return;
     const nextTables = updates.tables ?? tables;
@@ -143,7 +131,6 @@ export function DatabaseSchemaDesigner() {
       schemas: nextTables.map((table) => table.name),
     } as Partial<DatabaseBlock>);
   };
-
   const addTable = () => {
     if (!activeDatabaseData) return;
     const nextTable: DatabaseTable = {
@@ -155,7 +142,6 @@ export function DatabaseSchemaDesigner() {
       tables: [...tables, nextTable],
     });
   };
-
   const updateTable = (tableId: string, updates: Partial<DatabaseTable>) => {
     if (!activeDatabaseData) return;
     const nextTables = tables.map((table) =>
@@ -163,7 +149,6 @@ export function DatabaseSchemaDesigner() {
     );
     setDatabaseData({ tables: nextTables });
   };
-
   const removeTable = (tableId: string) => {
     if (!activeDatabaseData) return;
     const nextTables = tables.filter((table) => table.id !== tableId);
@@ -173,7 +158,6 @@ export function DatabaseSchemaDesigner() {
     );
     setDatabaseData({ tables: nextTables, relationships: nextRelationships });
   };
-
   const addField = (tableId: string) => {
     if (!activeDatabaseData) return;
     const nextTables = tables.map((table) => {
@@ -190,7 +174,6 @@ export function DatabaseSchemaDesigner() {
     });
     setDatabaseData({ tables: nextTables });
   };
-
   const updateField = (
     tableId: string,
     fieldId: string,
@@ -208,7 +191,6 @@ export function DatabaseSchemaDesigner() {
     });
     setDatabaseData({ tables: nextTables });
   };
-
   const removeField = (tableId: string, fieldId: string) => {
     if (!activeDatabaseData) return;
     const nextTables = tables.map((table) => {
@@ -224,7 +206,6 @@ export function DatabaseSchemaDesigner() {
     );
     setDatabaseData({ tables: nextTables, relationships: nextRelationships });
   };
-
   const addRelationship = () => {
     if (!activeDatabaseData || tables.length < 2) return;
     const [fromTable, toTable] = tables;
@@ -242,7 +223,6 @@ export function DatabaseSchemaDesigner() {
       relationships: [...relationships, next],
     });
   };
-
   const updateRelationship = (
     relationId: string,
     updates: Partial<DatabaseRelationship>,
@@ -253,7 +233,6 @@ export function DatabaseSchemaDesigner() {
     );
     setDatabaseData({ relationships: nextRelationships });
   };
-
   const removeRelationship = (relationId: string) => {
     if (!activeDatabaseData) return;
     const nextRelationships = relationships.filter(
@@ -261,7 +240,6 @@ export function DatabaseSchemaDesigner() {
     );
     setDatabaseData({ relationships: nextRelationships });
   };
-
   const tableById = useMemo(() => {
     const map = new Map<string, DatabaseTable>();
     for (const table of tables) {
@@ -271,7 +249,6 @@ export function DatabaseSchemaDesigner() {
     }
     return map;
   }, [tables]);
-
   const prismaSchema = useMemo(() => {
     if (!activeDatabaseData || tables.length === 0) return "";
     const models = tables.map((table) => {
@@ -291,7 +268,6 @@ export function DatabaseSchemaDesigner() {
     });
     return models.join("\n\n");
   }, [activeDatabaseData, tables]);
-
   const migrationSql = useMemo(() => {
     if (!activeDatabaseData || tables.length === 0) return "";
     const createStatements = tables.map((table) => {
@@ -308,7 +284,6 @@ export function DatabaseSchemaDesigner() {
       }
       return `CREATE TABLE "${table.name}" (\n  ${fieldLines.join(",\n  ")}\n);`;
     });
-
     const relationshipStatements = relationships
       .filter((relation) => relation.fromFieldId && relation.toFieldId)
       .map((relation) => {
@@ -320,10 +295,8 @@ export function DatabaseSchemaDesigner() {
         return `ALTER TABLE "${fromTable.name}" ADD CONSTRAINT "fk_${fromTable.name}_${fromField.name}" FOREIGN KEY ("${fromField.name}") REFERENCES "${toTable.name}"("${toField.name}") ON DELETE ${relation.onDelete.toUpperCase().replace("_", " ")};`;
       })
       .filter(Boolean);
-
     return [...createStatements, ...relationshipStatements].join("\n\n");
   }, [activeDatabaseData, relationships, tableById, tables]);
-
   const graphLayout = useMemo(() => {
     return tables.map((table, index) => {
       const col = index % 3;
@@ -336,7 +309,6 @@ export function DatabaseSchemaDesigner() {
       };
     });
   }, [tables]);
-
   const pointByTableId = useMemo(() => {
     const map = new Map<string, { x: number; y: number }>();
     for (const node of graphLayout) {
@@ -346,7 +318,6 @@ export function DatabaseSchemaDesigner() {
     }
     return map;
   }, [graphLayout]);
-
   if (!activeDatabaseNode || !activeDatabaseData) {
     return (
       <section
@@ -362,7 +333,6 @@ export function DatabaseSchemaDesigner() {
       </section>
     );
   }
-
   return (
     <section
       style={{
@@ -407,7 +377,6 @@ export function DatabaseSchemaDesigner() {
             </button>
           </div>
         </div>
-
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 0 }}>
           <div style={{ overflow: "auto", padding: 10, display: "grid", gap: 10 }}>
             {tables.filter((t) => t.id).map((table) => (
@@ -528,7 +497,6 @@ export function DatabaseSchemaDesigner() {
               </article>
             ))}
           </div>
-
           <div
             style={{
               borderLeft: "1px solid var(--border)",
@@ -659,7 +627,6 @@ export function DatabaseSchemaDesigner() {
                   </div>
                 );
               })}
-
               <div
                 style={{
                   border: "1px solid var(--border)",
@@ -726,7 +693,6 @@ export function DatabaseSchemaDesigner() {
           </div>
         </div>
       </div>
-
       <div style={{ borderLeft: "1px solid var(--border)", display: "grid", gridTemplateRows: "1fr 1fr", minHeight: 0 }}>
         <div style={{ display: "grid", gridTemplateRows: "auto 1fr", minHeight: 0 }}>
           <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--border)", fontSize: 12 }}>

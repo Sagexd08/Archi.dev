@@ -2,12 +2,9 @@ import React, { memo, useMemo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { ApiEndpointBlock, ApiBinding } from "@/lib/schema/node";
 import { useStore } from "@/store/useStore";
-
 export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
     const epData = data as unknown as ApiEndpointBlock;
     const graphs = useStore((s) => s.graphs);
-
-    // Resolve the referenced API binding from the API canvas
     const resolvedApi = useMemo<ApiBinding | null>(() => {
         if (!epData.targetApiId) return null;
         const apiGraph = graphs.api;
@@ -21,13 +18,11 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
         const d = node.data as { kind?: string };
         return d.kind === "api_binding" ? (node.data as unknown as ApiBinding) : null;
     }, [epData.targetApiId, graphs.api]);
-
     const method = resolvedApi?.method || epData.method || "";
     const route = resolvedApi?.route || epData.route || "";
     const protocol = resolvedApi?.protocol || epData.protocol || "rest";
     const label = epData.label || resolvedApi?.label || "API Endpoint";
     const linked = Boolean(resolvedApi);
-
     const methodColors: Record<string, string> = {
         GET: "#60a5fa",
         POST: "#4ade80",
@@ -46,7 +41,6 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
         webhook: "#fb7185",
     };
     const accentColor = protocolColors[protocol] || "#60a5fa";
-
     return (
         <div
             style={{
@@ -61,7 +55,6 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
                     : "0 4px 12px rgba(0, 0, 0, 0.3)",
             }}
         >
-            {/* Header */}
             <div
                 style={{
                     display: "flex",
@@ -114,8 +107,6 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
                     </span>
                 )}
             </div>
-
-            {/* Body */}
             <div style={{ padding: "10px 12px" }}>
                 <div
                     style={{
@@ -127,7 +118,6 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
                 >
                     {label}
                 </div>
-
                 {protocol === "rest" && method && (
                     <div
                         style={{
@@ -163,7 +153,6 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
                         </span>
                     </div>
                 )}
-
                 {protocol !== "rest" && (
                     <div
                         style={{
@@ -193,7 +182,6 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
                         )}
                     </div>
                 )}
-
                 {epData.description && (
                     <div
                         style={{
@@ -206,8 +194,6 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
                     </div>
                 )}
             </div>
-
-            {/* Footer */}
             <div
                 style={{
                     padding: "6px 12px",
@@ -221,8 +207,6 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
             >
                 <span>🔗 {linked ? "Connected to API tab" : "Not linked"}</span>
             </div>
-
-            {/* Handles */}
             <Handle
                 type="target"
                 position={Position.Left}
@@ -246,5 +230,4 @@ export const ApiEndpointNode = memo(({ id, data, selected }: NodeProps) => {
         </div>
     );
 });
-
 ApiEndpointNode.displayName = "ApiEndpointNode";

@@ -1,29 +1,22 @@
 "use client";
-
 import { useRef } from "react";
 import { motion, useSpring, useTransform, useScroll } from "framer-motion";
 import { useRouter } from "next/navigation";
-
 const footerLinks = ["Privacy", "Terms", "Status", "GitHub"];
-
 export default function CTAFooter() {
   const router = useRouter();
   const containerRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end end"]
   });
-
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["-20%", "0%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.5, 1]);
   const scale = useTransform(scrollYProgress, [0, 1], [0.95, 1]);
-
   const springConfig = { stiffness: 400, damping: 25, mass: 0.5 };
   const x = useSpring(0, springConfig);
   const y = useSpring(0, springConfig);
-
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
@@ -32,16 +25,13 @@ export default function CTAFooter() {
     x.set((e.clientX - cx) * 0.15);
     y.set((e.clientY - cy) * 0.15);
   };
-
   const handleMouseLeave = () => {
     x.set(0);
     y.set(0);
   };
-
   return (
     <footer ref={containerRef} className="min-h-[100vh] flex flex-col items-center justify-center relative overflow-hidden bg-black">
-      {/* Animated Gradient Background */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 z-0 pointer-events-none opacity-40"
         style={{
           background: "radial-gradient(circle at center, rgba(0,240,255,0.15) 0%, rgba(138,43,226,0.05) 50%, transparent 100%)",
@@ -49,8 +39,6 @@ export default function CTAFooter() {
           opacity
         }}
       />
-
-      {/* Video BG — hue-rotated to green/teal */}
       <motion.video
         style={{ y: backgroundY, scale }}
         src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-network-connections-loop-28828-large.mp4"
@@ -60,8 +48,6 @@ export default function CTAFooter() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover opacity-[0.25] mix-blend-screen pointer-events-none"
       />
-
-      {/* Deep dark vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -69,11 +55,7 @@ export default function CTAFooter() {
             "radial-gradient(ellipse 90% 70% at 50% 50%, transparent 20%, #000000 80%)",
         }}
       />
-
-      {/* Grain noise */}
       <div className="bg-noise absolute inset-0 opacity-50" />
-
-      {/* Interactive Rings */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
         {[320, 540, 760, 980, 1200, 1500].map((size, i) => (
           <motion.div
@@ -92,18 +74,14 @@ export default function CTAFooter() {
               scale: { duration: 8 + i, repeat: Infinity, ease: "easeInOut" }
             }}
           >
-            {/* Orbital dots */}
-            <motion.div 
+            <motion.div
               className="absolute top-0 left-1/2 w-1 h-1 rounded-full bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]"
               style={{ opacity: 0.3 + (i * 0.1) }}
             />
           </motion.div>
         ))}
       </div>
-
-      {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl w-full flex flex-col items-center justify-center flex-1 pt-32">
-        {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -115,32 +93,25 @@ export default function CTAFooter() {
             Start today
           </span>
         </motion.div>
-
-        {/* Main heading */}
         <motion.h2
           initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
           whileInView={{ y: 0, opacity: 1, filter: "blur(0px)" }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           className="text-white font-medium tracking-tighter leading-[0.9] mb-12"
-          style={{ 
+          style={{
             fontSize: "clamp(4.5rem, 12vw, 12rem)",
             textShadow: "0 20px 60px rgba(0,0,0,0.5)"
           }}
         >
           Ready to <br className="md:hidden" /> build?
         </motion.h2>
-
-        {/* CTA block */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           className="flex flex-col items-center gap-8 relative"
         >
-          {/* Background glow for button */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-white/20 blur-[60px] rounded-full pointer-events-none" />
-          
-          {/* Magnetic button */}
           <motion.button
             ref={buttonRef}
             type="button"
@@ -153,13 +124,12 @@ export default function CTAFooter() {
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Button hover effect */}
-            <motion.div 
+            <motion.div
               className="absolute inset-0 bg-gradient-to-r from-[#00F0FF]/20 to-[#8A2BE2]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             />
             <span className="relative z-10 flex items-center gap-3">
               Start building for free
-              <motion.span 
+              <motion.span
                 className="inline-block"
                 animate={{ x: [0, 5, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
@@ -168,13 +138,10 @@ export default function CTAFooter() {
               </motion.span>
             </span>
           </motion.button>
-
           <p className="text-white/40 text-base font-light tracking-wide">
             No credit card required <span className="mx-2 opacity-30">•</span> Deploy in 60 seconds
           </p>
-
-          {/* Social proof */}
-          <motion.div 
+          <motion.div
             className="flex items-center gap-4 mt-4 glass-panel px-6 py-3 rounded-full"
             whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
           >
@@ -202,8 +169,6 @@ export default function CTAFooter() {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Footer nav */}
       <div className="w-full max-w-7xl px-6 pb-8 z-10 mt-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -217,7 +182,6 @@ export default function CTAFooter() {
             />
             <span className="font-semibold text-white/60 tracking-wide">Archi.dev</span>
           </div>
-
           <div className="flex gap-8">
             {footerLinks.map((link) => (
               <button
@@ -230,7 +194,6 @@ export default function CTAFooter() {
               </button>
             ))}
           </div>
-
           <span className="text-xs">© 2025 Archi.dev. All rights reserved.</span>
         </motion.div>
       </div>

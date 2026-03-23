@@ -2,17 +2,14 @@ import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { BaseNode } from "./BaseNode";
 import { NodeData } from "@/lib/schema/node";
-
 export const TriggerNode = memo(
   ({ data, selected }: NodeProps) => {
     const nodeData = data as unknown as NodeData;
     const isApiBinding = nodeData.kind === "api_binding";
     const method = (isApiBinding ? nodeData.method : undefined) || "GET";
     const route = (isApiBinding ? nodeData.route : undefined) || "/";
-
     const methodColor =
       method === "GET" ? "#60a5fa" : method === "POST" ? "#4ade80" : "#fb923c";
-
     return (
       <BaseNode
         selected={!!selected}
@@ -50,14 +47,11 @@ export const TriggerNode = memo(
               </span>
             </div>
           )}
-
           <div
             style={{ fontSize: 10, color: "var(--muted)", padding: "0 4px" }}
           >
             {nodeData.description || "API Entry Point"}
           </div>
-
-          {/* Output Handle (Right) Only */}
           <Handle
             type="source"
             position={Position.Right}
@@ -74,5 +68,4 @@ export const TriggerNode = memo(
     );
   },
 );
-
 TriggerNode.displayName = "TriggerNode";

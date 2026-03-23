@@ -1,30 +1,13 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import type { ValidationResult, ValidationIssue } from "@/lib/validate-architecture";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────────────────────
-
 export type Language = "javascript" | "python";
-
 export interface GenCodeModalProps {
-  /** Pre-computed result from validateArchitecture() */
   validationResult: ValidationResult;
   onConfirm: (language: Language) => void;
   onCancel: () => void;
-  /**
-   * Called when the user clicks a clickable error/warning row.
-   * Closes the modal and selects + pans to the relevant node on the canvas.
-   */
   onFocusNode?: (nodeId: string) => void;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Style tokens
-// ─────────────────────────────────────────────────────────────────────────────
-
 const C = {
   panel: "#151b24",
   float: "#1a2230",
@@ -36,11 +19,6 @@ const C = {
   amber: "#f59e0b",
   red: "#ef4444",
 };
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Language options
-// ─────────────────────────────────────────────────────────────────────────────
-
 const LANGUAGES: {
   id: Language;
   name: string;
@@ -51,11 +29,6 @@ const LANGUAGES: {
     { id: "javascript", name: "JavaScript", sub: "Node.js · TypeScript", icon: "JS", accent: "#f7df1e" },
     { id: "python", name: "Python", sub: "FastAPI · Pydantic", icon: "PY", accent: "#3b82f6" },
   ];
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Issue row — clickable when it has a nodeId; has an inline AI hint button
-// ─────────────────────────────────────────────────────────────────────────────
-
 function IssueRow({
   issue,
   onFocusNode,
@@ -66,15 +39,12 @@ function IssueRow({
   const [hint, setHint] = useState<string | null>(null);
   const [loadingHint, setLoadingHint] = useState(false);
   const [hintError, setHintError] = useState(false);
-
   const isErr = issue.severity === "error";
   const color = isErr ? C.red : C.amber;
   const canNavigate = !!issue.nodeId && !!onFocusNode;
-
   const handleRowClick = () => {
     if (canNavigate) onFocusNode!(issue.nodeId!);
   };
-
   const handleAiHint = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setLoadingHint(true);
@@ -95,7 +65,6 @@ function IssueRow({
       setLoadingHint(false);
     }
   };
-
   return (
     <div
       onClick={handleRowClick}
@@ -123,13 +92,10 @@ function IssueRow({
             `color-mix(in srgb, ${color} 7%, ${C.panel})`;
       }}
     >
-      {/* severity icon */}
       <span style={{ fontSize: 12, color, flexShrink: 0, marginTop: 2 }}>
         {isErr ? "✕" : "⚠"}
       </span>
-
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* title row */}
         <div
           style={{
             fontSize: 12,
@@ -156,15 +122,11 @@ function IssueRow({
             </span>
           )}
         </div>
-
-        {/* detail */}
         {issue.detail && (
           <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>
             → {issue.detail}
           </div>
         )}
-
-        {/* AI hint section */}
         {hint ? (
           <div
             style={{
@@ -217,11 +179,6 @@ function IssueRow({
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Modal
-// ─────────────────────────────────────────────────────────────────────────────
-
 export function GenCodeModal({
   validationResult,
   onConfirm,
@@ -230,16 +187,12 @@ export function GenCodeModal({
 }: GenCodeModalProps) {
   const [lang, setLang] = useState<Language>("javascript");
   const [showWarnings, setShowWarnings] = useState(true);
-
   const { errors, warnings, ok } = validationResult;
-
-  // Close on Escape
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onCancel(); };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onCancel]);
-
   const summaryColor = errors.length > 0 ? C.red : warnings.length > 0 ? C.amber : C.green;
   const summaryIcon = errors.length > 0 ? "✕" : warnings.length > 0 ? "⚠" : "✓";
   const summaryText = errors.length > 0
@@ -247,7 +200,6 @@ export function GenCodeModal({
     : warnings.length > 0
       ? `${warnings.length} warning${warnings.length !== 1 ? "s" : ""} — you can still generate`
       : "Architecture looks good — ready to generate";
-
   return (
     <div
       onClick={onCancel}
@@ -271,7 +223,6 @@ export function GenCodeModal({
           boxShadow: "0 24px 64px rgba(0,0,0,0.55)",
         }}
       >
-        {/* Header */}
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "15px 20px",
@@ -284,11 +235,7 @@ export function GenCodeModal({
             ✕
           </button>
         </div>
-
-        {/* Body */}
         <div style={{ overflowY: "auto", flex: 1, padding: "18px 20px" }}>
-
-          {/* Validation summary */}
           <div style={{
             display: "flex", alignItems: "center", gap: 10,
             padding: "9px 13px", borderRadius: 8, marginBottom: 16,
@@ -298,8 +245,6 @@ export function GenCodeModal({
             <span style={{ color: summaryColor, fontSize: 14 }}>{summaryIcon}</span>
             <span style={{ fontSize: 12, color: C.fg }}>{summaryText}</span>
           </div>
-
-          {/* Errors */}
           {errors.length > 0 && (
             <div style={{ marginBottom: 14 }}>
               <div style={{
@@ -319,8 +264,6 @@ export function GenCodeModal({
               ))}
             </div>
           )}
-
-          {/* Warnings (collapsible) */}
           {warnings.length > 0 && (
             <div style={{ marginBottom: 16 }}>
               <button type="button" onClick={() => setShowWarnings((v) => !v)}
@@ -335,8 +278,6 @@ export function GenCodeModal({
               ))}
             </div>
           )}
-
-          {/* Language picker */}
           <div>
             <div style={{
               fontSize: 10, fontWeight: 700, color: C.muted,
@@ -374,8 +315,6 @@ export function GenCodeModal({
             </div>
           </div>
         </div>
-
-        {/* Footer */}
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "flex-end",
           gap: 9, padding: "13px 20px",

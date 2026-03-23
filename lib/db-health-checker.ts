@@ -1,7 +1,5 @@
 import { DatabaseBlock, DatabaseTable } from "@/lib/schema/node";
-
 export type DatabaseHealthSeverity = "info" | "warning" | "error";
-
 export type DatabaseHealthWarningCode =
   | "table_without_primary_key"
   | "foreign_key_missing_index"
@@ -11,7 +9,6 @@ export type DatabaseHealthWarningCode =
   | "connection_pool_too_large"
   | "monitoring_thresholds_missing"
   | "query_without_conditions";
-
 export type DatabaseHealthWarning = {
   code: DatabaseHealthWarningCode;
   severity: DatabaseHealthSeverity;
@@ -20,13 +17,11 @@ export type DatabaseHealthWarning = {
   recommendation?: string;
   details?: Record<string, unknown>;
 };
-
 export type DatabaseHealthReport = {
   score: number;
   warnings: DatabaseHealthWarning[];
   recommendations: string[];
 };
-
 const hasConfiguredProduction = (database: DatabaseBlock) => {
   const production = database.environments?.production;
   if (!production) return false;
@@ -36,11 +31,9 @@ const hasConfiguredProduction = (database: DatabaseBlock) => {
     Boolean(production.overrides?.enabled)
   );
 };
-
 const getPoolRecommendation = (database: DatabaseBlock) => {
   const queryVolume = (database.queries || []).length;
   const iops = database.costEstimation?.estimatedIOPS || 0;
-
   if (iops >= 5000 || queryVolume >= 20) {
     return { min: 8, max: 40, profile: "high" as const };
   }
@@ -49,13 +42,11 @@ const getPoolRecommendation = (database: DatabaseBlock) => {
   }
   return { min: 2, max: 16, profile: "low" as const };
 };
-
 const scorePenalty: Record<DatabaseHealthSeverity, number> = {
   error: 18,
   warning: 10,
   info: 4,
 };
-
 export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthReport => {
   const warnings: DatabaseHealthWarning[] = [];
   const tables = database.tables || [];
@@ -64,7 +55,6 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
   const security = database.security;
   const performance = database.performance;
   const queries = database.queries || [];
-
   tables.forEach((table: DatabaseTable) => {
     const hasPrimaryKey = (table.fields || []).some((field) => Boolean(field.isPrimaryKey || field.primaryKey));
     if (!hasPrimaryKey) {
@@ -77,7 +67,6 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
         details: { tableName: table.name },
       });
     }
-
     const indexes = new Set((table.indexes || []).map((index) => index.trim().toLowerCase()));
     (table.fields || []).forEach((field) => {
       if (!field.isForeignKey || !field.name) return;
@@ -92,7 +81,6 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
       });
     });
   });
-
   const backupConfigured =
     Boolean(backup?.schedule?.trim()) ||
     Boolean(backup?.pointInTimeRecovery) ||
@@ -105,7 +93,6 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
       recommendation: "Enable scheduled backups and point-in-time recovery.",
     });
   }
-
   if (hasConfiguredProduction(database)) {
     const encryptionEnabled = Boolean(security?.encryption?.atRest) && Boolean(security?.encryption?.inTransit);
     if (!encryptionEnabled) {
@@ -117,7 +104,6 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
       });
     }
   }
-
   const recommendedPool = getPoolRecommendation(database);
   const poolMin = performance?.connectionPool?.min ?? 0;
   const poolMax = performance?.connectionPool?.max ?? 0;
@@ -139,7 +125,6 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
       details: { recommended: recommendedPool, current: { min: poolMin, max: poolMax } },
     });
   }
-
   const thresholds = monitoring?.thresholds;
   const thresholdValues = thresholds
     ? [thresholds.cpuPercent, thresholds.memoryPercent, thresholds.connectionCount, thresholds.queryLatencyMs]
@@ -155,7 +140,6 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
       recommendation: "Configure CPU, memory, connection, and latency thresholds.",
     });
   }
-
   queries.forEach((query) => {
     if (!["SELECT", "UPDATE", "DELETE"].includes(query.operation)) return;
     if (query.conditions.trim()) return;
@@ -168,7 +152,6 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
       details: { queryId: query.id },
     });
   });
-
   const recommendations = Array.from(
     new Set(
       warnings
@@ -180,7 +163,5 @@ export const analyzeDatabaseHealth = (database: DatabaseBlock): DatabaseHealthRe
     0,
     100 - warnings.reduce((total, warning) => total + scorePenalty[warning.severity], 0),
   );
-
   return { score, warnings, recommendations };
 };
-

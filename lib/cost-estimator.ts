@@ -4,7 +4,6 @@ type CostMetrics = {
   backupSizeGb: number;
   replicaCount: number;
 };
-
 type PricingProfile = {
   baseMonthly: number;
   storagePerGb: number;
@@ -12,7 +11,6 @@ type PricingProfile = {
   backupPerGb: number;
   replicaMonthly: number;
 };
-
 const pricingByProvider: Record<"aws" | "gcp" | "azure", PricingProfile> = {
   aws: {
     baseMonthly: 26,
@@ -36,9 +34,7 @@ const pricingByProvider: Record<"aws" | "gcp" | "azure", PricingProfile> = {
     replicaMonthly: 22,
   },
 };
-
 const clamp = (value: number): number => Math.max(0, Number.isFinite(value) ? value : 0);
-
 const detectProvider = (engine?: string): "aws" | "gcp" | "azure" => {
   const raw = (engine || "").toLowerCase();
   if (
@@ -53,7 +49,6 @@ const detectProvider = (engine?: string): "aws" | "gcp" | "azure" => {
   }
   return "aws";
 };
-
 const detectEngineMultiplier = (engine?: string): number => {
   const raw = (engine || "").toLowerCase();
   if (raw.includes("documentdb") || raw.includes("docdb")) return 1.25;
@@ -61,7 +56,6 @@ const detectEngineMultiplier = (engine?: string): number => {
   if (raw.includes("sqlserver")) return 1.2;
   return 1;
 };
-
 export type DatabaseCostEstimate = {
   provider: "aws" | "gcp" | "azure";
   monthlyEstimate: number;
@@ -74,7 +68,6 @@ export type DatabaseCostEstimate = {
     replicas: number;
   };
 };
-
 export const estimateDatabaseMonthlyCost = (
   engine: string | undefined,
   metrics: CostMetrics,
@@ -82,12 +75,10 @@ export const estimateDatabaseMonthlyCost = (
   const provider = detectProvider(engine);
   const profile = pricingByProvider[provider];
   const multiplier = detectEngineMultiplier(engine);
-
   const storageGb = clamp(metrics.storageGb);
   const estimatedIOPS = clamp(metrics.estimatedIOPS);
   const backupSizeGb = clamp(metrics.backupSizeGb);
   const replicaCount = clamp(metrics.replicaCount);
-
   const breakdown = {
     base: profile.baseMonthly,
     storage: storageGb * profile.storagePerGb,
@@ -95,7 +86,6 @@ export const estimateDatabaseMonthlyCost = (
     backup: backupSizeGb * profile.backupPerGb,
     replicas: replicaCount * profile.replicaMonthly,
   };
-
   const subtotal =
     breakdown.base +
     breakdown.storage +
@@ -103,7 +93,6 @@ export const estimateDatabaseMonthlyCost = (
     breakdown.backup +
     breakdown.replicas;
   const monthlyEstimate = Math.round(subtotal * multiplier * 100) / 100;
-
   return {
     provider,
     monthlyEstimate,
@@ -111,4 +100,3 @@ export const estimateDatabaseMonthlyCost = (
     breakdown,
   };
 };
-

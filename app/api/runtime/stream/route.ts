@@ -2,19 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { RuntimeEngine } from "@/lib/runtime/engine";
 import { setActiveRuntimeGraphs } from "@/lib/runtime/state";
 import { RuntimeStartPayloadSchema } from "@/lib/runtime/validation";
-
 const toSseChunk = (event: string, payload: unknown): string =>
   `event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`;
-
 export async function POST(req: NextRequest) {
   let payload: unknown;
-
   try {
     payload = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
-
   const parsed = RuntimeStartPayloadSchema.safeParse(payload);
   if (!parsed.success) {
     return NextResponse.json(
@@ -25,19 +21,15 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
-
   setActiveRuntimeGraphs(parsed.data.graphs);
   const encoder = new TextEncoder();
-
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const send = (event: string, data: unknown) => {
         controller.enqueue(encoder.encode(toSseChunk(event, data)));
       };
-
       try {
         send("status", { message: "runtime_started" });
-
         const engine = new RuntimeEngine(parsed.data.graphs);
         const executionOrder = await engine.start({
           onOrder: (node, index, total) => {
@@ -57,7 +49,6 @@ export async function POST(req: NextRequest) {
             });
           },
         });
-
         send("complete", {
           executionOrder,
           totalNodes: executionOrder.length,
@@ -72,7 +63,6 @@ export async function POST(req: NextRequest) {
       }
     },
   });
-
   return new Response(stream, {
     headers: {
       "Content-Type": "text/event-stream; charset=utf-8",

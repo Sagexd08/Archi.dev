@@ -1,10 +1,8 @@
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { ServiceBoundaryBlock } from "@/lib/schema/node";
-
 export const ServiceBoundaryNode = memo(({ data, selected }: NodeProps) => {
   const service = data as unknown as ServiceBoundaryBlock;
-
   return (
     <div
       style={{
@@ -43,7 +41,6 @@ export const ServiceBoundaryNode = memo(({ data, selected }: NodeProps) => {
           {service.computeRef ? "compute linked" : "compute required"}
         </span>
       </div>
-
       <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--border)" }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>
           {service.label}
@@ -54,7 +51,6 @@ export const ServiceBoundaryNode = memo(({ data, selected }: NodeProps) => {
           </div>
         )}
       </div>
-
       <div style={{ padding: "8px 12px", display: "grid", gap: 6, fontSize: 11 }}>
         <div style={{ color: "var(--secondary)" }}>
           API: <span style={{ color: "var(--foreground)" }}>{service.apiRefs.length}</span>
@@ -73,7 +69,6 @@ export const ServiceBoundaryNode = memo(({ data, selected }: NodeProps) => {
           </span>
         </div>
       </div>
-
       <Handle
         type="target"
         position={Position.Left}
@@ -97,6 +92,4 @@ export const ServiceBoundaryNode = memo(({ data, selected }: NodeProps) => {
     </div>
   );
 });
-
 ServiceBoundaryNode.displayName = "ServiceBoundaryNode";
-

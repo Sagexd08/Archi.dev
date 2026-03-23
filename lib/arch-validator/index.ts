@@ -1,22 +1,16 @@
-/**
- * Architecture Validator
- *
- * Validates the canvas graph BEFORE code generation runs, surfacing issues
- * early so the user can fix them rather than burning Gemini quota on a broken
- * design.
- *
- * Errors   — blocking (Generate is disabled until resolved)
- * Warnings — informational (user can proceed, but should be aware)
- */
+
+
+
+
+
+
+
+
+
+
 
 import type { Node, Edge } from "@xyflow/react";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Public types
-// ─────────────────────────────────────────────────────────────────────────────
-
 export type Severity = "error" | "warning";
-
 export interface ArchIssue {
   id: string;
   severity: Severity;
@@ -25,41 +19,27 @@ export interface ArchIssue {
   message: string;
   suggestion?: string;
 }
-
 export interface ValidationResult {
-  valid: boolean;         // false if any errors exist
+  valid: boolean;
   issues: ArchIssue[];
   errorCount: number;
   warningCount: number;
   nodeCount: number;
   edgeCount: number;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Internal helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
 type AnyData = Record<string, unknown>;
-
 function kind(node: Node): string {
   return String((node.data as AnyData).kind ?? "");
 }
-
 function label(node: Node): string {
   return String((node.data as AnyData).label ?? node.id);
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Validator
-// ─────────────────────────────────────────────────────────────────────────────
-
 export function validateArchitecture(
   nodes: Node[],
   edges: Edge[],
 ): ValidationResult {
   const issues: ArchIssue[] = [];
   let idSeq = 0;
-
   const err = (
     code: string,
     message: string,
@@ -67,7 +47,6 @@ export function validateArchitecture(
     nodeLabel?: string,
     suggestion?: string,
   ) => issues.push({ id: `${code}-${++idSeq}`, severity: "error", nodeId, nodeLabel, message, suggestion });
-
   const warn = (
     code: string,
     message: string,
@@ -75,17 +54,10 @@ export function validateArchitecture(
     nodeLabel?: string,
     suggestion?: string,
   ) => issues.push({ id: `${code}-${++idSeq}`, severity: "warning", nodeId, nodeLabel, message, suggestion });
-
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
-
-  // Set of node IDs that are connected to at least one edge
   const connectedIds = new Set<string>();
   edges.forEach((e) => { connectedIds.add(e.source); connectedIds.add(e.target); });
-
-  // "Meaningful" = not a service_boundary (cosmetic grouping node)
   const meaningful = nodes.filter((n) => kind(n) !== "service_boundary");
-
-  // ── 1. Empty canvas ───────────────────────────────────────────────────────
   if (meaningful.length === 0) {
     err(
       "EMPTY_CANVAS",
@@ -95,8 +67,6 @@ export function validateArchitecture(
     );
     return buildResult(issues, nodes, edges);
   }
-
-  // ── 2. Dangling edges (source or target doesn't exist) ────────────────────
   for (const edge of edges) {
     if (!nodeMap.has(edge.source)) {
       err(
@@ -115,8 +85,6 @@ export function validateArchitecture(
       );
     }
   }
-
-  // ── 3. Self-loops ─────────────────────────────────────────────────────────
   for (const edge of edges) {
     if (edge.source === edge.target) {
       warn(
@@ -128,24 +96,16 @@ export function validateArchitecture(
       );
     }
   }
-
-  // Track seen routes for duplicate detection
-  const seenRoutes = new Map<string, string>(); // "METHOD /route" → nodeId
-
-  // ── 4. Per-node validation ────────────────────────────────────────────────
+  const seenRoutes = new Map<string, string>();
   for (const node of meaningful) {
     const data = node.data as AnyData;
     const k = kind(node);
     const lbl = label(node);
-
-    // ── 4a. API bindings ─────────────────────────────────────────────────────
     if (k === "api_binding") {
       const protocol = String(data.protocol ?? "rest");
-
       if (protocol === "rest") {
         const method = String(data.method ?? "").toUpperCase();
         const route  = String(data.route  ?? "").trim();
-
         if (!method) {
           err(
             "API_NO_METHOD",
@@ -154,7 +114,6 @@ export function validateArchitecture(
             'Set a method (GET, POST, PUT, PATCH, DELETE) in the node\'s Properties panel.',
           );
         }
-
         if (!route) {
           err(
             "API_NO_ROUTE",
@@ -179,7 +138,6 @@ export function validateArchitecture(
               "Routes cannot have spaces. Use hyphens or %20 for URL encoding.",
             );
           }
-          // Duplicate route check
           const key = `${method} ${route}`;
           if (seenRoutes.has(key)) {
             err(
@@ -193,8 +151,6 @@ export function validateArchitecture(
           }
         }
       }
-
-      // API not connected to anything
       if (!connectedIds.has(node.id)) {
         warn(
           "ISOLATED_API",
@@ -204,8 +160,6 @@ export function validateArchitecture(
         );
       }
     }
-
-    // ── 4b. Process / function blocks ────────────────────────────────────────
     if (k === "process") {
       if (!lbl || lbl === node.id) {
         warn(
@@ -215,7 +169,6 @@ export function validateArchitecture(
           "Add a label so the generated code has a meaningful function name.",
         );
       }
-
       const steps = (data.steps as unknown[]) ?? [];
       if (steps.length === 0) {
         warn(
@@ -226,8 +179,6 @@ export function validateArchitecture(
         );
       }
     }
-
-    // ── 4c. Database blocks ───────────────────────────────────────────────────
     if (k === "database") {
       const tables = (data.tables as unknown[]) ?? [];
       if (tables.length === 0) {
@@ -251,8 +202,6 @@ export function validateArchitecture(
           }
         }
       }
-
-      // Database not connected to anything
       if (!connectedIds.has(node.id)) {
         warn(
           "ISOLATED_DB",
@@ -262,8 +211,6 @@ export function validateArchitecture(
         );
       }
     }
-
-    // ── 4d. Queue blocks ──────────────────────────────────────────────────────
     if (k === "queue") {
       const delivery = String(data.delivery ?? "");
       const valid = ["at_least_once", "at_most_once", "exactly_once"];
@@ -285,13 +232,9 @@ export function validateArchitecture(
       }
     }
   }
-
-  // ── 5. Graph-level checks ─────────────────────────────────────────────────
-
   const apiNodes      = meaningful.filter((n) => kind(n) === "api_binding");
   const processNodes  = meaningful.filter((n) => kind(n) === "process");
   const dbNodes       = meaningful.filter((n) => kind(n) === "database");
-
   if (apiNodes.length > 0 && processNodes.length === 0) {
     warn(
       "NO_FUNCTIONS",
@@ -300,7 +243,6 @@ export function validateArchitecture(
       "Add a Function block and connect it to your APIs to define the business logic.",
     );
   }
-
   if (dbNodes.length > 0 && processNodes.length === 0) {
     warn(
       "DB_NO_FUNCTIONS",
@@ -309,8 +251,6 @@ export function validateArchitecture(
       "Add a Function block and connect it to your Databases.",
     );
   }
-
-  // Completely isolated meaningful nodes (not connected to anything)
   const totalIsolated = meaningful.filter((n) => !connectedIds.has(n.id));
   if (totalIsolated.length === meaningful.length && meaningful.length > 1) {
     warn(
@@ -320,10 +260,8 @@ export function validateArchitecture(
       "Draw edges between nodes to express dependencies and API-to-function relationships.",
     );
   }
-
   return buildResult(issues, nodes, edges);
 }
-
 function buildResult(
   issues: ArchIssue[],
   nodes: Node[],

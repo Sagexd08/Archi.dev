@@ -1,7 +1,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import { useStore } from "@/store/useStore";
-
 export function AgentWorkspace() {
   const nodes = useStore((state) => state.nodes);
   const edges = useStore((state) => state.edges);
@@ -15,7 +14,6 @@ export function AgentWorkspace() {
   >("idle");
   const [plan, setPlan] = useState<Record<string, unknown> | null>(null);
   const [includePatch, setIncludePatch] = useState(false);
-
   const summary = useMemo(() => {
     const kindCount: Record<string, number> = {};
     for (const node of nodes) {
@@ -30,7 +28,6 @@ export function AgentWorkspace() {
     }
     return kindCount;
   }, [nodes]);
-
   const executionPayload = useMemo(
     () => ({
       generatedAt: new Date().toISOString(),
@@ -63,7 +60,6 @@ export function AgentWorkspace() {
     }),
     [edges, nodes],
   );
-
   const handleExecute = async () => {
     setExecutionStatus("running");
     try {
@@ -78,13 +74,11 @@ export function AgentWorkspace() {
           includePatch,
         }),
       });
-
       if (!response.ok) {
         console.error("Agent execution failed:", response.statusText);
         setExecutionStatus("idle");
         return;
       }
-
       const json = await response.json();
       setPlan(json.plan);
       if (includePatch && json.patch) {
@@ -99,7 +93,6 @@ export function AgentWorkspace() {
       setExecutionStatus("idle");
     }
   };
-
   return (
     <main
       style={{
@@ -136,7 +129,6 @@ export function AgentWorkspace() {
           <div style={{ fontSize: 12, fontWeight: 600 }}>Agent</div>
           <div style={{ fontSize: 11, color: "var(--muted)" }}>design mode</div>
         </div>
-
         <div
           style={{
             padding: 12,
@@ -161,7 +153,6 @@ export function AgentWorkspace() {
               I can inspect your flow design and generate an execution payload.
             </div>
           </div>
-
           <div
             style={{
               border: "1px solid var(--border)",
@@ -175,7 +166,6 @@ export function AgentWorkspace() {
             </div>
             <div style={{ fontSize: 12, lineHeight: 1.45 }}>{prompt}</div>
           </div>
-
           <div
             style={{
               display: "flex",
@@ -207,7 +197,6 @@ export function AgentWorkspace() {
             </span>
           </div>
         </div>
-
         <div
           style={{
             borderTop: "1px solid var(--border)",
@@ -296,7 +285,6 @@ export function AgentWorkspace() {
           )}
         </div>
       </section>
-
       <section
         style={{
           border: "1px solid color-mix(in srgb, var(--border) 75%, #ffffff 25%)",
@@ -322,7 +310,6 @@ export function AgentWorkspace() {
             generated {executionPayload.generatedAt}
           </div>
         </div>
-
         <div style={{ padding: 12, overflow: "auto", display: "grid", gap: 12 }}>
           <div
             style={{
@@ -344,7 +331,6 @@ export function AgentWorkspace() {
               ))}
             </div>
           </div>
-
           {plan ? (
             <>
               <div
@@ -371,7 +357,6 @@ export function AgentWorkspace() {
                   {JSON.stringify(plan, null, 2)}
                 </pre>
               </div>
-
               {includePatch && (
                 <div
                   style={{
@@ -419,4 +404,3 @@ export function AgentWorkspace() {
     </main>
   );
 }
-

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useStore } from "@/store/useStore";
 import type {
@@ -26,11 +25,6 @@ import {
   getStoreVersion,
   coerce,
 } from "@/lib/test-env/store";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Mock helpers (for field prefill)
-// ─────────────────────────────────────────────────────────────────────────────
-
 function mockStr(name: string): string {
   const n = name.toLowerCase();
   if (n === "id" || (n.endsWith("_id") && !n.includes("valid"))) return "1";
@@ -53,7 +47,6 @@ function mockStr(name: string): string {
   if (n.includes("address")) return "123 Main St";
   return "sample";
 }
-
 function mockForField(name: string, type: string): string {
   if (type === "boolean") return "true";
   if (type === "number") {
@@ -66,7 +59,6 @@ function mockForField(name: string, type: string): string {
   if (type === "object" || type === "array") return "";
   return mockStr(name);
 }
-
 function seedRow(fields: { name: string; type: string }[], index = 0): Row {
   const NAMES = ["Alice Johnson", "Bob Williams", "Carol Davis", "Dan Martinez", "Eve Wilson"];
   const EMAILS = ["alice@example.com", "bob@example.com", "carol@example.com", "dan@example.com", "eve@example.com"];
@@ -81,7 +73,6 @@ function seedRow(fields: { name: string; type: string }[], index = 0): Row {
     if (t === "json") { row[f.name] = { key: `value_${index + 1}` }; continue; }
     if (t === "date") { row[f.name] = new Date(Date.now() - index * 86400000).toISOString().split("T")[0]; continue; }
     if (t === "datetime") { row[f.name] = new Date(Date.now() - index * 86400000).toISOString(); continue; }
-    // string heuristics
     if (n.includes("email")) { row[f.name] = EMAILS[index % EMAILS.length]; continue; }
     if (n.includes("name") && !n.includes("file")) { row[f.name] = NAMES[index % NAMES.length]; continue; }
     if (n.includes("status")) { row[f.name] = index % 2 === 0 ? "active" : "inactive"; continue; }
@@ -91,17 +82,11 @@ function seedRow(fields: { name: string; type: string }[], index = 0): Row {
   }
   return row;
 }
-
 function wait(ms: number) { return new Promise<void>((r) => setTimeout(r, ms)); }
 function randMs(lo = 60, hi = 400) { return Math.floor(Math.random() * (hi - lo) + lo); }
 function initVals(fields: InputField[]) {
   return Object.fromEntries(fields.map((f) => [f.name, mockForField(f.name, f.type)]));
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Style tokens
-// ─────────────────────────────────────────────────────────────────────────────
-
 const C = {
   bg: "#0f131a",
   panel: "#151b24",
@@ -114,17 +99,14 @@ const C = {
   amber: "#f59e0b",
   red: "#ef4444",
 };
-
 const MC: Record<string, string> = {
   GET: "#22c55e", POST: "#87a3ff", PUT: "#f59e0b", PATCH: "#f59e0b", DELETE: "#ef4444",
 };
-
 const INPUT: React.CSSProperties = {
   width: "100%", background: C.bg, border: `1px solid ${C.border}`,
   color: C.fg, borderRadius: 7, padding: "7px 10px", fontSize: 12,
   fontFamily: "inherit", outline: "none", boxSizing: "border-box",
 };
-
 const btn = (primary = false, danger = false): React.CSSProperties => ({
   display: "inline-flex", alignItems: "center", gap: 7,
   border: `1px solid ${danger ? C.red : primary ? C.primary : C.border}`,
@@ -136,11 +118,6 @@ const btn = (primary = false, danger = false): React.CSSProperties => ({
   color: C.fg, borderRadius: 8, padding: "7px 14px",
   fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0,
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Atoms
-// ─────────────────────────────────────────────────────────────────────────────
-
 function Spinner() {
   return (
     <>
@@ -153,7 +130,6 @@ function Spinner() {
     </>
   );
 }
-
 function Badge({ label, color = C.primary }: { label: string; color?: string }) {
   return (
     <span style={{
@@ -167,11 +143,9 @@ function Badge({ label, color = C.primary }: { label: string; color?: string }) 
     </span>
   );
 }
-
 function SLabel({ children }: { children: React.ReactNode }) {
   return <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginBottom: 6 }}>{children}</div>;
 }
-
 function Panel({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 14, ...style }}>
@@ -179,7 +153,6 @@ function Panel({ children, style }: { children: React.ReactNode; style?: React.C
     </div>
   );
 }
-
 function Code({ value, maxH = 260 }: { value: unknown; maxH?: number }) {
   return (
     <pre style={{
@@ -192,16 +165,10 @@ function Code({ value, maxH = 260 }: { value: unknown; maxH?: number }) {
     </pre>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// JsonHighlight — syntax-coloured JSON viewer
-// ─────────────────────────────────────────────────────────────────────────────
-
 function JsonHighlight({ value, maxH = 360 }: { value: unknown; maxH?: number }) {
   const text = JSON.stringify(value, null, 2);
   type Token = { t: string; c: string };
   const tokens: Token[] = [];
-  // regex groups: 1=key, 2=string-value, 3=number, 4=bool/null, 5=punctuation
   const re = /("(?:[^"\\]|\\.)*")\s*:|(\"(?:[^"\\]|\\.)*\")|([-\d.eE+]+(?!["\w.]))|(\btrue\b|\bfalse\b|\bnull\b)|([{}\[\],:])/g;
   let last = 0, m: RegExpExecArray | null;
   while ((m = re.exec(text)) !== null) {
@@ -227,16 +194,10 @@ function JsonHighlight({ value, maxH = 360 }: { value: unknown; maxH?: number })
     </pre>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TabBar + KVTable — Postman-style request editor primitives
-// ─────────────────────────────────────────────────────────────────────────────
-
 type KVRow = { id: string; enabled: boolean; key: string; value: string };
 function mkKV(key = "", value = ""): KVRow {
   return { id: Math.random().toString(36).slice(2), enabled: true, key, value };
 }
-
 function TabBar({ tabs, active, onChange }: {
   tabs: string[]; active: string; onChange: (t: string) => void;
 }) {
@@ -259,7 +220,6 @@ function TabBar({ tabs, active, onChange }: {
     </div>
   );
 }
-
 function KVTable({ rows, onChange, keyPlaceholder = "Key", valPlaceholder = "Value" }: {
   rows: KVRow[];
   onChange: (rows: KVRow[]) => void;
@@ -270,7 +230,6 @@ function KVTable({ rows, onChange, keyPlaceholder = "Key", valPlaceholder = "Val
     onChange(rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   const remove = (id: string) => onChange(rows.filter((r) => r.id !== id));
   const add = () => onChange([...rows, mkKV()]);
-
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       {rows.length > 0 && (
@@ -304,9 +263,7 @@ function KVTable({ rows, onChange, keyPlaceholder = "Key", valPlaceholder = "Val
     </div>
   );
 }
-
 type RunResult = { status: number; latency: number; body: unknown; size?: number };
-
 function ResultBox({ r }: { r: RunResult }) {
   const ok = r.status < 400;
   return (
@@ -320,13 +277,7 @@ function ResultBox({ r }: { r: RunResult }) {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Environment Variables — Postman-style {{variable}} interpolation
-// ─────────────────────────────────────────────────────────────────────────────
-
 type EnvVar = { key: string; value: string; enabled: boolean };
-
 const ENV_STORAGE_KEY = "ermiz-test-env-vars";
 function loadEnvVars(): EnvVar[] {
   try {
@@ -345,11 +296,6 @@ function interpolate(str: string, vars: EnvVar[]): string {
   }
   return out;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Request History
-// ─────────────────────────────────────────────────────────────────────────────
-
 type HistoryEntry = {
   id: string;
   method: string;
@@ -360,7 +306,6 @@ type HistoryEntry = {
   body?: unknown;
   responseBody?: unknown;
 };
-
 const historyStore: HistoryEntry[] = [];
 function addHistory(entry: Omit<HistoryEntry, "id" | "ts">) {
   historyStore.unshift({
@@ -374,11 +319,6 @@ function addHistory(entry: Omit<HistoryEntry, "id" | "ts">) {
   });
   if (historyStore.length > 50) historyStore.length = 50;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Saved Collections
-// ─────────────────────────────────────────────────────────────────────────────
-
 type SavedRequest = {
   id: string;
   name: string;
@@ -388,7 +328,6 @@ type SavedRequest = {
   headers: KVRow[];
   params: KVRow[];
 };
-
 const COLLECTION_KEY = "ermiz-test-collections";
 function loadCollections(): SavedRequest[] {
   try {
@@ -399,11 +338,6 @@ function loadCollections(): SavedRequest[] {
 function saveCollections(c: SavedRequest[]) {
   localStorage.setItem(COLLECTION_KEY, JSON.stringify(c));
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Integration Validator
-// ─────────────────────────────────────────────────────────────────────────────
-
 type CheckSeverity = "pass" | "warn" | "fail";
 type IntegrationCheck = {
   id: string;
@@ -412,7 +346,6 @@ type IntegrationCheck = {
   detail: string;
   nodeId?: string;
 };
-
 function runIntegrationChecks(
   nodes: TNode[],
   edges: { source: string; target: string }[],
@@ -429,8 +362,6 @@ function runIntegrationChecks(
     connMap.get(e.source)!.add(e.target);
     connMap.get(e.target)!.add(e.source);
   }
-
-  // 1. API → Function wiring
   for (const api of apis) {
     const apiData = api.data as ApiBinding;
     const connected = connMap.get(api.id);
@@ -455,8 +386,6 @@ function runIntegrationChecks(
       });
     }
   }
-
-  // 2. Function → DB wiring
   for (const fn of funcs) {
     const fnData = fn.data as ProcessDefinition;
     const dbSteps = fnData.steps.filter((s) => s.kind === "db_operation");
@@ -484,8 +413,6 @@ function runIntegrationChecks(
       }
     }
   }
-
-  // 3. DB tables defined
   for (const db of dbs) {
     const dbData = db.data as DatabaseBlock;
     if (dbData.tables.length === 0) {
@@ -515,7 +442,6 @@ function runIntegrationChecks(
           nodeId: db.id,
         });
       }
-      // Check for primary keys
       const noPK = dbData.tables.filter(
         (t) => t.fields.length > 0 && !t.fields.some((f) => f.isPrimaryKey),
       );
@@ -530,8 +456,6 @@ function runIntegrationChecks(
       }
     }
   }
-
-  // 4. Queue consumers
   for (const q of queues) {
     const connected = connMap.get(q.id);
     const hasConsumer = connected
@@ -555,8 +479,6 @@ function runIntegrationChecks(
       });
     }
   }
-
-  // 5. API route uniqueness
   const routeMap = new Map<string, string[]>();
   for (const api of apis) {
     const d = api.data as ApiBinding;
@@ -574,8 +496,6 @@ function runIntegrationChecks(
       });
     }
   }
-
-  // 6. Function I/O check
   for (const fn of funcs) {
     const fnData = fn.data as ProcessDefinition;
     if (fnData.inputs.length === 0 && fnData.steps.length === 0) {
@@ -588,8 +508,6 @@ function runIntegrationChecks(
       });
     }
   }
-
-  // 7. FK reference validity
   for (const db of dbs) {
     const dbData = db.data as DatabaseBlock;
     const tableNames = new Set(dbData.tables.map((t) => t.name));
@@ -617,8 +535,6 @@ function runIntegrationChecks(
       }
     }
   }
-
-  // 8. Orphan nodes
   const allConnected = new Set<string>();
   for (const e of edges) {
     allConnected.add(e.source);
@@ -637,8 +553,6 @@ function runIntegrationChecks(
       });
     }
   }
-
-  // Summary check if nothing found
   if (checks.length === 0 && nodes.length > 0) {
     checks.push({
       id: "all-ok",
@@ -647,10 +561,8 @@ function runIntegrationChecks(
       detail: "No integration issues detected.",
     });
   }
-
   return checks;
 }
-
 function FieldInputs({
   label, fields, values, onChange,
 }: {
@@ -690,27 +602,17 @@ function FieldInputs({
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// API Pane — Postman-style request builder + real CRUD against in-memory store
-// ─────────────────────────────────────────────────────────────────────────────
-
 type AuthType = "None" | "Bearer" | "API Key" | "Basic";
 type BodyMode = "none" | "json" | "form";
-
 function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars: EnvVar[] }) {
   void sv;
   const isRest = node.protocol === "rest";
-
-  // ── request state ──────────────────────────────────────────────────────────
   const [method, setMethod] = useState<string>(node.method ?? "GET");
   const [url, setUrl] = useState(node.route ?? "/");
-
   const pathFields = node.request?.pathParams ?? [];
   const queryFields = node.request?.queryParams ?? [];
   const headerFields = node.request?.headers ?? [];
   const bodyFields = node.request?.body?.schema ?? [];
-
   const [paramRows, setParamRows] = useState<KVRow[]>(() => [
     ...pathFields.map((f) => mkKV(f.name, mockForField(f.name, f.type))),
     ...queryFields.map((f) => mkKV(f.name, mockForField(f.name, f.type))),
@@ -724,7 +626,6 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
   const [apiKeyVal, setApiKeyVal] = useState("");
   const [basicUser, setBasicUser] = useState("");
   const [basicPass, setBasicPass] = useState("");
-
   const [bodyMode, setBodyMode] = useState<BodyMode>(bodyFields.length > 0 ? "json" : "none");
   const [bodyJson, setBodyJson] = useState(() => {
     if (!bodyFields.length) return "";
@@ -736,21 +637,15 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
     bodyFields.map((f) => mkKV(f.name, mockForField(f.name, f.type)))
   );
   const [jsonError, setJsonError] = useState<string | null>(null);
-
-  // ── response state ────────────────────────────────────────────────────────
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
   const [resTab, setResTab] = useState<"Body" | "Headers">("Body");
   const [reqTab, setReqTab] = useState<"Params" | "Auth" | "Headers" | "Body">("Params");
-
-  // static response headers (simulated)
   const resHeaders = useMemo(() => ({
     "Content-Type": "application/json",
     "X-Request-Id": "req_" + Math.random().toString(36).slice(2, 10),
     "Cache-Control": "no-cache",
-  }), []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── constructed URL preview ───────────────────────────────────────────────
+  }), []);
   const constructedUrl = useMemo(() => {
     let u = url;
     paramRows.filter((r) => r.enabled && r.key && url.includes(`:${r.key}`))
@@ -762,8 +657,6 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
     }
     return u;
   }, [url, paramRows]);
-
-  // ── send ──────────────────────────────────────────────────────────────────
   const send = useCallback(async () => {
     const resolvedUrl = interpolate(url, envVars);
     const bodyVals: Record<string, string> = {};
@@ -789,7 +682,6 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
     const queryVals: Record<string, string> = {};
     paramRows.filter((r) => r.enabled && r.key && !resolvedUrl.includes(`:${r.key}`))
       .forEach((r) => { queryVals[interpolate(r.key, envVars)] = interpolate(r.value, envVars); });
-
     setRunning(true);
     const t0 = performance.now();
     const ms = randMs(60, 300);
@@ -801,7 +693,6 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
     setResult(res);
     setResTab("Body");
     setRunning(false);
-
     addHistory({
       method,
       url: resolvedUrl,
@@ -811,8 +702,6 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
       responseBody: body,
     });
   }, [method, url, paramRows, bodyMode, bodyJson, bodyForm, envVars]);
-
-  // ── non-REST fallback ─────────────────────────────────────────────────────
   if (!isRest) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -832,17 +721,13 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
       </div>
     );
   }
-
   const resource = resourceName(url);
   const recordCount = getTable(resource).size();
   const methodColor = MC[method] ?? C.primary;
   const statusOk = result && result.status < 400;
   const statusColor = result ? (statusOk ? C.green : C.red) : C.muted;
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-      {/* ── endpoint title ── */}
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: C.fg }}>{node.label}</span>
@@ -857,8 +742,6 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
           </span>
         </div>
       </div>
-
-      {/* ── URL bar ── */}
       <div style={{
         display: "flex", border: `1px solid ${C.border}`,
         borderRadius: 9, overflow: "hidden", background: C.bg,
@@ -910,15 +793,11 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
           💾
         </button>
       </div>
-
-      {/* constructed URL hint */}
       {constructedUrl !== url && (
         <div style={{ fontSize: 11, color: C.muted, marginTop: -10, fontFamily: "monospace" }}>
           → {constructedUrl}
         </div>
       )}
-
-      {/* ── request editor ── */}
       <div style={{ border: `1px solid ${C.border}`, borderRadius: 9, overflow: "hidden" }}>
         <TabBar
           tabs={["Params", "Auth", "Headers", "Body"]}
@@ -926,12 +805,10 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
           onChange={(t) => setReqTab(t as typeof reqTab)}
         />
         <div style={{ padding: 14 }}>
-
           {reqTab === "Params" && (
             <KVTable rows={paramRows} onChange={setParamRows}
               keyPlaceholder="param" valPlaceholder="value" />
           )}
-
           {reqTab === "Auth" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
@@ -982,12 +859,10 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
               )}
             </div>
           )}
-
           {reqTab === "Headers" && (
             <KVTable rows={headerRows} onChange={setHeaderRows}
               keyPlaceholder="Header-Name" valPlaceholder="value" />
           )}
-
           {reqTab === "Body" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ display: "flex", gap: 16 }}>
@@ -1029,11 +904,8 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
           )}
         </div>
       </div>
-
-      {/* ── response section ── */}
       {result && (
         <div style={{ border: `1px solid ${C.border}`, borderRadius: 9, overflow: "hidden" }}>
-          {/* status bar */}
           <div style={{
             display: "flex", alignItems: "center", gap: 12, padding: "9px 16px",
             background: `color-mix(in srgb, ${statusColor} 8%, ${C.float})`,
@@ -1066,15 +938,9 @@ function ApiPane({ node, sv, envVars }: { node: ApiBinding; sv: number; envVars:
           </div>
         </div>
       )}
-
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Function Pane
-// ─────────────────────────────────────────────────────────────────────────────
-
 function FunctionPane({ node }: { node: ProcessDefinition }) {
   const [values, setValues] = useState<Record<string, string>>(() => ({
     ...initVals(node.inputs),
@@ -1083,7 +949,6 @@ function FunctionPane({ node }: { node: ProcessDefinition }) {
   const [running, setRunning] = useState(false);
   const [log, setLog] = useState<{ ms: number; text: string }[]>([]);
   const [result, setResult] = useState<RunResult | null>(null);
-
   const run = useCallback(async () => {
     setRunning(true);
     setLog([]);
@@ -1095,16 +960,12 @@ function FunctionPane({ node }: { node: ProcessDefinition }) {
         { id: "2", kind: "compute" as const, description: "Execute business logic" },
         { id: "3", kind: "return" as const, description: "Return result" },
       ];
-
     const t0 = Date.now();
     const outputAccum: Record<string, unknown> = {};
-
     for (const step of steps) {
       await wait(randMs(30, 160));
       const elapsed = Date.now() - t0;
       const desc = step.description || step.kind;
-
-      // For db_operation steps, actually query the store
       if (step.kind === "db_operation") {
         const target = (step.config?.target as string) ?? "";
         const op = (step.config?.operation as string)?.toUpperCase() ?? "SELECT";
@@ -1119,10 +980,8 @@ function FunctionPane({ node }: { node: ProcessDefinition }) {
           }
         }
       }
-
       setLog((prev) => [...prev, { ms: elapsed, text: `${step.kind}: ${desc}` }]);
     }
-
     const latency = Date.now() - t0;
     const successOutputs = node.outputs?.success ?? [];
     const body: Record<string, unknown> = successOutputs.length
@@ -1133,18 +992,15 @@ function FunctionPane({ node }: { node: ProcessDefinition }) {
         ])
       )
       : { success: true };
-
     setResult({ status: 200, latency, body });
     setRunning(false);
   }, [node, values]);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <NodeTitle label={node.label} desc={node.description}>
         <Badge label={node.processType === "start_function" ? "Start" : "Function"} />
         <Badge label={node.execution} color={C.muted} />
       </NodeTitle>
-
       {node.inputs.length > 0 ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <SLabel>Inputs {node.testInputs && Object.keys(node.testInputs).length > 0 && (
@@ -1166,11 +1022,9 @@ function FunctionPane({ node }: { node: ProcessDefinition }) {
       ) : (
         <div style={{ fontSize: 12, color: C.muted }}>This function takes no inputs.</div>
       )}
-
       <button style={btn(true)} onClick={run} disabled={running}>
         {running ? <><Spinner /> Running…</> : "▶  Run Function"}
       </button>
-
       {(log.length > 0 || running) && (
         <Panel>
           <SLabel>Execution Log</SLabel>
@@ -1190,7 +1044,6 @@ function FunctionPane({ node }: { node: ProcessDefinition }) {
           </div>
         </Panel>
       )}
-
       {result && (
         <div>
           <SLabel>Output</SLabel>
@@ -1200,11 +1053,6 @@ function FunctionPane({ node }: { node: ProcessDefinition }) {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Database Pane — real SQL against in-memory store
-// ─────────────────────────────────────────────────────────────────────────────
-
 function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
   void sv;
   const [selectedTable, setSelectedTable] = useState(node.tables[0]?.name ?? "");
@@ -1212,18 +1060,14 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
   const [running, setRunning] = useState(false);
   const [queryResult, setQueryResult] = useState<SQLResult | null>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
-
   const currentTable = node.tables.find((t) => t.name === selectedTable);
-
-  // When table changes, update default SQL
   useEffect(() => {
     if (currentTable) {
       const cols = currentTable.fields.map((f) => f.name).join(", ");
       setSql(`SELECT ${cols || "*"}\nFROM ${currentTable.name}\nLIMIT 20;`);
       setQueryResult(null);
     }
-  }, [currentTable?.name]); // eslint-disable-line react-hooks/exhaustive-deps
-
+  }, [currentTable?.name]);
   const runQuery = useCallback(async () => {
     if (!sql.trim()) return;
     setRunning(true);
@@ -1233,7 +1077,6 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
     setQueryResult(r);
     setRunning(false);
   }, [sql]);
-
   const seedTable = useCallback((count = 5) => {
     if (!currentTable) return;
     for (let i = 0; i < count; i++) {
@@ -1241,11 +1084,9 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
       getTable(currentTable.name).insert(row);
     }
     bumpStore();
-    // Refresh with SELECT
     const r = execSQL(`SELECT * FROM ${currentTable.name} LIMIT 20;`);
     setQueryResult(r);
   }, [currentTable]);
-
   const insertTemplate = () => {
     if (!currentTable) return;
     const cols = currentTable.fields.filter((f) => !f.isPrimaryKey).map((f) => f.name);
@@ -1257,24 +1098,20 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
     setSql(`INSERT INTO ${currentTable.name} (${cols.join(", ")})\nVALUES (${vals.join(", ")});`);
     editorRef.current?.focus();
   };
-
   const DB_COLOR: Record<string, string> = { sql: C.primary, nosql: C.green, kv: C.amber, graph: "#a78bfa" };
   const storeCount = currentTable ? getTable(currentTable.name).size() : 0;
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <NodeTitle label={node.label} desc={node.description}>
         <Badge label={node.dbType.toUpperCase()} color={DB_COLOR[node.dbType] ?? C.primary} />
         {node.engine && <span style={{ fontSize: 11, color: C.muted }}>{node.engine}</span>}
       </NodeTitle>
-
       {node.tables.length === 0 ? (
         <div style={{ fontSize: 12, color: C.muted }}>
           No tables defined. Add tables in the Database designer first.
         </div>
       ) : (
         <>
-          {/* Table selector */}
           <div>
             <SLabel>Table</SLabel>
             <select style={INPUT} value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)}>
@@ -1285,8 +1122,6 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
               ))}
             </select>
           </div>
-
-          {/* Schema */}
           {currentTable && (
             <Panel>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
@@ -1321,8 +1156,6 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
               </div>
             </Panel>
           )}
-
-          {/* Quick actions */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button style={{ ...btn(), fontSize: 11, padding: "5px 10px" }} onClick={insertTemplate}>
               + Insert template
@@ -1335,8 +1168,6 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
               Clear table
             </button>
           </div>
-
-          {/* SQL editor */}
           <div>
             <SLabel>SQL Editor</SLabel>
             <textarea
@@ -1350,12 +1181,9 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
             />
             <div style={{ fontSize: 10, color: C.muted, marginTop: 3 }}>Ctrl+Enter to run</div>
           </div>
-
           <button style={btn(true)} onClick={runQuery} disabled={running || !sql.trim()}>
             {running ? <><Spinner /> Running…</> : "▶  Run Query"}
           </button>
-
-          {/* Results */}
           {queryResult && (
             <Panel>
               {queryResult.error ? (
@@ -1401,15 +1229,9 @@ function DatabasePane({ node, sv }: { node: DatabaseBlock; sv: number }) {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Queue Pane — real FIFO queue
-// ─────────────────────────────────────────────────────────────────────────────
-
 function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
   void sv;
   const queue = getQueue(node.id);
-
   const [payload, setPayload] = useState(
     JSON.stringify({ event: "message.created", data: { id: 1, text: "Hello" }, timestamp: new Date().toISOString() }, null, 2)
   );
@@ -1418,7 +1240,6 @@ function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
   const [consumed, setConsumed] = useState<{ ts: string; payload: string }[]>([]);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [, forceRender] = useState(0);
-
   const publish = useCallback(async () => {
     try { JSON.parse(payload); } catch { setJsonError("Invalid JSON"); return; }
     setJsonError(null);
@@ -1430,7 +1251,6 @@ function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
     forceRender((n) => n + 1);
     setPublishing(false);
   }, [payload, queue]);
-
   const consume = useCallback(async () => {
     if (!queue.length) return;
     setConsuming(true);
@@ -1441,16 +1261,12 @@ function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
     forceRender((n) => n + 1);
     setConsuming(false);
   }, [queue]);
-
   const DC: Record<string, string> = { at_least_once: C.green, at_most_once: C.amber, exactly_once: C.primary };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <NodeTitle label={node.label} desc={node.description}>
         <Badge label={node.delivery.replace(/_/g, " ")} color={DC[node.delivery] ?? C.primary} />
       </NodeTitle>
-
-      {/* Queue status */}
       <div style={{ display: "flex", gap: 12, fontSize: 11, color: C.muted }}>
         <span style={{ color: queue.length > 0 ? C.amber : C.muted }}>
           Queued: <strong style={{ color: C.fg }}>{queue.length}</strong>
@@ -1458,8 +1274,6 @@ function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
         <span>Retry: {node.retry.maxAttempts}× {node.retry.backoff}</span>
         <span>DLQ: {node.deadLetter ? "on" : "off"}</span>
       </div>
-
-      {/* Publish */}
       <div>
         <SLabel>Publish Message</SLabel>
         <textarea
@@ -1468,7 +1282,6 @@ function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
         />
         {jsonError && <div style={{ fontSize: 11, color: C.red, marginTop: 3 }}>{jsonError}</div>}
       </div>
-
       <div style={{ display: "flex", gap: 8 }}>
         <button style={btn(true)} onClick={publish} disabled={publishing}>
           {publishing ? <><Spinner /> Publishing…</> : "▶  Publish"}
@@ -1477,8 +1290,6 @@ function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
           {consuming ? <><Spinner /> Consuming…</> : `⬇  Consume Next (${queue.length})`}
         </button>
       </div>
-
-      {/* Pending queue */}
       {queue.length > 0 && (
         <Panel>
           <SLabel>Pending ({queue.length})</SLabel>
@@ -1495,8 +1306,6 @@ function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
           </div>
         </Panel>
       )}
-
-      {/* Consumed log */}
       {consumed.length > 0 && (
         <Panel>
           <SLabel>Consumed ({consumed.length})</SLabel>
@@ -1516,11 +1325,6 @@ function QueuePane({ node, sv }: { node: QueueBlock; sv: number }) {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Infra Pane
-// ─────────────────────────────────────────────────────────────────────────────
-
 function MetricBar({ label, pct, color }: { label: string; pct: number; color: string }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -1534,7 +1338,6 @@ function MetricBar({ label, pct, color }: { label: string; pct: number; color: s
     </div>
   );
 }
-
 function InfraPane({ node }: { node: InfraBlock }) {
   const resourceType = (node as { resourceType?: string }).resourceType ?? "unknown";
   const config = (node as { config?: Record<string, unknown> }).config ?? {};
@@ -1551,7 +1354,6 @@ function InfraPane({ node }: { node: InfraBlock }) {
   const configEntries = Object.entries(config)
     .filter(([, v]) => v !== "" && v !== 0 && v !== false)
     .slice(0, 8);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <NodeTitle label={node.label} desc={node.description}>
@@ -1586,15 +1388,9 @@ function InfraPane({ node }: { node: InfraBlock }) {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// History Pane
-// ─────────────────────────────────────────────────────────────────────────────
-
 function HistoryPane() {
   const [, forceUpdate] = useState(0);
   const [expanded, setExpanded] = useState<string | null>(null);
-
   if (historyStore.length === 0) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -1607,7 +1403,6 @@ function HistoryPane() {
       </div>
     );
   }
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -1652,21 +1447,14 @@ function HistoryPane() {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Collections Pane
-// ─────────────────────────────────────────────────────────────────────────────
-
 function CollectionsPane({ onLoadRequest }: { onLoadRequest?: (req: SavedRequest) => void }) {
   const [collections, setCollections] = useState<SavedRequest[]>(() => loadCollections());
   const [expanded, setExpanded] = useState<string | null>(null);
-
   const remove = (id: string) => {
     const next = collections.filter((c) => c.id !== id);
     setCollections(next);
     saveCollections(next);
   };
-
   if (collections.length === 0) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -1679,7 +1467,6 @@ function CollectionsPane({ onLoadRequest }: { onLoadRequest?: (req: SavedRequest
       </div>
     );
   }
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -1754,11 +1541,6 @@ function CollectionsPane({ onLoadRequest }: { onLoadRequest?: (req: SavedRequest
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Environment Variables Pane
-// ─────────────────────────────────────────────────────────────────────────────
-
 function EnvVarsPane({ envVars, setEnvVars }: {
   envVars: EnvVar[]; setEnvVars: (v: EnvVar[]) => void;
 }) {
@@ -1772,7 +1554,6 @@ function EnvVarsPane({ envVars, setEnvVars }: {
   const add = () => {
     setEnvVars([...envVars, { key: "", value: "", enabled: true }]);
   };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -1829,11 +1610,6 @@ function EnvVarsPane({ envVars, setEnvVars }: {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Integration Validator Pane
-// ─────────────────────────────────────────────────────────────────────────────
-
 function ValidatorPane({ nodes, edges }: {
   nodes: TNode[]; edges: { source: string; target: string }[];
 }) {
@@ -1843,15 +1619,11 @@ function ValidatorPane({ nodes, edges }: {
     warn: checks.filter((c) => c.severity === "warn").length,
     fail: checks.filter((c) => c.severity === "fail").length,
   }), [checks]);
-
   const sevColor: Record<CheckSeverity, string> = { pass: C.green, warn: C.amber, fail: C.red };
   const sevIcon: Record<CheckSeverity, string> = { pass: "✓", warn: "⚠", fail: "✗" };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ fontSize: 15, fontWeight: 700, color: C.fg }}>✓ Integration Validator</div>
-
-      {/* Summary bar */}
       <div style={{
         display: "flex", gap: 16, padding: "12px 16px",
         background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10,
@@ -1872,8 +1644,6 @@ function ValidatorPane({ nodes, edges }: {
           <span style={{ fontSize: 11, color: C.muted }}>failures</span>
         </div>
       </div>
-
-      {/* Check list */}
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         {checks.map((ch) => (
           <div key={ch.id} style={{
@@ -1894,7 +1664,6 @@ function ValidatorPane({ nodes, edges }: {
           </div>
         ))}
       </div>
-
       {nodes.length === 0 && (
         <Panel>
           <div style={{ fontSize: 12, color: C.muted, textAlign: "center", padding: 16 }}>
@@ -1905,11 +1674,6 @@ function ValidatorPane({ nodes, edges }: {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared pieces
-// ─────────────────────────────────────────────────────────────────────────────
-
 function NodeTitle({ label, desc, children }: { label: string; desc?: string; children?: React.ReactNode }) {
   return (
     <div>
@@ -1921,9 +1685,7 @@ function NodeTitle({ label, desc, children }: { label: string; desc?: string; ch
     </div>
   );
 }
-
 type TNode = { id: string; kind: string; label: string; data: NodeData };
-
 function SidebarGroup({
   title, icon, items, selected, onSelect, sv,
 }: {
@@ -1942,8 +1704,6 @@ function SidebarGroup({
         const api = n.kind === "api_binding" ? (n.data as ApiBinding) : null;
         const dbNode = n.kind === "database" ? (n.data as DatabaseBlock) : null;
         const qNode = n.kind === "queue" ? (n.data as QueueBlock) : null;
-
-        // Live record/queue counts for the sidebar
         let countLabel = "";
         if (api?.route) {
           const c = getTable(resourceName(api.route)).size();
@@ -1957,7 +1717,6 @@ function SidebarGroup({
           const c = getQueue(n.id).length;
           if (c > 0) countLabel = `${c}`;
         }
-
         return (
           <button key={n.id} type="button" onClick={() => onSelect(n.id)} style={{
             width: "100%", textAlign: "left", border: "none",
@@ -1989,14 +1748,8 @@ function SidebarGroup({
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Main export
-// ─────────────────────────────────────────────────────────────────────────────
-
 export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const graphs = useStore((s) => s.graphs);
-  // Re-render whenever the store changes (inserts, deletes, etc.)
   const [sv, setSv] = useState(getStoreVersion);
   useEffect(() => {
     const id = setInterval(() => {
@@ -2005,7 +1758,6 @@ export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     }, 120);
     return () => clearInterval(id);
   }, [sv]);
-
   const nodes = useMemo<TNode[]>(
     () =>
       (Object.values(graphs).flatMap((g) => g.nodes) as Node[])
@@ -2021,7 +1773,6 @@ export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         })),
     [graphs]
   );
-
   const groups = useMemo(() => ({
     apis: nodes.filter((n) => n.kind === "api_binding"),
     functions: nodes.filter((n) => n.kind === "process"),
@@ -2029,13 +1780,11 @@ export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     queues: nodes.filter((n) => n.kind === "queue"),
     infra: nodes.filter((n) => n.kind === "infra"),
   }), [nodes]);
-
   const edges = useMemo(
     () => (Object.values(graphs).flatMap((g) => g.edges ?? []) as Edge[])
       .map((e) => ({ source: e.source, target: e.target })),
     [graphs]
   );
-
   const [selected, setSelected] = useState<string | null>(null);
   type ViewMode = "history" | "collections" | "envvars" | "validator" | null;
   const [viewMode, setViewMode] = useState<ViewMode>(null);
@@ -2047,29 +1796,24 @@ export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     setEnvVars(v);
     saveEnvVars(v);
   }, []);
-
   const handleSelectNode = useCallback((id: string) => {
     setSelected(id);
     setViewMode(null);
   }, []);
-
   useEffect(() => {
     if (!isOpen) return;
     if (nodes.length > 0 && (!selected || !nodes.find((n) => n.id === selected))) {
       setSelected(nodes[0].id);
     }
-  }, [isOpen, nodes]); // eslint-disable-line react-hooks/exhaustive-deps
-
+  }, [isOpen, nodes]);
   const activeNode = nodes.find((n) => n.id === selected) ?? null;
   const isEmpty = nodes.length === 0;
-
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 9999,
       display: isOpen ? "flex" : "none",
       flexDirection: "column", background: C.bg,
     }}>
-      {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 18px", minHeight: 48,
@@ -2092,8 +1836,6 @@ export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
           <button type="button" style={btn()} onClick={onClose}>✕ Close</button>
         </div>
       </div>
-
-      {/* Body */}
       {isEmpty ? (
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 12 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: C.fg }}>No components to test</div>
@@ -2101,15 +1843,12 @@ export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         </div>
       ) : (
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          {/* Sidebar */}
           <div style={{ width: 240, flexShrink: 0, borderRight: `1px solid ${C.border}`, background: C.bg, overflowY: "auto", paddingTop: 8, paddingBottom: 16 }}>
             <SidebarGroup title="APIs" icon="⬡" items={groups.apis} selected={selected} onSelect={handleSelectNode} sv={sv} />
             <SidebarGroup title="Functions" icon="⚡" items={groups.functions} selected={selected} onSelect={handleSelectNode} sv={sv} />
             <SidebarGroup title="Databases" icon="◈" items={groups.databases} selected={selected} onSelect={handleSelectNode} sv={sv} />
             <SidebarGroup title="Queues" icon="⇌" items={groups.queues} selected={selected} onSelect={handleSelectNode} sv={sv} />
             <SidebarGroup title="Infrastructure" icon="⬜" items={groups.infra} selected={selected} onSelect={handleSelectNode} sv={sv} />
-
-            {/* ── Tools ── */}
             <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 8, paddingTop: 4 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, letterSpacing: "0.07em", textTransform: "uppercase", padding: "8px 14px 4px" }}>
                 🔧&nbsp;TOOLS
@@ -2137,8 +1876,6 @@ export function TestPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               })}
             </div>
           </div>
-
-          {/* Main content */}
           <div style={{ flex: 1, overflowY: "auto", padding: 28, maxWidth: 780 }}>
             {viewMode === "validator" && <ValidatorPane nodes={nodes} edges={edges} />}
             {viewMode === "history" && <HistoryPane />}

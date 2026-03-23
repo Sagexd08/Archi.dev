@@ -1,12 +1,10 @@
 import { DatabaseRelationship, DatabaseTable } from "@/lib/schema/node";
-
 export type DatabaseTemplate = {
   id: string;
   label: string;
   tables: DatabaseTable[];
   relationships: DatabaseRelationship[];
 };
-
 const eCommerceTables: DatabaseTable[] = [
   {
     id: "users",
@@ -69,13 +67,11 @@ const eCommerceTables: DatabaseTable[] = [
     ],
   },
 ];
-
 const eCommerceRelationships: DatabaseRelationship[] = [
   { id: "rel_orders_users", type: "one_to_many", fromTableId: "orders", toTableId: "users", fromFieldId: "orders_user_id", toFieldId: "users_id", onDelete: "restrict" },
   { id: "rel_payments_orders", type: "one_to_many", fromTableId: "payments", toTableId: "orders", fromFieldId: "payments_order_id", toFieldId: "orders_id", onDelete: "cascade" },
   { id: "rel_inventory_products", type: "one_to_many", fromTableId: "inventory", toTableId: "products", fromFieldId: "inventory_product_id", toFieldId: "products_id", onDelete: "restrict" },
 ];
-
 const saasTables: DatabaseTable[] = [
   {
     id: "tenants",
@@ -126,13 +122,11 @@ const saasTables: DatabaseTable[] = [
     ],
   },
 ];
-
 const saasRelationships: DatabaseRelationship[] = [
   { id: "rel_users_tenants", type: "one_to_many", fromTableId: "users", toTableId: "tenants", fromFieldId: "saas_users_tenant", toFieldId: "tenants_id", onDelete: "cascade" },
   { id: "rel_subs_tenants", type: "one_to_many", fromTableId: "subscriptions", toTableId: "tenants", fromFieldId: "subs_tenant", toFieldId: "tenants_id", onDelete: "cascade" },
   { id: "rel_usage_tenants", type: "one_to_many", fromTableId: "usage_metrics", toTableId: "tenants", fromFieldId: "usage_tenant", toFieldId: "tenants_id", onDelete: "cascade" },
 ];
-
 const analyticsTables: DatabaseTable[] = [
   {
     id: "events",
@@ -183,13 +177,11 @@ const analyticsTables: DatabaseTable[] = [
     ],
   },
 ];
-
 const analyticsRelationships: DatabaseRelationship[] = [
   { id: "rel_events_sessions", type: "one_to_many", fromTableId: "events", toTableId: "sessions", fromFieldId: "events_session", toFieldId: "sessions_id", onDelete: "cascade" },
   { id: "rel_page_views_sessions", type: "one_to_many", fromTableId: "page_views", toTableId: "sessions", fromFieldId: "pv_session", toFieldId: "sessions_id", onDelete: "cascade" },
   { id: "rel_conversions_sessions", type: "one_to_many", fromTableId: "conversions", toTableId: "sessions", fromFieldId: "conv_session", toFieldId: "sessions_id", onDelete: "cascade" },
 ];
-
 const cmsTables: DatabaseTable[] = [
   {
     id: "authors",
@@ -249,13 +241,11 @@ const cmsTables: DatabaseTable[] = [
     ],
   },
 ];
-
 const cmsRelationships: DatabaseRelationship[] = [
   { id: "rel_posts_authors", type: "one_to_many", fromTableId: "posts", toTableId: "authors", fromFieldId: "posts_author", toFieldId: "authors_id", onDelete: "restrict" },
   { id: "rel_posts_categories", type: "one_to_many", fromTableId: "posts", toTableId: "categories", fromFieldId: "posts_category", toFieldId: "cat_id", onDelete: "set_null" },
   { id: "rel_media_authors", type: "one_to_many", fromTableId: "media", toTableId: "authors", fromFieldId: "media_by", toFieldId: "authors_id", onDelete: "restrict" },
 ];
-
 export const databaseTemplates: DatabaseTemplate[] = [
   {
     id: "ecommerce",
@@ -282,7 +272,5 @@ export const databaseTemplates: DatabaseTemplate[] = [
     relationships: cmsRelationships,
   },
 ];
-
 export const getDatabaseTemplateById = (id: string): DatabaseTemplate | null =>
   databaseTemplates.find((template) => template.id === id) || null;
-

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { StudioHeader, StudioUser } from "@/components/studio/StudioHeader";
@@ -17,7 +16,6 @@ import {
 import { type WorkspaceTemplateId } from "@/lib/studio/graph-templates";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useStore } from "@/store/useStore";
-
 export default function Home() {
   const router = useRouter();
   const setActiveWorkspaceTab = useStore((state) => state.setActiveTab);
@@ -73,10 +71,7 @@ export default function Home() {
     100,
     creditLimit > 0 ? Math.round((creditUsed / creditLimit) * 100) : 0,
   );
-
   const statusText = STATUS_TEXT_BY_TAB[activeTab];
-
-  // Load persisted graphs from localStorage on first mount
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -85,13 +80,8 @@ export default function Home() {
         importGraphs(JSON.parse(saved));
       }
     } catch {
-      // ignore storage errors
     }
-    // importGraphs is stable (zustand action)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Fetch real credit balance when user is authenticated
   useEffect(() => {
     if (!user) return;
     const fetchCredits = async () => {
@@ -108,14 +98,11 @@ export default function Home() {
           setCreditUsed(Math.max(0, monthly - available));
         }
       } catch {
-        // ignore network errors – show last known value
       }
     };
     fetchCredits();
   }, [user]);
-
   useEffect(() => {
-    // Load saved tab from localStorage after mount to avoid hydration mismatch
     if (typeof window !== "undefined") {
       const savedTab = localStorage.getItem(STORAGE_KEYS.activeTab);
       if (
@@ -133,7 +120,6 @@ export default function Home() {
       }
     }
   }, []);
-
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       if (
@@ -150,7 +136,6 @@ export default function Home() {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, []);
-
   useEffect(() => {
     const supabaseClient = getSupabaseBrowserClient();
     if (!supabaseClient) {
@@ -161,7 +146,6 @@ export default function Home() {
     const loadUser = async () => {
       try {
         const { data, error } = await supabaseClient.auth.getUser();
-
         if (!isMounted) return;
         if (error) {
           applyUser(null);
@@ -173,29 +157,23 @@ export default function Home() {
         applyUser(null);
       }
     };
-
     loadUser();
-
     const { data } = supabaseClient.auth.onAuthStateChange(
       (_event: unknown, session: { user?: StudioUser | null } | null) => {
         applyUser(session?.user ?? null);
       },
     );
-
     return () => {
       isMounted = false;
       data.subscription.unsubscribe();
     };
   }, []);
-
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEYS.activeTab, activeTab);
     } catch {
-      // ignore storage errors
     }
   }, [activeTab]);
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mediaQuery = window.matchMedia("(max-width: 1100px)");
@@ -209,46 +187,30 @@ export default function Home() {
       mediaQuery.removeEventListener("change", updateViewport);
     };
   }, []);
-
   useEffect(() => {
     setActiveWorkspaceTab(activeTab);
   }, [activeTab, setActiveWorkspaceTab]);
-
   useEffect(() => {
     const result = validateArchitecture(graphs);
     setValidationIssues([...result.errors, ...result.warnings]);
   }, [graphs, setValidationIssues]);
-
-  // Keep a stable ref so the countdown interval can call handleGenerateCode
-  // without capturing a stale closure.
   const handleGenerateCodeRef = useRef<() => Promise<void>>(async () => { });
-
-  // Auto-retry when the countdown reaches null after expiring (not after dismiss).
   const isCountingDown = useRef(false);
   useEffect(() => {
     if (retryCountdown !== null) {
       isCountingDown.current = true;
     } else if (isCountingDown.current) {
       isCountingDown.current = false;
-      // countdown expired naturally → auto retry
       handleGenerateCodeRef.current();
     }
   }, [retryCountdown]);
-
-  // Open the unified Generate modal (validation + language picker).
   const handleGenerateCodeClick = useCallback(() => {
     const graphs = exportGraphs();
     const result = validateArchitecture(graphs);
     setValidationResult(result);
-    // Sync all issues to the store so PropertyInspector can highlight fields
     setValidationIssues([...result.errors, ...result.warnings]);
     setIsGenModalOpen(true);
   }, [exportGraphs, setValidationIssues]);
-
-  /**
-   * Called when the user clicks a clickable error/warning in the modal.
-   * Closes the modal and pans + selects the relevant node on the canvas.
-   */
   const handleFocusNode = useCallback(
     (nodeId: string) => {
       setIsGenModalOpen(false);
@@ -257,7 +219,6 @@ export default function Home() {
     },
     [setFocusNodeId],
   );
-
   const handleGenerateCode = async (language: "javascript" | "python" = "javascript") => {
     setIsGenModalOpen(false);
     setValidationResult(null);
@@ -270,37 +231,27 @@ export default function Home() {
     setIsGenerating(true);
     try {
       console.log("🔹 Starting code generation...");
-
       const graphs = exportGraphs();
       console.log("📦 Exported graphs:", graphs);
-
-      // Merge all tabs into single graph
       const allNodes = Object.values(graphs).flatMap((g) => g.nodes);
       const alleges = Object.values(graphs).flatMap((g) => g.edges);
-
       console.log("🧩 Total Nodes:", allNodes.length);
       console.log("🔗 Total Edges:", alleges.length);
-
       const isJs = language === "javascript";
-
-      // Tech stack + metadata adapted to chosen language
       const techStack = {
         frontend: "none",
         backend: isJs ? "node" : "python",
         database: "postgresql",
         deployment: "docker",
       };
-
       const metadata = {
         language: isJs ? "javascript" : "python",
         framework: isJs ? "express" : "fastapi",
         architectureStyle: "monolithic",
         generatedBy: "ermiz-studio",
       };
-
       console.log("🛠 Tech Stack:", techStack);
       console.log("🧾 Metadata:", metadata);
-
       const requestPayload = {
         nodes: allNodes,
         edges: alleges,
@@ -308,11 +259,8 @@ export default function Home() {
         metadata,
         language,
       };
-
       console.log("JSON PAYLOAD EXPORT:\n" + JSON.stringify(requestPayload, null, 2));
-
       console.log("🚀 Sending request to /api/gen...");
-
       const res = await fetch("/api/gen", {
         method: "POST",
         headers: {
@@ -320,9 +268,7 @@ export default function Home() {
         },
         body: JSON.stringify(requestPayload),
       });
-
       console.log("📡 Response received. Status:", res.status);
-
       if (!res.ok) {
         let userMessage = "Code generation failed. Please try again.";
         let quotaRetryAfter: number | null = null;
@@ -337,7 +283,6 @@ export default function Home() {
             userMessage = body.error;
           }
         } catch {
-          // keep default message
         }
         setGenError(userMessage);
         if (quotaRetryAfter !== null) {
@@ -357,27 +302,21 @@ export default function Home() {
         }
         return;
       }
-
       console.log("📦 Receiving ZIP blob...");
       const geminiRequests = Number(res.headers.get("X-Gemini-Requests") ?? 0);
       const generatedFiles = Number(res.headers.get("X-Generated-Files") ?? 0);
       const blob = await res.blob();
       console.log("✅ Blob size (bytes):", blob.size);
-
       const url = window.URL.createObjectURL(blob);
       console.log("🔗 Created download URL");
-
       const a = document.createElement("a");
       a.href = url;
       a.download = "generated-project.zip";
       document.body.appendChild(a);
-
       console.log("⬇️ Triggering download...");
       a.click();
-
       a.remove();
       window.URL.revokeObjectURL(url);
-
       setGenStats({
         requests: geminiRequests,
         files: generatedFiles,
@@ -391,37 +330,28 @@ export default function Home() {
       setIsGenerating(false);
     }
   };
-  // Keep the ref always pointing to the latest version so the interval can call it.
   handleGenerateCodeRef.current = () => handleGenerateCode();
-
   const handleRunTest = () => setIsTestOpen(true);
-
   const handleSaveChanges = () => {
     try {
       localStorage.setItem(STORAGE_KEYS.graphs, JSON.stringify(exportGraphs()));
     } catch {
-      // ignore storage errors
     }
     setSaveState("Saved");
   };
-
   const handleCommitChanges = () => {
     handleSaveChanges();
     setCommitStatus("Committed");
   };
-
   const handleResetLayout = () => {
     setResetLayoutSignal((prev) => prev + 1);
   };
-
   const passiveValidation = validateArchitecture(graphs);
-
   const handleAutoLayout = () => {
     autoLayoutCurrentGraph();
     setSaveState("Unsaved");
     setCommitStatus("Uncommitted changes");
   };
-
   const handleLoadTemplate = (templateId: WorkspaceTemplateId) => {
     setIsProfileOpen(false);
     loadWorkspaceTemplate(templateId);
@@ -430,7 +360,6 @@ export default function Home() {
     setGenStats(null);
     setGenError(null);
   };
-
   const handleExportOpenApi = async () => {
     try {
       const currentGraphs = exportGraphs();
@@ -462,7 +391,6 @@ export default function Home() {
       console.error("OpenAPI export error:", error);
     }
   };
-
   const handleLogin = async () => {
     const supabaseClient = getSupabaseBrowserClient();
     if (!supabaseClient) {
@@ -471,36 +399,28 @@ export default function Home() {
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
       "/studio",
     )}`;
-
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
     });
     if (error) {
-      // keep the modal open so the user can retry
-      // optional: surface error in UI later
     }
   };
-
   const handleLogout = async () => {
     const supabaseClient = getSupabaseBrowserClient();
     try {
       await supabaseClient?.auth.signOut();
     } catch {
-      // ignore auth errors
     }
-
     try {
       await fetch("/auth/logout", { method: "POST" });
     } catch {
-      // ignore network errors
     }
     setIsProfileOpen(false);
     applyUser(null);
     router.push("/");
     router.refresh();
   };
-
   return (
     <StudioLayout
       isCompactViewport={isCompactViewport}
@@ -509,7 +429,6 @@ export default function Home() {
       saveState={saveState}
       commitStatus={commitStatus}
     >
-      {/* Generation stats banner */}
       {genStats && !genError && (
         <div
           className="workspace-fade-up"
@@ -550,7 +469,6 @@ export default function Home() {
           </button>
         </div>
       )}
-      {/* Generation error banner */}
       {genError && (
         <div
           role="alert"
@@ -583,7 +501,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => {
-                  isCountingDown.current = false; // prevent duplicate auto-retry
+                  isCountingDown.current = false;
                   if (retryCountdownRef.current) {
                     clearInterval(retryCountdownRef.current);
                     retryCountdownRef.current = null;
@@ -609,7 +527,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => {
-                isCountingDown.current = false; // prevent auto-retry
+                isCountingDown.current = false;
                 if (retryCountdownRef.current) {
                   clearInterval(retryCountdownRef.current);
                   retryCountdownRef.current = null;
@@ -633,7 +551,6 @@ export default function Home() {
           </div>
         </div>
       )}
-      {/* Upgrade notice banner */}
       {showUpgradeNotice && (
         <div
           role="alert"
@@ -673,7 +590,6 @@ export default function Home() {
           </button>
         </div>
       )}
-      {/* Top Bar */}
       <StudioHeader
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -711,7 +627,6 @@ export default function Home() {
           setShowUpgradeNotice(true);
         }}
       />
-
       <div
         className="workspace-fade-up"
         style={{
@@ -745,18 +660,14 @@ export default function Home() {
           {passiveValidation.ok ? "Ready to generate" : "Canvas needs attention"}
         </span>
       </div>
-
       <StudioWorkspace
         activeTab={activeTab}
         resetLayoutSignal={resetLayoutSignal}
       />
-
       <TestPanel
         isOpen={isTestOpen}
         onClose={() => setIsTestOpen(false)}
       />
-
-      {/* ── Generate Code Modal (validation + language picker) ────────── */}
       {isGenModalOpen && validationResult && (
         <GenCodeModal
           validationResult={validationResult}
@@ -769,8 +680,6 @@ export default function Home() {
           onFocusNode={handleFocusNode}
         />
       )}
-
-      {/* ── API Table Designer Modal ───────────────────────────────────── */}
       {apiTableModalNodeId && (
         <ApiTableModal
           nodeId={apiTableModalNodeId}

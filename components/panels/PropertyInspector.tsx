@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useRef, useState } from "react";
 import { useStore } from "@/store/useStore";
 import { useShallow } from "zustand/react/shallow";
@@ -48,7 +47,6 @@ import { ConnectedProcessesSection } from "./database/ConnectedProcessesSection"
 import { MigrationsSection } from "./database/MigrationsSection";
 import { ChangeHistorySection } from "./database/ChangeHistorySection";
 import { HealthCheckSection } from "./database/HealthCheckSection";
-
 const inputStyle: React.CSSProperties = {
   width: "100%",
   background: "var(--background)",
@@ -59,25 +57,21 @@ const inputStyle: React.CSSProperties = {
   color: "var(--foreground)",
   outline: "none",
 };
-
 const selectStyle: React.CSSProperties = {
   ...inputStyle,
   cursor: "pointer",
 };
-
 const labelStyle: React.CSSProperties = {
   fontSize: 10,
   color: "var(--muted)",
   textTransform: "uppercase",
   marginBottom: 4,
 };
-
 const sectionStyle: React.CSSProperties = {
   borderTop: "1px solid var(--border)",
   paddingTop: 12,
   marginTop: 8,
 };
-
 const CODE_SNIPPETS: { label: string; title: string; code: string }[] = [
   {
     label: "fetch",
@@ -139,7 +133,6 @@ const { field } = parsed.data;`,
 }));`,
   },
 ];
-
 const stableStringify = (value: unknown): string => {
   if (Array.isArray(value)) {
     return `[${value.map((item) => stableStringify(item)).join(",")}]`;
@@ -154,7 +147,6 @@ const stableStringify = (value: unknown): string => {
   }
   return JSON.stringify(value);
 };
-
 const buildSchemaHistoryEntries = (
   previousTables: DatabaseTable[],
   nextTables: DatabaseTable[],
@@ -163,7 +155,6 @@ const buildSchemaHistoryEntries = (
   const entries: DatabaseSchemaHistoryEntry[] = [];
   const previousMap = new Map(previousTables.map((table, index) => [table.id || `${table.name}_${index}`, table]));
   const nextMap = new Map(nextTables.map((table, index) => [table.id || `${table.name}_${index}`, table]));
-
   nextMap.forEach((table, key) => {
     if (!previousMap.has(key)) {
       entries.push({
@@ -174,7 +165,6 @@ const buildSchemaHistoryEntries = (
       });
     }
   });
-
   previousMap.forEach((table, key) => {
     if (!nextMap.has(key)) {
       entries.push({
@@ -185,18 +175,15 @@ const buildSchemaHistoryEntries = (
       });
     }
   });
-
   previousMap.forEach((previousTable, key) => {
     const nextTable = nextMap.get(key);
     if (!nextTable) return;
-
     const previousFieldMap = new Map(
       (previousTable.fields || []).map((field, index) => [field.id || `${field.name}_${index}`, field]),
     );
     const nextFieldMap = new Map(
       (nextTable.fields || []).map((field, index) => [field.id || `${field.name}_${index}`, field]),
     );
-
     nextFieldMap.forEach((field, fieldKey) => {
       if (!previousFieldMap.has(fieldKey)) {
         entries.push({
@@ -207,7 +194,6 @@ const buildSchemaHistoryEntries = (
         });
       }
     });
-
     previousFieldMap.forEach((field, fieldKey) => {
       if (!nextFieldMap.has(fieldKey)) {
         entries.push({
@@ -218,7 +204,6 @@ const buildSchemaHistoryEntries = (
         });
       }
     });
-
     previousFieldMap.forEach((previousField, fieldKey) => {
       const nextField = nextFieldMap.get(fieldKey);
       if (!nextField) return;
@@ -234,10 +219,8 @@ const buildSchemaHistoryEntries = (
       });
     });
   });
-
   return entries;
 };
-
 const infraFieldSets: Record<
   InfraResourceType,
   {
@@ -354,7 +337,6 @@ const infraFieldSets: Record<
     ],
   },
 };
-
 export function PropertyInspector({ width = 320 }: { width?: number }) {
   const {
     nodes,
@@ -385,7 +367,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       validationIssues: state.validationIssues,
     })),
   );
-
   const [newInputName, setNewInputName] = useState("");
   const [newOutputName, setNewOutputName] = useState("");
   const [expandedTables, setExpandedTables] = useState<Record<number, boolean>>(
@@ -425,19 +406,10 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
   const [newSocketNamespace, setNewSocketNamespace] = useState("");
   const [newSocketRoom, setNewSocketRoom] = useState("");
   const [newSocketEvent, setNewSocketEvent] = useState("");
-
   const selectedNode = nodes.find((n) => n.selected);
-
-  // ── Validation feedback helpers ──────────────────────────────────────────
-  /** Issues that belong to the currently selected node */
   const nodeIssues = selectedNode
     ? validationIssues.filter((i) => i.nodeId === selectedNode.id)
     : [];
-
-  /**
-   * Returns a red-border override for an input style when any issue's title
-   * or detail contains one of the supplied lowercase keyword substrings.
-   */
   const fieldErrStyle = (
     ...keywords: string[]
   ): React.CSSProperties => {
@@ -449,8 +421,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       ? { border: "1px solid #ef4444", boxShadow: "0 0 0 2px rgba(239,68,68,0.15)" }
       : {};
   };
-
-  /** Returns an asterisk span when any issue matches the keywords */
   const RequiredStar = ({ keywords }: { keywords: string[] }) => {
     const hasMatch = nodeIssues.some((issue) => {
       const hay = `${issue.title} ${issue.detail ?? ""}`.toLowerCase();
@@ -463,7 +433,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       </span>
     );
   };
-
   const panelStyle: React.CSSProperties = {
     width,
     height: "100%",
@@ -478,7 +447,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
     overflowX: "hidden",
     scrollbarGutter: "stable",
   };
-
   if (!selectedNode) {
     return (
       <aside className="sidebar-scroll" style={panelStyle}>
@@ -505,7 +473,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       </aside>
     );
   }
-
   const nodeData = selectedNode.data as NodeData;
   const kind = nodeData.kind;
   const apiNode = kind === "api_binding" ? (nodeData as ApiBinding) : null;
@@ -572,11 +539,9 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
         ["ec2", "lambda", "eks", "hpc"].includes(data.resourceType),
     )
     .map((infra) => ({ id: infra.id, label: infra.label || infra.id }));
-
   const handleUpdate = (updates: Partial<NodeData>) => {
     updateNodeData(selectedNode.id, updates);
   };
-
   const databaseNodeData =
     kind === "database" ? (nodeData as DatabaseBlock) : null;
   const dbConnectionSummary =
@@ -590,7 +555,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
         edges: edges as Array<{ source: string; target: string }>,
       })[selectedNode.id] || null
       : null;
-
   const updateDatabaseTables = (
     tables: DatabaseTable[],
     extraUpdates: Partial<DatabaseBlock> = {},
@@ -607,7 +571,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       schemaHistory: [...baseHistory, ...changeEntries],
     } as Partial<DatabaseBlock>);
   };
-
   const addTable = () => {
     if (!databaseNodeData) return;
     const tables = databaseNodeData.tables || [];
@@ -620,16 +583,13 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       },
     ]);
   };
-
   const loadDatabaseTemplate = () => {
     if (!databaseNodeData) return;
     const template = getDatabaseTemplateById(selectedTemplateId);
     if (!template) return;
-
     const stamp = `${selectedTemplateId}_template`;
     const tableIdMap = new Map<string, string>();
     const fieldIdMap = new Map<string, string>();
-
     const clonedTables = template.tables.map((table) => {
       const nextTableId = `${table.id || table.name}_${stamp}`;
       if (table.id) {
@@ -651,7 +611,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
         fields,
       };
     });
-
     const clonedRelationships = (template.relationships || []).map((relationship) => ({
       ...relationship,
       id: `${relationship.id}_${stamp}`,
@@ -664,15 +623,12 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
         ? fieldIdMap.get(relationship.toFieldId) || relationship.toFieldId
         : undefined,
     }));
-
     updateDatabaseTables(clonedTables, {
       relationships: clonedRelationships,
       loadedTemplate: template.label,
     } as Partial<DatabaseBlock>);
     setIsTemplatePickerOpen(false);
   };
-
-
   const showSchemaToast = (message: string, type: "success" | "error") => {
     setSchemaToastMessage(message);
     setSchemaToastType(type);
@@ -680,7 +636,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       window.setTimeout(() => setSchemaToastMessage(""), 2200);
     }
   };
-
   const triggerSchemaExport = () => {
     if (!databaseNodeData || typeof window === "undefined") return;
     const payload = buildDatabaseExportPayload(databaseNodeData);
@@ -695,11 +650,9 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
     URL.revokeObjectURL(url);
     showSchemaToast("Schema exported.", "success");
   };
-
   const triggerDDLExport = () => {
     if (!databaseNodeData || typeof window === "undefined") return;
     const ddl = buildDatabaseSchemaDDL(databaseNodeData);
-
     const blob = new Blob([ddl.output], {
       type: "text/plain;charset=utf-8",
     });
@@ -711,7 +664,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
     URL.revokeObjectURL(url);
     showSchemaToast("Schema exported as DDL.", "success");
   };
-
   const handleSchemaImportFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -847,8 +799,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
     };
     reader.readAsText(file);
   };
-
-  // Computed values for the Function Logic editor
   const processNodeForLogic = kind === "process" ? (nodeData as ProcessDefinition) : null;
   const funcInputNames =
     processNodeForLogic?.inputs?.map((i) => i.name).filter(Boolean) ?? [];
@@ -858,7 +808,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       : `async function ${processNodeForLogic?.id}(inputs: Record<string, unknown>) {\n  // TODO: implement logic\n  return {};\n}`;
   const funcLogicValue = processNodeForLogic?.logic ?? funcDefaultTemplate;
   const funcLineCount = funcLogicValue.split("\n").length;
-
   const insertSnippet = (code: string) => {
     const ta = editorTextareaRef.current;
     if (!ta) {
@@ -874,8 +823,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
       ta.selectionStart = ta.selectionEnd = selectionStart + code.length;
     });
   };
-
-  // Connections: edges from/to the selected node in the current tab
   const incomingConnections = edges
     .filter((e) => e.target === selectedNode.id)
     .map((e) => {
@@ -898,10 +845,8 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           : e.target;
       return { id: e.target, label };
     });
-
   return (
     <aside className="sidebar-scroll" style={panelStyle}>
-      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -920,8 +865,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           {kind} Properties
         </div>
       </div>
-
-      {/* ── Validation issues for this node ─────────────────────────── */}
       {nodeIssues.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {nodeIssues.map((issue, idx) => {
@@ -954,8 +897,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           })}
         </div>
       )}
-
-      {/* Common: Label */}
       <div>
         <div style={labelStyle}>
           Label
@@ -970,8 +911,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           style={{ ...inputStyle, ...fieldErrStyle("no label", "label is empty", "label missing", "needs a label") }}
         />
       </div>
-
-      {/* Common: Description */}
       <div>
         <div style={labelStyle}>Description</div>
         <textarea
@@ -982,8 +921,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           style={{ ...inputStyle, minHeight: 60, resize: "vertical" }}
         />
       </div>
-
-      {/* Process-specific fields */}
       {kind === "process" && (
         <>
           <div style={sectionStyle}>
@@ -995,7 +932,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               style={{ ...inputStyle, opacity: 0.85, cursor: "not-allowed" }}
             />
           </div>
-
           <div>
             <div style={labelStyle}>Execution</div>
             <select
@@ -1013,8 +949,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <option value="event_driven">Event Driven</option>
             </select>
           </div>
-
-          {/* Scheduled: cron expression */}
           {(nodeData as ProcessDefinition).execution === "scheduled" && (
             <div>
               <div style={labelStyle}>Cron Schedule</div>
@@ -1066,8 +1000,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </div>
             </div>
           )}
-
-          {/* Event-driven: queue + event name */}
           {(nodeData as ProcessDefinition).execution === "event_driven" && (
             <div style={{ display: "grid", gap: 8 }}>
               <div>
@@ -1106,12 +1038,9 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </div>
             </div>
           )}
-
-          {/* Runtime Config: timeout + retry policy */}
           <div style={sectionStyle}>
             <div style={{ ...labelStyle, marginBottom: 8 }}>Runtime Config</div>
             <div style={{ display: "grid", gap: 8 }}>
-              {/* Timeout */}
               <div>
                 <div style={labelStyle}>Timeout</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1132,8 +1061,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </span>
                 </div>
               </div>
-
-              {/* Retry Policy — async / event_driven only */}
               {((nodeData as ProcessDefinition).execution === "async" ||
                 (nodeData as ProcessDefinition).execution === "event_driven") && (
                   <div>
@@ -1206,8 +1133,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     </div>
                   </div>
                 )}
-
-              {/* Memory & Concurrency */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <div>
                   <div style={labelStyle}>Memory (MB)</div>
@@ -1242,7 +1167,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </div>
             </div>
           </div>
-
           {activeTab === "api" && (
             <div style={sectionStyle}>
               <div
@@ -1290,7 +1214,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   {importedFunctionIds.length} / {startFunctionDefs.length}
                 </span>
               </div>
-
               {startFunctionDefs.length === 0 ? (
                 <div
                   style={{
@@ -1383,7 +1306,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   })}
                 </div>
               )}
-
               <div style={{ fontSize: 10, color: "var(--muted)", marginTop: 8, lineHeight: 1.5 }}>
                 Wire this API to{" "}
                 <span style={{ color: "#4ade80" }}>Start Function</span>{" "}
@@ -1391,8 +1313,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </div>
             </div>
           )}
-
-          {/* Inputs Section */}
           <div style={sectionStyle}>
             <div
               style={{
@@ -1408,7 +1328,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 {(nodeData as ProcessDefinition).inputs.length}
               </span>
             </div>
-
             {(nodeData as ProcessDefinition).inputs.map(
               (input: InputField, i: number) => (
                 <TypeSchemaEditor
@@ -1421,8 +1340,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 />
               ),
             )}
-
-            {/* Add Input */}
             <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
               <input
                 type="text"
@@ -1456,8 +1373,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </button>
             </div>
           </div>
-
-          {/* Outputs Section */}
           <div style={sectionStyle}>
             <div
               style={{
@@ -1472,7 +1387,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 {(nodeData as ProcessDefinition).outputs.success.length}
               </span>
             </div>
-
             {(nodeData as ProcessDefinition).outputs.success.map(
               (output: OutputField, i: number) => (
                 <div
@@ -1514,8 +1428,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 </div>
               ),
             )}
-
-            {/* Add Output */}
             <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
               <input
                 type="text"
@@ -1552,8 +1464,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </button>
             </div>
           </div>
-
-          {/* Error Outputs Section */}
           <div style={sectionStyle}>
             <div
               style={{
@@ -1568,7 +1478,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 {(nodeData as ProcessDefinition).outputs.error.length}
               </span>
             </div>
-
             {(nodeData as ProcessDefinition).outputs.error.map(
               (output: OutputField, i: number) => (
                 <div
@@ -1606,7 +1515,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 </div>
               ),
             )}
-
             <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
               <input
                 type="text"
@@ -1640,8 +1548,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </button>
             </div>
           </div>
-
-          {/* Steps Preview */}
           <div style={sectionStyle}>
             <div
               style={{
@@ -1667,11 +1573,8 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 : "Steps are defined in the visual graph"}
             </div>
           </div>
-
-          {/* Function Logic Editor — shown on Functions tab */}
           {activeTab === "functions" && (
             <>
-              {/* Function Signature Preview */}
               <div style={sectionStyle}>
                 <div style={{ ...labelStyle, marginBottom: 6 }}>Function Signature</div>
                 <div
@@ -1714,7 +1617,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </span>
                   <span style={{ color: "#e6edf3" }}>{">"}</span>
                 </div>
-                {/* Return type editor */}
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6 }}>
                   <span style={{ fontSize: 10, color: "var(--muted)", whiteSpace: "nowrap" }}>
                     Return type
@@ -1741,8 +1643,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   />
                 </div>
               </div>
-
-              {/* Available Inputs */}
               {funcInputNames.length > 0 && (
                 <div>
                   <div style={{ ...labelStyle, marginBottom: 6 }}>Available Inputs</div>
@@ -1769,10 +1669,7 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </div>
                 </div>
               )}
-
-              {/* Code Editor */}
               <div style={sectionStyle}>
-                {/* Editor toolbar */}
                 <div
                   style={{
                     display: "flex",
@@ -1796,7 +1693,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     >
                       TypeScript
                     </span>
-                    {/* Font size control */}
                     <div
                       style={{
                         display: "flex",
@@ -1911,8 +1807,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     </button>
                   </div>
                 </div>
-
-                {/* Snippet picker */}
                 {snippetOpen && (
                   <div
                     style={{
@@ -1952,8 +1846,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     ))}
                   </div>
                 )}
-
-                {/* Editor container */}
                 <div
                   style={{
                     position: "relative",
@@ -1963,7 +1855,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     background: "#0d1117",
                   }}
                 >
-                  {/* Scroll-synced line number gutter */}
                   <div
                     ref={gutterRef}
                     style={{
@@ -2059,7 +1950,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       overflowX: wrapLines ? "hidden" : "auto",
                     }}
                   />
-                  {/* Status bar */}
                   <div
                     style={{
                       display: "flex",
@@ -2078,8 +1968,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     <span>{funcLogicValue.length} chars</span>
                   </div>
                 </div>
-
-                {/* Editor footer actions */}
                 <div
                   style={{
                     display: "flex",
@@ -2131,8 +2019,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </button>
                 </div>
               </div>
-
-              {/* Dependencies */}
               <div style={sectionStyle}>
                 <div style={{ ...labelStyle, marginBottom: 8 }}>Dependencies</div>
                 <div
@@ -2265,8 +2151,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   )}
                 </div>
               </div>
-
-              {/* Environment Variables */}
               <div style={sectionStyle}>
                 <div style={{ ...labelStyle, marginBottom: 8 }}>Environment Variables</div>
                 <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 8, lineHeight: 1.5 }}>
@@ -2397,8 +2281,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </button>
                 </div>
               </div>
-
-              {/* Tags */}
               <div style={sectionStyle}>
                 <div style={{ ...labelStyle, marginBottom: 8 }}>Tags</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
@@ -2492,8 +2374,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </button>
                 </div>
               </div>
-
-              {/* Notes / Documentation */}
               <div style={sectionStyle}>
                 <div style={{ ...labelStyle, marginBottom: 6 }}>Notes / Documentation</div>
                 <textarea
@@ -2512,8 +2392,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   }}
                 />
               </div>
-
-              {/* Connections */}
               <div style={sectionStyle}>
                 <div style={{ ...labelStyle, marginBottom: 8 }}>Connections</div>
                 {incomingConnections.length === 0 && outgoingConnections.length === 0 ? (
@@ -2611,8 +2489,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </div>
                 )}
               </div>
-
-              {/* Test Inputs */}
               {((nodeData as ProcessDefinition).inputs ?? []).length > 0 && (
                 <div style={sectionStyle}>
                   <div style={{ ...labelStyle, marginBottom: 4 }}>Test Inputs</div>
@@ -2676,8 +2552,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           )}
         </>
       )}
-
-      {/* Database-specific fields */}
       {kind === "database" && (
         <>
           <div style={sectionStyle}>
@@ -2697,7 +2571,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <option value="graph">Graph</option>
             </select>
           </div>
-
           <div>
             <div style={labelStyle}>Engine</div>
             <select
@@ -2724,7 +2597,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <option value="elasticsearch">Elasticsearch</option>
             </select>
           </div>
-
           <div style={sectionStyle}>
             <div style={labelStyle}>Capabilities</div>
             {Object.entries((nodeData as DatabaseBlock).capabilities).map(
@@ -2760,7 +2632,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               ),
             )}
           </div>
-
           <div style={sectionStyle}>
             <button
               type="button"
@@ -2783,7 +2654,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <span>{isSchemaDesignerExpanded ? "▾" : "▸"}</span>
               <span>Schema Designer</span>
             </button>
-
             {isSchemaDesignerExpanded && (
               <div style={{ display: "grid", gap: 8 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -2882,7 +2752,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   }}
                   style={{ display: "none" }}
                 />
-
                 {schemaToastMessage && (
                   <div
                     style={{
@@ -2898,20 +2767,17 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     {schemaToastMessage}
                   </div>
                 )}
-
                 {showERD && (
                   <DatabaseERDViewer
                     tables={(nodeData as DatabaseBlock).tables || []}
                     relationships={(nodeData as DatabaseBlock).relationships || []}
                   />
                 )}
-
                 {((nodeData as DatabaseBlock).tables || []).length === 0 && (
                   <div style={{ fontSize: 11, color: "var(--muted)" }}>
                     No tables yet.
                   </div>
                 )}
-
                 {((nodeData as DatabaseBlock).tables || []).map((table, tableIndex) => {
                   const isExpanded = expandedTables[tableIndex] ?? true;
                   return (
@@ -2978,7 +2844,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                           x
                         </button>
                       </div>
-
                       {isExpanded && (
                         <div style={{ padding: 8, borderTop: "1px solid var(--border)", display: "grid", gap: 6 }}>
                           {(table.fields || []).map((field, fieldIndex) => (
@@ -3056,7 +2921,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                                   x
                                 </button>
                               </div>
-
                               <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 8, alignItems: "center" }}>
                                 <input
                                   value={field.defaultValue || ""}
@@ -3130,7 +2994,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                                   unique
                                 </label>
                               </div>
-
                               {Boolean(field.isForeignKey) && (
                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                                   <select
@@ -3209,7 +3072,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                               )}
                             </div>
                           ))}
-
                           <div style={{ display: "flex", gap: 6 }}>
                             <button
                               type="button"
@@ -3263,8 +3125,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </div>
             )}
           </div>
-
-          {/* Relationships Editor */}
           <div style={sectionStyle}>
             <button
               type="button"
@@ -3290,7 +3150,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 ({((nodeData as DatabaseBlock).relationships || []).length})
               </span>
             </button>
-
             {isRelationshipsExpanded && (
               <div style={{ display: "grid", gap: 8 }}>
                 {((nodeData as DatabaseBlock).relationships || []).length === 0 && (
@@ -3298,14 +3157,12 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     No relationships defined.
                   </div>
                 )}
-
                 {((nodeData as DatabaseBlock).relationships || []).map((rel, relIndex) => {
                   const tables = (nodeData as DatabaseBlock).tables || [];
                   const fromTable = tables.find((t) => t.id === rel.fromTableId || t.name === rel.fromTableId);
                   const toTable = tables.find((t) => t.id === rel.toTableId || t.name === rel.toTableId);
                   const fromFields = fromTable?.fields || [];
                   const toFields = toTable?.fields || [];
-
                   return (
                     <div
                       key={rel.id || relIndex}
@@ -3353,7 +3210,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                           x
                         </button>
                       </div>
-
                       <select
                         value={rel.type}
                         onChange={(e) => {
@@ -3367,7 +3223,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                         <option value="one_to_many">One to Many</option>
                         <option value="many_to_many">Many to Many</option>
                       </select>
-
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                         <div>
                           <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 3 }}>From Table</div>
@@ -3408,7 +3263,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                           </select>
                         </div>
                       </div>
-
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                         <div>
                           <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 3 }}>From Field</div>
@@ -3449,7 +3303,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                           </select>
                         </div>
                       </div>
-
                       <div>
                         <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 3 }}>On Delete</div>
                         <select
@@ -3470,7 +3323,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     </div>
                   );
                 })}
-
                 <button
                   type="button"
                   onClick={() => {
@@ -3503,7 +3355,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </div>
             )}
           </div>
-
           <div style={sectionStyle}>
             <div
               style={{
@@ -3530,7 +3381,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 Load Template
               </button>
             </div>
-
             {isTemplatePickerOpen && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 6 }}>
                 <select
@@ -3562,7 +3412,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </div>
             )}
           </div>
-
           <EnvironmentsSection
             database={nodeData as DatabaseBlock}
             onChange={(updates) => handleUpdate(updates as Partial<DatabaseBlock>)}
@@ -3570,7 +3419,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
             selectStyle={selectStyle}
             sectionStyle={sectionStyle}
           />
-
           <DataSeedingSection
             database={nodeData as DatabaseBlock}
             onChange={(updates) => handleUpdate(updates as Partial<DatabaseBlock>)}
@@ -3586,7 +3434,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
             labelStyle={labelStyle}
             sectionStyle={sectionStyle}
           />
-
           <BackupSection
             database={nodeData as DatabaseBlock}
             onChange={(updates) => handleUpdate(updates as Partial<DatabaseBlock>)}
@@ -3594,14 +3441,12 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
             selectStyle={selectStyle}
             sectionStyle={sectionStyle}
           />
-
           <SecuritySection
             database={nodeData as DatabaseBlock}
             onChange={(updates) => handleUpdate(updates as Partial<DatabaseBlock>)}
             inputStyle={inputStyle}
             sectionStyle={sectionStyle}
           />
-
           <MonitoringSection
             database={nodeData as DatabaseBlock}
             onChange={(updates) => handleUpdate(updates as Partial<DatabaseBlock>)}
@@ -3634,7 +3479,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
             labelStyle={labelStyle}
             sectionStyle={sectionStyle}
           />
-
           <MigrationsSection
             database={nodeData as DatabaseBlock}
             onChange={(updates) => handleUpdate(updates as Partial<DatabaseBlock>)}
@@ -3648,8 +3492,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           />
         </>
       )}
-
-      {/* API Endpoint fields (Database tab – links to API tab) */}
       {kind === "api_endpoint" && (() => {
         const epData = nodeData as unknown as ApiEndpointBlock;
         const apiGraph = graphs.api;
@@ -3657,7 +3499,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           .map((n) => n.data as { kind?: string; id?: string; label?: string; protocol?: string; method?: string; route?: string })
           .filter((d) => d.kind === "api_binding");
         const resolvedApi = apiNodes.find((a) => a.id === epData.targetApiId) || null;
-
         return (
           <>
             <div style={sectionStyle}>
@@ -3689,7 +3530,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 </div>
               )}
             </div>
-
             {resolvedApi && (
               <div style={sectionStyle}>
                 <div style={labelStyle}>Linked Interface Details</div>
@@ -3725,7 +3565,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 </div>
               </div>
             )}
-
             <div style={sectionStyle}>
               <div style={labelStyle}>Protocol</div>
               <select
@@ -3743,7 +3582,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                 <option value="webhook">Webhook</option>
               </select>
             </div>
-
             {(epData.protocol === "rest" || !epData.protocol) && (
               <>
                 <div style={sectionStyle}>
@@ -3775,8 +3613,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           </>
         );
       })()}
-
-      {/* Queue-specific fields */}
       {kind === "queue" && (
         <>
           <div style={sectionStyle}>
@@ -3795,7 +3631,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <option value="exactly_once">Exactly Once</option>
             </select>
           </div>
-
           <div>
             <div style={labelStyle}>Max Retry Attempts</div>
             <input
@@ -3812,7 +3647,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               style={inputStyle}
             />
           </div>
-
           <div>
             <div style={labelStyle}>Backoff Strategy</div>
             <select
@@ -3831,7 +3665,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <option value="exponential">Exponential</option>
             </select>
           </div>
-
           <label
             style={{
               display: "flex",
@@ -3855,8 +3688,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           </label>
         </>
       )}
-
-      {/* Service boundary-specific fields */}
       {kind === "service_boundary" && (
         <>
           <div style={sectionStyle}>
@@ -3876,7 +3707,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               style={inputStyle}
             />
           </div>
-
           <div>
             <div style={labelStyle}>Function Ownership (comma-separated IDs)</div>
             <input
@@ -3894,7 +3724,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               style={inputStyle}
             />
           </div>
-
           <div>
             <div style={labelStyle}>Data Ownership (comma-separated IDs)</div>
             <input
@@ -3912,7 +3741,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               style={inputStyle}
             />
           </div>
-
           <div>
             <div style={labelStyle}>Compute Host</div>
             <select
@@ -3932,7 +3760,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               ))}
             </select>
           </div>
-
           <div style={sectionStyle}>
             <div style={{ ...labelStyle, marginBottom: 8 }}>Communication Rules</div>
             <label
@@ -4047,7 +3874,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               Allow direct DB sharing (not recommended)
             </label>
           </div>
-
           <div style={sectionStyle}>
             <div style={{ ...labelStyle, marginBottom: 6 }}>Available IDs</div>
             <div style={{ fontSize: 10, color: "var(--muted)" }}>
@@ -4062,8 +3888,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           </div>
         </>
       )}
-
-      {/* Infra-specific fields */}
       {kind === "infra" && (
         <>
           <div style={sectionStyle}>
@@ -4083,7 +3907,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <option value="generic">Generic</option>
             </select>
           </div>
-
           <div>
             <div style={labelStyle}>Environment</div>
             <select
@@ -4101,7 +3924,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <option value="dev">Dev</option>
             </select>
           </div>
-
           <div>
             <div style={labelStyle}>Region</div>
             <input
@@ -4116,7 +3938,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               style={inputStyle}
             />
           </div>
-
           <div>
             <div style={labelStyle}>Tags (comma-separated)</div>
             <input
@@ -4134,14 +3955,12 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               style={inputStyle}
             />
           </div>
-
           <div style={sectionStyle}>
             <div style={labelStyle}>Resource Type</div>
             <div style={{ fontSize: 12, color: "var(--secondary)" }}>
               {(nodeData as InfraBlock).resourceType.replace("_", " ")}
             </div>
           </div>
-
           <div style={sectionStyle}>
             <div style={labelStyle}>
               {infraFieldSets[(nodeData as InfraBlock).resourceType].title}
@@ -4153,7 +3972,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   string | number | boolean
                 >;
                 const value = config[field.key];
-
                 if (field.type === "boolean") {
                   return (
                     <label
@@ -4184,7 +4002,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     </label>
                   );
                 }
-
                 if (field.type === "select") {
                   return (
                     <div key={field.key} style={{ marginBottom: 8 }}>
@@ -4210,7 +4027,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     </div>
                   );
                 }
-
                 return (
                   <div key={field.key} style={{ marginBottom: 8 }}>
                     <div style={labelStyle}>{field.label}</div>
@@ -4243,11 +4059,8 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           </div>
         </>
       )}
-
-      {/* Interface block-specific fields */}
       {kind === "api_binding" && (
         <>
-          {/* Protocol */}
           <div style={sectionStyle}>
             <div style={labelStyle}>Protocol</div>
             <select
@@ -4262,7 +4075,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   | "grpc"
                   | "sse"
                   | "webhook";
-
                 if (nextProtocol === "rest") {
                   handleUpdate({
                     protocol: "rest",
@@ -4289,7 +4101,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   } as Partial<ApiBinding>);
                   return;
                 }
-
                 const instanceDefaults =
                   nextProtocol === "ws"
                     ? {
@@ -4386,7 +4197,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                                   },
                                 },
                               };
-
                 handleUpdate({
                   protocol: nextProtocol,
                   apiType:
@@ -4417,7 +4227,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <option value="webhook">Webhook</option>
             </select>
           </div>
-
           {isRestProtocol ? (
             <div style={{ display: "flex", gap: 8 }}>
               <div style={{ width: 100 }}>
@@ -4462,7 +4271,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               <div style={{ ...labelStyle, marginBottom: 8 }}>
                 Protocol Config
               </div>
-
               {(isWsProtocol || isSocketIOProtocol) && (
                 <div style={{ marginBottom: 8 }}>
                   <div style={labelStyle}>Endpoint</div>
@@ -4485,7 +4293,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   />
                 </div>
               )}
-
               {isWsProtocol && (
                 <>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -4570,10 +4377,8 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </div>
                 </>
               )}
-
               {isSocketIOProtocol && (
                 <>
-                  {/* Namespaces pill editor */}
                   <div style={{ marginTop: 8 }}>
                     <div style={labelStyle}>Namespaces</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
@@ -4630,8 +4435,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       >Add</button>
                     </div>
                   </div>
-
-                  {/* Rooms pill editor */}
                   <div style={{ marginTop: 8 }}>
                     <div style={labelStyle}>Rooms</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
@@ -4687,8 +4490,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       >Add</button>
                     </div>
                   </div>
-
-                  {/* Events pill editor */}
                   <div style={{ marginTop: 8 }}>
                     <div style={labelStyle}>Events</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
@@ -4744,7 +4545,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       >Add</button>
                     </div>
                   </div>
-
                   <div style={{ marginTop: 8 }}>
                     <div style={labelStyle}>Ack Timeout (ms)</div>
                     <input
@@ -4766,7 +4566,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </div>
                 </>
               )}
-
               {isWebRtcProtocol && (
                 <>
                   <div style={{ marginBottom: 8 }}>
@@ -4869,7 +4668,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </div>
                 </>
               )}
-
               {isGraphqlProtocol && (
                 <>
                   <div style={{ marginBottom: 8 }}>
@@ -4891,7 +4689,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       style={inputStyle}
                     />
                   </div>
-
                   <div style={{ marginBottom: 8 }}>
                     <div style={labelStyle}>Schema SDL</div>
                     <textarea
@@ -4910,7 +4707,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       style={{ ...inputStyle, minHeight: 90, resize: "vertical", fontFamily: "monospace" }}
                     />
                   </div>
-
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     {[
                       { key: "queries", label: "Queries" },
@@ -4959,7 +4755,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </div>
                 </>
               )}
-
               {isGrpcProtocol && (
                 <>
                   <div style={{ marginBottom: 8 }}>
@@ -4981,7 +4776,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       style={inputStyle}
                     />
                   </div>
-
                   <div style={{ marginBottom: 8 }}>
                     <div style={labelStyle}>RPC Methods</div>
                     {((apiNode?.instance?.config as { rpcMethods?: Array<{ name?: string; type?: string }> } | undefined)?.rpcMethods || []).map((method, idx) => (
@@ -5065,7 +4859,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       + Add Method
                     </button>
                   </div>
-
                   <div>
                     <div style={labelStyle}>Protobuf Definition</div>
                     <textarea
@@ -5089,7 +4882,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </div>
                 </>
               )}
-
               {isSseProtocol && (
                 <>
                   <div style={{ marginBottom: 8 }}>
@@ -5181,7 +4973,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </div>
                 </>
               )}
-
               {isWebhookProtocol && (
                 <>
                   <div style={{ marginBottom: 8 }}>
@@ -5203,7 +4994,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       style={inputStyle}
                     />
                   </div>
-
                   <div style={sectionStyle}>
                     <label
                       style={{
@@ -5242,7 +5032,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       />
                       Enable Signature Verification
                     </label>
-
                     {(apiNode?.instance?.config as {
                       signatureVerification?: { enabled?: boolean };
                     } | undefined)?.signatureVerification?.enabled && (
@@ -5306,7 +5095,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                         </div>
                       )}
                   </div>
-
                   <div style={sectionStyle}>
                     <label
                       style={{
@@ -5345,7 +5133,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                       />
                       Enable Retry Policy
                     </label>
-
                     {(apiNode?.instance?.config as {
                       retryPolicy?: { enabled?: boolean };
                     } | undefined)?.retryPolicy?.enabled && (
@@ -5416,7 +5203,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               )}
             </div>
           )}
-
           {(isWsProtocol || isSocketIOProtocol) && (
             <>
               <div style={sectionStyle}>
@@ -5449,7 +5235,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   <option value="basic">Basic</option>
                 </select>
               </div>
-
               <div style={sectionStyle}>
                 <label
                   style={{
@@ -5552,8 +5337,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </div>
             </>
           )}
-
-          {/* Version & Deprecated */}
           <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
             <div style={{ width: 80 }}>
               <div style={labelStyle}>Version</div>
@@ -5592,8 +5375,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               Deprecated
             </label>
           </div>
-
-          {/* OpenAPI Export */}
           {isRestProtocol && (
             <div style={{ marginTop: 8 }}>
               <button
@@ -5620,8 +5401,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </button>
             </div>
           )}
-
-          {/* Security */}
           {isRestProtocol && (
             <div style={sectionStyle}>
               <div style={labelStyle}>Security</div>
@@ -5739,8 +5518,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               )}
             </div>
           )}
-
-          {/* Rate Limiting */}
           {isRestProtocol && (
             <div style={sectionStyle}>
               <label
@@ -5816,8 +5593,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               )}
             </div>
           )}
-
-          {/* CORS Configuration */}
           {isRestProtocol && (
             <div style={sectionStyle}>
               <label
@@ -5960,13 +5735,9 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               )}
             </div>
           )}
-
-          {/* Request Schema Tabs */}
           {isRestProtocol && (
             <div style={sectionStyle}>
               <div style={{ ...labelStyle, marginBottom: 8 }}>Request</div>
-
-              {/* Tab Buttons */}
               <div style={{ display: "flex", gap: 2, marginBottom: 12 }}>
                 {(["body", "path", "headers", "query"] as const).map((tab) => {
                   const showBody =
@@ -5977,7 +5748,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   if (tab === "body" && !showBody) return null;
                   if (isWsProtocol && tab === "query") return null;
                   if (isWsProtocol && tab === "path") return null;
-
                   const counts: Record<string, number> = {
                     body:
                       (nodeData as ApiBinding).request?.body?.schema?.length || 0,
@@ -5988,7 +5758,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     path:
                       (nodeData as ApiBinding).request?.pathParams?.length || 0,
                   };
-
                   return (
                     <button
                       key={tab}
@@ -6022,8 +5791,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   );
                 })}
               </div>
-
-              {/* Body Tab */}
               {requestTab === "body" &&
                 (isWsProtocol ||
                   ["POST", "PUT", "PATCH"].includes(
@@ -6104,8 +5871,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                     </button>
                   </>
                 )}
-
-              {/* Headers Tab */}
               {requestTab === "headers" && (
                 <>
                   {((nodeData as ApiBinding).request?.headers || []).map(
@@ -6168,8 +5933,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </button>
                 </>
               )}
-
-              {/* Query Tab */}
               {requestTab === "query" && !isWsProtocol && (
                 <>
                   {((nodeData as ApiBinding).request?.queryParams || []).map(
@@ -6236,8 +5999,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
                   </button>
                 </>
               )}
-
-              {/* Path Tab */}
               {requestTab === "path" && (
                 <>
                   {(() => {
@@ -6316,8 +6077,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               )}
             </div>
           )}
-
-          {/* Response Success Schema */}
           {isRestProtocol && (
             <div style={sectionStyle}>
               <div
@@ -6406,8 +6165,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </button>
             </div>
           )}
-
-          {/* Error Response Schema */}
           {isRestProtocol && (
             <div style={sectionStyle}>
               <div
@@ -6510,8 +6267,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               </button>
             </div>
           )}
-
-          {/* cURL Preview */}
           {isRestProtocol && (
             <div style={sectionStyle}>
               <button
@@ -6577,8 +6332,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
               })()}
             </div>
           )}
-
-          {/* Function Block Reference */}
           <div style={sectionStyle}>
             <div style={{ ...labelStyle, display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
               <span>Invokes Function Block</span>
@@ -6626,8 +6379,6 @@ export function PropertyInspector({ width = 320 }: { width?: number }) {
           </div>
         </>
       )}
-
-      {/* Delete Button */}
       <div style={{ marginTop: "auto", paddingTop: 16 }}>
         <button
           onClick={() => deleteNode(selectedNode.id)}

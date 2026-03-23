@@ -1,16 +1,13 @@
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { QueueBlock } from "@/lib/schema/node";
-
 export const QueueNode = memo(({ data, selected }: NodeProps) => {
   const queueData = data as unknown as QueueBlock;
-
   const deliveryColors: Record<string, string> = {
     at_least_once: "#facc15",
     at_most_once: "#fb923c",
     exactly_once: "#4ade80",
   };
-
   return (
     <div
       style={{
@@ -25,7 +22,6 @@ export const QueueNode = memo(({ data, selected }: NodeProps) => {
           : "0 4px 12px rgba(0, 0, 0, 0.3)",
       }}
     >
-      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -50,8 +46,6 @@ export const QueueNode = memo(({ data, selected }: NodeProps) => {
           Queue
         </span>
       </div>
-
-      {/* Title */}
       <div
         style={{
           padding: "10px 12px",
@@ -73,8 +67,6 @@ export const QueueNode = memo(({ data, selected }: NodeProps) => {
           </div>
         )}
       </div>
-
-      {/* Config */}
       <div style={{ padding: "8px 12px" }}>
         <div
           style={{
@@ -141,8 +133,6 @@ export const QueueNode = memo(({ data, selected }: NodeProps) => {
           </div>
         </div>
       </div>
-
-      {/* Handles */}
       <Handle
         type="target"
         position={Position.Left}
@@ -184,5 +174,4 @@ export const QueueNode = memo(({ data, selected }: NodeProps) => {
     </div>
   );
 });
-
 QueueNode.displayName = "QueueNode";

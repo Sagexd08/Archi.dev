@@ -1,8 +1,6 @@
 "use client";
-
 import React, { useState } from "react";
 import { DatabaseBlock, DatabaseSeed, DatabaseTableField } from "@/lib/schema/node";
-
 type DataSeedingSectionProps = {
   database: DatabaseBlock;
   onChange: (updates: Partial<DatabaseBlock>) => void;
@@ -11,7 +9,6 @@ type DataSeedingSectionProps = {
   sectionStyle: React.CSSProperties;
   onMessage?: (message: string, type: "success" | "error") => void;
 };
-
 const mockValueForField = (field: DatabaseTableField, index: number) => {
   const safeName = (field.name || "field").toLowerCase();
   if (field.type === "number") return index + 1;
@@ -25,7 +22,6 @@ const mockValueForField = (field: DatabaseTableField, index: number) => {
   if (field.type === "uuid") return `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`;
   return `${safeName}_${index + 1}`;
 };
-
 export function DataSeedingSection({
   database,
   onChange,
@@ -37,14 +33,11 @@ export function DataSeedingSection({
   const [isExpanded, setIsExpanded] = useState(true);
   const [expandedSeeds, setExpandedSeeds] = useState<Record<number, boolean>>({});
   const [fixtureDrafts, setFixtureDrafts] = useState<Record<number, string>>({});
-
   const seeds = database.seeds || [];
   const tables = database.tables || [];
-
   const updateSeeds = (nextSeeds: DatabaseSeed[]) => {
     onChange({ seeds: nextSeeds });
   };
-
   const buildRandomSeedPreview = (seed: DatabaseSeed) => {
     const table = tables.find((candidate) => candidate.name === seed.tableName);
     if (!table) return [];
@@ -57,7 +50,6 @@ export function DataSeedingSection({
       return row;
     });
   };
-
   return (
     <div style={sectionStyle}>
       <button
@@ -81,7 +73,6 @@ export function DataSeedingSection({
         <span>{isExpanded ? "▾" : "▸"}</span>
         <span>Data Seeding</span>
       </button>
-
       {isExpanded && (
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -120,13 +111,11 @@ export function DataSeedingSection({
               + Seed
             </button>
           </div>
-
           {seeds.length === 0 && (
             <div style={{ fontSize: 11, color: "var(--muted)" }}>
               No seed configs yet.
             </div>
           )}
-
           {seeds.map((seed, seedIndex) => {
             const expanded = expandedSeeds[seedIndex] ?? true;
             const previewRows = seed.strategy === "random" ? buildRandomSeedPreview(seed) : [];
@@ -181,7 +170,6 @@ export function DataSeedingSection({
                     x
                   </button>
                 </div>
-
                 {expanded && (
                   <div style={{ padding: 8, borderTop: "1px solid var(--border)", display: "grid", gap: 6 }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 0.8fr 0.8fr", gap: 6 }}>
@@ -232,7 +220,6 @@ export function DataSeedingSection({
                         <option value="custom">custom</option>
                       </select>
                     </div>
-
                     {seed.strategy === "random" && (
                       <div style={{ display: "grid", gap: 4 }}>
                         <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase" }}>
@@ -257,7 +244,6 @@ export function DataSeedingSection({
                         </pre>
                       </div>
                     )}
-
                     {seed.strategy === "fixture" && (
                       <div style={{ display: "grid", gap: 4 }}>
                         <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase" }}>
@@ -304,7 +290,6 @@ export function DataSeedingSection({
                         />
                       </div>
                     )}
-
                     {seed.strategy === "custom" && (
                       <div style={{ display: "grid", gap: 4 }}>
                         <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase" }}>
@@ -341,4 +326,3 @@ export function DataSeedingSection({
     </div>
   );
 }
-

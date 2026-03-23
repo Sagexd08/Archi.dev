@@ -1,51 +1,35 @@
-/**
- * Pre-generation architecture validation.
- *
- * Runs a series of structural checks on all graph tabs before the user
- * triggers AI-based code generation.  Errors block generation; warnings
- * are presented but can be overridden.
- */
+
+
+
+
+
+
+
 
 import { Edge, Node } from "@xyflow/react";
-
-// ── Types ──────────────────────────────────────────────────────────────────
-
 export type Severity = "error" | "warning";
-
 export interface ValidationIssue {
   severity: Severity;
-  /** Short human-readable title (one line). */
   title: string;
-  /** Optional extra detail shown in a collapsible section or tooltip. */
   detail?: string;
-  /** Node id this issue relates to (for highlighting). */
   nodeId?: string;
 }
-
 export interface ValidationResult {
   ok: boolean;
   errors: ValidationIssue[];
   warnings: ValidationIssue[];
 }
-
 type GraphMap = Record<string, { nodes: Node[]; edges: Edge[] }>;
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-
 function nodeLabel(node: Node): string {
   const d = node.data as Record<string, unknown>;
   return (d?.label as string) || node.id;
 }
-
-// ── Checks ─────────────────────────────────────────────────────────────────
-
 function checkNoNodes(allNodes: Node[]): ValidationIssue | null {
   if (allNodes.length === 0) {
     return { severity: "error", title: "No blocks on the canvas", detail: "Add at least one block before generating code." };
   }
   return null;
 }
-
 function checkOrphanNodes(allNodes: Node[], allEdges: Edge[]): ValidationIssue[] {
   const connectedIds = new Set<string>();
   for (const e of allEdges) {
@@ -53,7 +37,6 @@ function checkOrphanNodes(allNodes: Node[], allEdges: Edge[]): ValidationIssue[]
     connectedIds.add(e.target);
   }
   const issues: ValidationIssue[] = [];
-  // Only flag orphans when there are at least 2 nodes (single node is fine)
   if (allNodes.length >= 2) {
     for (const n of allNodes) {
       if (!connectedIds.has(n.id)) {
@@ -68,7 +51,6 @@ function checkOrphanNodes(allNodes: Node[], allEdges: Edge[]): ValidationIssue[]
   }
   return issues;
 }
-
 function checkMissingLabels(allNodes: Node[]): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   for (const n of allNodes) {
@@ -85,7 +67,6 @@ function checkMissingLabels(allNodes: Node[]): ValidationIssue[] {
   }
   return issues;
 }
-
 function checkProcessBlocks(allNodes: Node[]): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   for (const n of allNodes) {
@@ -103,20 +84,16 @@ function checkProcessBlocks(allNodes: Node[]): ValidationIssue[] {
   }
   return issues;
 }
-
 function checkApiBindings(allNodes: Node[], allEdges: Edge[]): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
-  const seenRoutes = new Map<string, string>(); // "METHOD /route" → nodeLabel
-
+  const seenRoutes = new Map<string, string>();
   for (const n of allNodes) {
     const d = n.data as Record<string, unknown>;
     if (d?.kind !== "api_binding") continue;
-
     const protocol = (d?.protocol as string | undefined) ?? "rest";
     const route    = (d?.route   as string | undefined) ?? "";
     const method   = ((d?.method as string | undefined) ?? "").toUpperCase();
     const lbl      = nodeLabel(n);
-
     if (protocol === "rest") {
       if (!route.trim()) {
         issues.push({
@@ -143,7 +120,6 @@ function checkApiBindings(allNodes: Node[], allEdges: Edge[]): ValidationIssue[]
           });
         }
       }
-
       if (!method) {
         issues.push({
           severity: "error",
@@ -165,8 +141,6 @@ function checkApiBindings(allNodes: Node[], allEdges: Edge[]): ValidationIssue[]
         }
       }
     }
-
-    // Check that API binding connects to at least one process
     const hasOutgoing = allEdges.some((e) => e.source === n.id);
     if (!hasOutgoing) {
       issues.push({
@@ -179,7 +153,6 @@ function checkApiBindings(allNodes: Node[], allEdges: Edge[]): ValidationIssue[]
   }
   return issues;
 }
-
 function checkDatabaseBlocks(allNodes: Node[]): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   for (const n of allNodes) {
@@ -209,7 +182,6 @@ function checkDatabaseBlocks(allNodes: Node[]): ValidationIssue[] {
   }
   return issues;
 }
-
 function checkQueueBlocks(allNodes: Node[]): ValidationIssue[] {
   const VALID_DELIVERIES = ["at_least_once", "at_most_once", "exactly_once"];
   const issues: ValidationIssue[] = [];
@@ -228,7 +200,6 @@ function checkQueueBlocks(allNodes: Node[]): ValidationIssue[] {
   }
   return issues;
 }
-
 function checkSelfLoops(allNodes: Node[], allEdges: Edge[]): ValidationIssue[] {
   const nodeMap = new Map(allNodes.map((n) => [n.id, n]));
   return allEdges
@@ -240,7 +211,6 @@ function checkSelfLoops(allNodes: Node[], allEdges: Edge[]): ValidationIssue[] {
       nodeId: e.source,
     }));
 }
-
 function checkDuplicateLabels(allNodes: Node[]): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const seen = new Map<string, string[]>();
@@ -262,7 +232,6 @@ function checkDuplicateLabels(allNodes: Node[]): ValidationIssue[] {
   }
   return issues;
 }
-
 function checkDanglingEdges(allNodes: Node[], allEdges: Edge[]): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const nodeIds = new Set(allNodes.map((n) => n.id));
@@ -284,10 +253,8 @@ function checkDanglingEdges(allNodes: Node[], allEdges: Edge[]): ValidationIssue
   }
   return issues;
 }
-
 function checkApiEndpointLinks(allNodes: Node[], graphs: GraphMap): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
-  // Collect all API binding node IDs across all tabs
   const apiBindingIds = new Set<string>();
   for (const g of Object.values(graphs)) {
     for (const n of g.nodes) {
@@ -317,16 +284,10 @@ function checkApiEndpointLinks(allNodes: Node[], graphs: GraphMap): ValidationIs
   }
   return issues;
 }
-
-// ── Main entry point ───────────────────────────────────────────────────────
-
 export function validateArchitecture(graphs: GraphMap): ValidationResult {
   const allNodes = Object.values(graphs).flatMap((g) => g.nodes);
   const allEdges = Object.values(graphs).flatMap((g) => g.edges);
-
   const issues: ValidationIssue[] = [];
-
-  // Collect issues from each checker
   const noNodes = checkNoNodes(allNodes);
   if (noNodes) issues.push(noNodes);
   issues.push(...checkMissingLabels(allNodes));
@@ -339,9 +300,7 @@ export function validateArchitecture(graphs: GraphMap): ValidationResult {
   issues.push(...checkOrphanNodes(allNodes, allEdges));
   issues.push(...checkProcessBlocks(allNodes));
   issues.push(...checkDatabaseBlocks(allNodes));
-
   const errors = issues.filter((i) => i.severity === "error");
   const warnings = issues.filter((i) => i.severity === "warning");
-
   return { ok: errors.length === 0, errors, warnings };
 }

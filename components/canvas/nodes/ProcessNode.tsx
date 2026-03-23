@@ -1,24 +1,20 @@
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { ProcessDefinition, InputField, OutputField } from "@/lib/schema/node";
-
 export const ProcessNode = memo(({ data, selected }: NodeProps) => {
   const processData = data as unknown as ProcessDefinition;
-
   const executionLabels: Record<string, string> = {
     sync: "Sync",
     async: "Async",
     scheduled: "⏰",
     event_driven: "⚡",
   };
-
   const isStartFunction = processData.processType === "start_function";
   const headerColor = isStartFunction ? "#4ade80" : "#a78bfa";
   const headerLabel = isStartFunction ? "▶  Start Function" : "Function Block";
   const headerBg = isStartFunction
     ? "color-mix(in srgb, #052e16 80%, var(--floating) 20%)"
     : "var(--floating)";
-
   return (
     <div
       style={{
@@ -33,7 +29,6 @@ export const ProcessNode = memo(({ data, selected }: NodeProps) => {
           : "0 4px 12px rgba(0,0,0,0.3)",
       }}
     >
-      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -62,8 +57,6 @@ export const ProcessNode = memo(({ data, selected }: NodeProps) => {
           </span>
         </div>
       </div>
-
-      {/* Title */}
       <div
         style={{
           padding: "10px 12px",
@@ -85,8 +78,6 @@ export const ProcessNode = memo(({ data, selected }: NodeProps) => {
           </div>
         )}
       </div>
-
-      {/* Inputs */}
       {processData.inputs.length > 0 && (
         <div
           style={{
@@ -141,8 +132,6 @@ export const ProcessNode = memo(({ data, selected }: NodeProps) => {
           ))}
         </div>
       )}
-
-      {/* Steps */}
       {processData.steps.length > 0 && (
         <div
           style={{
@@ -203,8 +192,6 @@ export const ProcessNode = memo(({ data, selected }: NodeProps) => {
           )}
         </div>
       )}
-
-      {/* Outputs */}
       {(processData.outputs.success.length > 0 ||
         processData.outputs.error.length > 0) && (
           <div style={{ padding: "8px 12px" }}>
@@ -290,8 +277,6 @@ export const ProcessNode = memo(({ data, selected }: NodeProps) => {
             ))}
           </div>
         )}
-
-      {/* Default handles if no inputs/outputs */}
       {processData.inputs.length === 0 && (
         <Handle
           type="target"
@@ -320,5 +305,4 @@ export const ProcessNode = memo(({ data, selected }: NodeProps) => {
     </div>
   );
 });
-
 ProcessNode.displayName = "ProcessNode";

@@ -1,7 +1,5 @@
 "use client";
-
 import React, { useCallback, useEffect } from "react";
-
 interface ContextMenuProps {
   x: number;
   y: number;
@@ -9,7 +7,6 @@ interface ContextMenuProps {
   onAddNode: (kind: string, position: { x: number; y: number }) => void;
   flowPosition: { x: number; y: number };
 }
-
 export function ContextMenu({
   x,
   y,
@@ -24,7 +21,6 @@ export function ContextMenu({
     },
     [flowPosition, onAddNode, onClose],
   );
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -37,7 +33,6 @@ export function ContextMenu({
       document.removeEventListener("click", handleClickOutside);
     };
   }, [onClose]);
-
   const itemStyle: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
@@ -48,7 +43,6 @@ export function ContextMenu({
     fontSize: 11,
     color: "var(--secondary)",
   };
-
   return (
     <div
       style={{
@@ -65,7 +59,6 @@ export function ContextMenu({
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Main Options */}
       {[
         {
           kind: "process",

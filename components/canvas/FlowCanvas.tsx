@@ -1,5 +1,4 @@
 "use client";
-
 import React, { ComponentType, useState, useCallback, useEffect } from "react";
 import {
   ReactFlow,
@@ -27,7 +26,6 @@ import { InfraNode } from "./nodes/InfraNode";
 import { ServiceBoundaryNode } from "./nodes/ServiceBoundaryNode";
 import { StepEdge } from "./edges/StepEdge";
 import { ContextMenu } from "./ContextMenu";
-
 function withValidationBadge(
   Wrapped: ComponentType<NodeProps>,
 ): ComponentType<NodeProps> {
@@ -36,7 +34,6 @@ function withValidationBadge(
       (state) =>
         state.validationIssues.filter((issue) => issue.nodeId === props.id).length,
     );
-
     return (
       <div style={{ position: "relative" }}>
         <Wrapped {...props} />
@@ -70,7 +67,6 @@ function withValidationBadge(
     );
   };
 }
-
 const nodeTypes: NodeTypes = {
   process: withValidationBadge(ProcessNode as unknown as ComponentType<NodeProps>),
   database: withValidationBadge(DatabaseNode as unknown as ComponentType<NodeProps>),
@@ -80,22 +76,18 @@ const nodeTypes: NodeTypes = {
   infra: withValidationBadge(InfraNode as unknown as ComponentType<NodeProps>),
   service_boundary: withValidationBadge(ServiceBoundaryNode as unknown as ComponentType<NodeProps>),
 };
-
 const edgeTypes: EdgeTypes = {
   step: StepEdge,
 };
-
 const defaultEdgeOptions: DefaultEdgeOptions = {
   type: "step",
   animated: false,
 };
-
 interface ContextMenuState {
   x: number;
   y: number;
   flowPosition: { x: number; y: number };
 }
-
 function FlowCanvasInner() {
   const {
     nodes,
@@ -114,8 +106,6 @@ function FlowCanvasInner() {
     "select",
   );
   const [showMiniMap, setShowMiniMap] = useState(false);
-
-  // When a node is focused from the error modal: select it and pan to it
   useEffect(() => {
     if (!focusNodeId) return;
     setNodes((nds: Node[]) =>
@@ -130,7 +120,6 @@ function FlowCanvasInner() {
     }, 60);
     return () => clearTimeout(timer);
   }, [focusNodeId, setFocusNodeId, setNodes, fitView]);
-
   const handleContextMenu = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault();
@@ -146,14 +135,12 @@ function FlowCanvasInner() {
     },
     [screenToFlowPosition],
   );
-
   const handleAddNode = useCallback(
     (kind: string, position: { x: number; y: number }) => {
       addNode(kind as Parameters<typeof addNode>[0], position);
     },
     [addNode],
   );
-
   return (
     <div
       className="h-full w-full"
@@ -359,7 +346,6 @@ function FlowCanvasInner() {
         </button>
         </div>
       </div>
-
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -435,7 +421,6 @@ function FlowCanvasInner() {
           />
         )}
       </ReactFlow>
-
       <div
         className="canvas-hint-card workspace-fade-up"
         style={{
@@ -456,7 +441,6 @@ function FlowCanvasInner() {
           Right-click anywhere to add a block near your cursor, then use auto-layout to clean up the graph.
         </div>
       </div>
-
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}
@@ -469,7 +453,6 @@ function FlowCanvasInner() {
     </div>
   );
 }
-
 export default function FlowCanvas() {
   return (
     <ReactFlowProvider>

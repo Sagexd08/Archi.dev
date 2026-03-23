@@ -1,12 +1,9 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import { DatabaseBlock } from "@/lib/schema/node";
 import { estimateDatabaseMonthlyCost } from "@/lib/cost-estimator";
-
 type DatabaseEnvironmentKey = "dev" | "staging" | "production";
 type DatabaseTier = "small" | "medium" | "large";
-
 const performanceTierPresets: Record<
   DatabaseTier,
   { connectionPool: { min: number; max: number; timeout: number }; readReplicas: { count: number; regions: string[] } }
@@ -24,13 +21,11 @@ const performanceTierPresets: Record<
     readReplicas: { count: 2, regions: [] },
   },
 };
-
 const environmentCostMultiplier: Record<DatabaseEnvironmentKey, number> = {
   dev: 0.5,
   staging: 0.8,
   production: 1.2,
 };
-
 type EnvironmentsSectionProps = {
   database: DatabaseBlock;
   onChange: (updates: Partial<DatabaseBlock>) => void;
@@ -38,7 +33,6 @@ type EnvironmentsSectionProps = {
   selectStyle: React.CSSProperties;
   sectionStyle: React.CSSProperties;
 };
-
 const defaultEnvironments: DatabaseBlock["environments"] = {
   dev: {
     connectionString: "",
@@ -59,7 +53,6 @@ const defaultEnvironments: DatabaseBlock["environments"] = {
     overrides: { enabled: false },
   },
 };
-
 const normalizeEnvironmentConfig = (
   raw: Record<string, unknown> | undefined,
   fallback: DatabaseBlock["environments"][DatabaseEnvironmentKey],
@@ -91,7 +84,6 @@ const normalizeEnvironmentConfig = (
         : fallback.overrides,
   };
 };
-
 export function EnvironmentsSection({
   database,
   onChange,
@@ -101,7 +93,6 @@ export function EnvironmentsSection({
 }: EnvironmentsSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [activeTab, setActiveTab] = useState<DatabaseEnvironmentKey>("dev");
-
   const environments = useMemo(
     () => ({
       dev: normalizeEnvironmentConfig(
@@ -124,7 +115,6 @@ export function EnvironmentsSection({
   const baseBackup = database.backup;
   const baseMonitoring = database.monitoring;
   const baseCost = database.costEstimation;
-
   const updateEnvironmentConfig = (
     env: DatabaseEnvironmentKey,
     updater: (current: (typeof environments)[DatabaseEnvironmentKey]) => (typeof environments)[DatabaseEnvironmentKey],
@@ -136,7 +126,6 @@ export function EnvironmentsSection({
       },
     });
   };
-
   const getEnvironmentCostEstimate = (env: DatabaseEnvironmentKey) => {
     const envConfig = environments[env];
     const tierMultiplier = environmentCostMultiplier[env];
@@ -156,7 +145,6 @@ export function EnvironmentsSection({
         ),
     });
   };
-
   return (
     <div style={sectionStyle}>
       <button
@@ -180,7 +168,6 @@ export function EnvironmentsSection({
         <span>{isExpanded ? "▾" : "▸"}</span>
         <span>Environments</span>
       </button>
-
       {isExpanded && (
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
@@ -219,7 +206,6 @@ export function EnvironmentsSection({
               );
             })}
           </div>
-
           <div
             style={{
               border: "1px solid var(--border)",
@@ -258,7 +244,6 @@ export function EnvironmentsSection({
               />
               Enable environment-specific overrides
             </label>
-
             <input
               type="text"
               value={activeEnvironment.connectionString}
@@ -271,7 +256,6 @@ export function EnvironmentsSection({
               placeholder="Connection string"
               style={inputStyle}
             />
-
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               <input
                 type="text"
@@ -318,7 +302,6 @@ export function EnvironmentsSection({
                 <option value="large">large tier</option>
               </select>
             </div>
-
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               <div style={{ fontSize: 11, color: "var(--muted)" }}>
                 Pool:{" "}
@@ -332,7 +315,6 @@ export function EnvironmentsSection({
                   performanceTierPresets[(activeEnvironment.performanceTier || "small") as DatabaseTier].readReplicas.count}
               </div>
             </div>
-
             <div
               style={{
                 border: "1px solid var(--border)",
@@ -352,7 +334,6 @@ export function EnvironmentsSection({
               </span>
             </div>
           </div>
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
             {(["dev", "staging", "production"] as DatabaseEnvironmentKey[]).map((env) => (
               <div

@@ -2,26 +2,22 @@
 import React, { useMemo, useState } from "react";
 import { analyzeDesignSystem, GraphCollection } from "@/lib/runtime/architecture";
 import { useStore } from "@/store/useStore";
-
 type RuntimeExecutionNode = {
   id: string;
   kind: string;
   label: string;
 };
-
 type RuntimeLogEntry = {
   id: string;
   event: string;
   message: string;
 };
-
 const parseSseEvent = (
   rawEvent: string,
 ): { event: string; data: Record<string, unknown> } | null => {
   const lines = rawEvent.split("\n");
   let event = "message";
   const dataLines: string[] = [];
-
   for (const line of lines) {
     if (line.startsWith("event:")) {
       event = line.slice("event:".length).trim();
@@ -31,9 +27,7 @@ const parseSseEvent = (
       dataLines.push(line.slice("data:".length).trim());
     }
   }
-
   if (dataLines.length === 0) return null;
-
   try {
     return {
       event,
@@ -43,7 +37,6 @@ const parseSseEvent = (
     return null;
   }
 };
-
 export function DeployWorkspace() {
   const graphs = useStore((state) => state.graphs);
   const [platform, setPlatform] = useState("vercel");
@@ -59,51 +52,41 @@ export function DeployWorkspace() {
     [graphs],
   );
   const deployBlocked = !architecture.deploy.ready;
-
   const handleStartRuntime = async () => {
     setIsStartingRuntime(true);
     setRuntimeError(null);
     setExecutionOrder([]);
     setRuntimeLogs([]);
-
     try {
       const response = await fetch("/api/runtime/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ graphs }),
       });
-
       if (!response.ok) {
         const payload = (await response.json()) as { error?: string };
         setRuntimeError(payload.error || "runtime_start_failed");
         return;
       }
-
       if (!response.body) {
         setRuntimeError("runtime_stream_unavailable");
         return;
       }
-
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
-
         let boundaryIndex = buffer.indexOf("\n\n");
         while (boundaryIndex !== -1) {
           const raw = buffer.slice(0, boundaryIndex).trim();
           buffer = buffer.slice(boundaryIndex + 2);
           boundaryIndex = buffer.indexOf("\n\n");
-
           if (!raw) continue;
           const parsedEvent = parseSseEvent(raw);
           if (!parsedEvent) continue;
-
           const message = String(parsedEvent.data.message ?? parsedEvent.event);
           setRuntimeLogs((prev) => [
             ...prev,
@@ -113,14 +96,12 @@ export function DeployWorkspace() {
               message,
             },
           ]);
-
           if (parsedEvent.event === "complete") {
             const streamedOrder = parsedEvent.data.executionOrder;
             if (Array.isArray(streamedOrder)) {
               setExecutionOrder(streamedOrder as RuntimeExecutionNode[]);
             }
           }
-
           if (parsedEvent.event === "error") {
             setRuntimeError(String(parsedEvent.data.error ?? "runtime_start_failed"));
           }
@@ -132,7 +113,6 @@ export function DeployWorkspace() {
       setIsStartingRuntime(false);
     }
   };
-
   const platforms = [
     {
       id: "vercel",
@@ -165,7 +145,6 @@ export function DeployWorkspace() {
       desc: "Quick services with team billing",
     },
   ];
-
   const actionButtonStyle: React.CSSProperties = {
     border: "1px solid var(--border)",
     background: "var(--floating)",
@@ -176,7 +155,6 @@ export function DeployWorkspace() {
     fontWeight: 600,
     cursor: "pointer",
   };
-
   return (
     <main
       style={{
@@ -250,7 +228,6 @@ export function DeployWorkspace() {
             </button>
           </div>
         </section>
-
         <section
           style={{
             border: "1px solid var(--border)",
@@ -285,7 +262,6 @@ export function DeployWorkspace() {
               {architecture.deploy.ready ? "Deploy Ready" : "Not Deployable"}
             </div>
           </div>
-
           <div
             style={{
               fontSize: 12,
@@ -305,7 +281,6 @@ export function DeployWorkspace() {
               {architecture.runtimeModel.layerCounts.infra}
             </div>
           </div>
-
           <div style={{ fontSize: 13, fontWeight: 600 }}>Design Workflow Model</div>
           <div style={{ display: "grid", gap: 8 }}>
             {architecture.workflowModel.stages.map((stage) => (
@@ -346,7 +321,6 @@ export function DeployWorkspace() {
               </div>
             ))}
           </div>
-
           <div style={{ fontSize: 13, fontWeight: 600 }}>Runtime Execution</div>
           <div style={{ display: "grid", gap: 8 }}>
             {runtimeError && (
@@ -363,13 +337,11 @@ export function DeployWorkspace() {
                 Failed to start runtime: {runtimeError}
               </div>
             )}
-
             {!runtimeError && executionOrder.length === 0 && (
               <div style={{ fontSize: 11, color: "var(--muted)" }}>
                 No runtime execution yet. Click Build to run `RuntimeEngine.start()`.
               </div>
             )}
-
             {executionOrder.length > 0 && (
               <div
                 style={{
@@ -391,7 +363,6 @@ export function DeployWorkspace() {
                 ))}
               </div>
             )}
-
             {runtimeLogs.length > 0 && (
               <div
                 style={{
@@ -414,7 +385,6 @@ export function DeployWorkspace() {
               </div>
             )}
           </div>
-
           <div style={{ fontSize: 13, fontWeight: 600 }}>Service Boundary Rules</div>
           <div style={{ display: "grid", gap: 8 }}>
             {architecture.serviceModel.rules.map((rule) => (
@@ -423,7 +393,6 @@ export function DeployWorkspace() {
               </div>
             ))}
           </div>
-
           {(architecture.runtimeModel.issues.length > 0 ||
             architecture.serviceModel.issues.length > 0) && (
             <div style={{ display: "grid", gap: 8 }}>
@@ -449,7 +418,6 @@ export function DeployWorkspace() {
             </div>
           )}
         </section>
-
         <section
           style={{
             border: "1px solid var(--border)",
@@ -495,7 +463,6 @@ export function DeployWorkspace() {
               );
             })}
           </div>
-
           <div
             style={{
               display: "grid",
@@ -584,7 +551,6 @@ export function DeployWorkspace() {
             </div>
           </div>
         </section>
-
         <section
           style={{
             border: "1px solid var(--border)",
@@ -628,7 +594,6 @@ export function DeployWorkspace() {
               </button>
             ))}
           </div>
-
           {credentialType === "oauth" && (
             <div
               style={{
@@ -657,7 +622,6 @@ export function DeployWorkspace() {
               </div>
             </div>
           )}
-
           {credentialType === "api_key" && (
             <div
               style={{
@@ -704,7 +668,6 @@ export function DeployWorkspace() {
               />
             </div>
           )}
-
           {credentialType === "service_account" && (
             <div
               style={{
@@ -742,7 +705,6 @@ export function DeployWorkspace() {
               />
             </div>
           )}
-
           <div
             style={{
               borderTop: "1px solid var(--border)",
@@ -781,7 +743,6 @@ export function DeployWorkspace() {
                 </button>
               ))}
             </div>
-
             {billingMode === "card" && (
               <div
                 style={{
@@ -843,7 +804,6 @@ export function DeployWorkspace() {
             )}
           </div>
         </section>
-
         <section
           style={{
             border: "1px solid var(--border)",
@@ -912,7 +872,6 @@ export function DeployWorkspace() {
             </div>
           </div>
         </section>
-
         <section
           style={{
             border: "1px solid var(--border)",
@@ -1005,7 +964,6 @@ export function DeployWorkspace() {
             </div>
           </div>
         </section>
-
         <section
           style={{
             border: "1px solid var(--border)",
@@ -1061,4 +1019,3 @@ export function DeployWorkspace() {
     </main>
   );
 }
-

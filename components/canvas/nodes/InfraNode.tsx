@@ -1,7 +1,6 @@
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { InfraBlock } from "@/lib/schema/node";
-
 const resourceMeta: Record<
   InfraBlock["resourceType"],
   { icon: string; color: string; label: string }
@@ -15,7 +14,6 @@ const resourceMeta: Record<
   load_balancer: { icon: "📡", color: "#22d3ee", label: "LB" },
   hpc: { icon: "🚀", color: "#f472b6", label: "HPC" },
 };
-
 const summarizeConfig = (data: InfraBlock) => {
   switch (data.resourceType) {
     case "ec2":
@@ -38,12 +36,10 @@ const summarizeConfig = (data: InfraBlock) => {
       return "";
   }
 };
-
 export const InfraNode = memo(({ data, selected }: NodeProps) => {
   const infraData = data as InfraBlock;
   const meta = resourceMeta[infraData.resourceType];
   const summary = summarizeConfig(infraData);
-
   return (
     <div
       style={{
@@ -85,7 +81,6 @@ export const InfraNode = memo(({ data, selected }: NodeProps) => {
           {infraData.provider.toUpperCase()}
         </span>
       </div>
-
       <div
         style={{
           padding: "10px 12px",
@@ -107,7 +102,6 @@ export const InfraNode = memo(({ data, selected }: NodeProps) => {
           </div>
         )}
       </div>
-
       <div style={{ padding: "8px 12px" }}>
         <div
           style={{
@@ -124,7 +118,6 @@ export const InfraNode = memo(({ data, selected }: NodeProps) => {
           {infraData.region} · {infraData.environment}
         </div>
       </div>
-
       <Handle
         type="target"
         position={Position.Left}
@@ -148,5 +141,4 @@ export const InfraNode = memo(({ data, selected }: NodeProps) => {
     </div>
   );
 });
-
 InfraNode.displayName = "InfraNode";

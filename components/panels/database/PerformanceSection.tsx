@@ -1,9 +1,7 @@
 "use client";
-
 import React from "react";
 import { DatabaseBlock } from "@/lib/schema/node";
 import { estimateDatabaseMonthlyCost } from "@/lib/cost-estimator";
-
 type PerformanceSectionProps = {
   database: DatabaseBlock;
   onChange: (updates: Partial<DatabaseBlock>) => void;
@@ -11,7 +9,6 @@ type PerformanceSectionProps = {
   labelStyle: React.CSSProperties;
   sectionStyle: React.CSSProperties;
 };
-
 export function PerformanceSection({
   database,
   onChange,
@@ -32,12 +29,10 @@ export function PerformanceSection({
     replicaCount: 0,
   };
   const monthlyCost = estimateDatabaseMonthlyCost(database.engine, costEstimation);
-
   return (
     <>
       <div style={sectionStyle}>
         <div style={labelStyle}>Performance & Scaling</div>
-
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
           <input
             type="number"
@@ -94,7 +89,6 @@ export function PerformanceSection({
             style={inputStyle}
           />
         </div>
-
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 6 }}>
           <input
             type="number"
@@ -135,7 +129,6 @@ export function PerformanceSection({
             style={inputStyle}
           />
         </div>
-
         <div style={{ display: "grid", gridTemplateColumns: "auto 1fr 1fr", gap: 6, marginTop: 6, alignItems: "center" }}>
           <label style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
             <input
@@ -191,7 +184,6 @@ export function PerformanceSection({
             style={inputStyle}
           />
         </div>
-
         <div style={{ display: "grid", gridTemplateColumns: "auto 1fr 1fr", gap: 6, marginTop: 6, alignItems: "center" }}>
           <label style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
             <input
@@ -247,7 +239,6 @@ export function PerformanceSection({
           />
         </div>
       </div>
-
       <div style={sectionStyle}>
         <div style={labelStyle}>Resource Planning</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
@@ -335,4 +326,3 @@ export function PerformanceSection({
     </>
   );
 }
-

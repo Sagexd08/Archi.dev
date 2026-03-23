@@ -1,9 +1,6 @@
 "use client";
-
 import { useRef, useState, useEffect, type ReactNode } from "react";
 import { motion, useInView } from "framer-motion";
-
-/* ── Typewriter Terminal ───────────────────────────── */
 const terminalLines = [
   { text: "$ archi deploy --env production", color: "rgba(255,255,255,0.28)" },
   { text: "✓ Building Docker image…", color: "#00F0FF" },
@@ -14,28 +11,23 @@ const terminalLines = [
   { text: "✓ Live  https://api.yourdomain.com", color: "#28C840" },
   { text: "  Deploy complete in 58s", color: "rgba(255,255,255,0.22)" },
 ];
-
 function Terminal() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const [visibleLines, setVisibleLines] = useState(0);
-
   useEffect(() => {
     if (!inView || visibleLines >= terminalLines.length) return;
     const id = setTimeout(
       () => setVisibleLines((v) => v + 1),
-      // first line faster, rest staggered
       visibleLines === 0 ? 400 : 280
     );
     return () => clearTimeout(id);
   }, [inView, visibleLines]);
-
   return (
     <div
       ref={ref}
       className="mt-6 rounded-xl overflow-hidden border border-white/[0.08] font-mono"
     >
-      {/* macOS chrome */}
       <div className="bg-[#141414] px-4 py-2.5 flex items-center gap-2 border-b border-white/[0.06]">
         <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
         <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
@@ -44,7 +36,6 @@ function Terminal() {
           archi.dev — deploy
         </span>
       </div>
-
       <div className="bg-[#070707] p-4 text-[12px] space-y-1.5 leading-relaxed min-h-[148px]">
         {terminalLines.slice(0, visibleLines).map((line, i) => (
           <motion.div
@@ -69,8 +60,6 @@ function Terminal() {
     </div>
   );
 }
-
-/* ── Dockerfile visual ─────────────────────────────── */
 function DockerVisual() {
   const lines = [
     { text: "FROM node:20-alpine", color: "#00F0FF" },
@@ -81,7 +70,6 @@ function DockerVisual() {
     { text: "EXPOSE 3000", color: "rgba(255,255,255,0.48)" },
     { text: 'CMD ["node", "index.js"]', color: "#28C840" },
   ];
-
   return (
     <div className="mt-5 rounded-lg border border-white/[0.08] bg-[#070707] p-4 font-mono text-[11px] space-y-1.5 leading-relaxed overflow-hidden">
       {lines.map((l, i) => (
@@ -99,8 +87,6 @@ function DockerVisual() {
     </div>
   );
 }
-
-/* ── Swagger mock ──────────────────────────────────── */
 function SwaggerMock() {
   const endpoints = [
     { method: "GET", path: "/api/v1/users", color: "#61affe" },
@@ -110,7 +96,6 @@ function SwaggerMock() {
     { method: "GET", path: "/api/v1/orders", color: "#61affe" },
     { method: "POST", path: "/api/v1/orders", color: "#49cc90" },
   ];
-
   return (
     <div className="mt-5 space-y-1.5 font-mono text-[11px]">
       {endpoints.map((ep, i) => (
@@ -141,8 +126,6 @@ function SwaggerMock() {
     </div>
   );
 }
-
-/* ── Spotlight card ────────────────────────────────── */
 function SpotlightCard({
   children,
   colSpan = "",
@@ -157,13 +140,11 @@ function SpotlightCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
-
   return (
     <motion.div
       ref={cardRef}
@@ -176,7 +157,6 @@ function SpotlightCard({
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       viewport={{ once: true, margin: "-60px" }}
     >
-      {/* Mouse-tracked spotlight */}
       <motion.div
         className="pointer-events-none absolute inset-0"
         animate={{ opacity: hovered ? 1 : 0 }}
@@ -185,8 +165,6 @@ function SpotlightCard({
           background: `radial-gradient(400px circle at ${mouse.x}px ${mouse.y}px, ${accentColor}, transparent 65%)`,
         }}
       />
-
-      {/* Hover border glow */}
       <motion.div
         className="pointer-events-none absolute inset-0 rounded-3xl"
         animate={{ opacity: hovered ? 1 : 0 }}
@@ -195,18 +173,14 @@ function SpotlightCard({
           boxShadow: `inset 0 0 0 1px ${accentColor.replace("0.07", "0.25")}`,
         }}
       />
-
       {children}
     </motion.div>
   );
 }
-
-/* ── Section ───────────────────────────────────────── */
 export default function BentoGrid() {
   return (
     <section className="py-32 px-6 md:px-16 xl:px-24 bg-black relative z-20">
       <div className="max-w-7xl mx-auto">
-        {/* Heading */}
         <motion.div
           initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
           whileInView={{ y: 0, opacity: 1, filter: "blur(0px)" }}
@@ -226,10 +200,7 @@ export default function BentoGrid() {
             the impossible.
           </h2>
         </motion.div>
-
-        {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1 — Terminal (span 2) */}
           <SpotlightCard
             colSpan="md:col-span-2"
             accentColor="rgba(0,240,255,0.07)"
@@ -246,8 +217,6 @@ export default function BentoGrid() {
             </p>
             <Terminal />
           </SpotlightCard>
-
-          {/* Card 2 — AI with looping video bg */}
           <SpotlightCard accentColor="rgba(138,43,226,0.09)">
             <video
               src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screens-41716-large.mp4"
@@ -298,8 +267,6 @@ export default function BentoGrid() {
               </div>
             </div>
           </SpotlightCard>
-
-          {/* Card 3 — No lock-in */}
           <SpotlightCard accentColor="rgba(255,255,255,0.04)">
             <div className="text-[10px] font-bold text-white/30 uppercase tracking-[0.22em] mb-2">
               Export
@@ -313,8 +280,6 @@ export default function BentoGrid() {
             </p>
             <DockerVisual />
           </SpotlightCard>
-
-          {/* Card 4 — OpenAPI (span 2) */}
           <SpotlightCard
             colSpan="md:col-span-2"
             accentColor="rgba(0,240,255,0.06)"

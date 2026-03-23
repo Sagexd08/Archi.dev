@@ -1,5 +1,4 @@
 import { DatabaseBlock } from "@/lib/schema/node";
-
 const mapFieldTypeToSql = (
   fieldType: string,
   dialect: "postgresql" | "mysql" | "sqlite",
@@ -37,7 +36,6 @@ const mapFieldTypeToSql = (
   if (fieldType === "uuid") return "UUID";
   return "TEXT";
 };
-
 export const buildDatabaseExportPayload = (database: DatabaseBlock) => ({
   dbType: database.dbType,
   engine: database.engine || "",
@@ -56,7 +54,6 @@ export const buildDatabaseExportPayload = (database: DatabaseBlock) => ({
   migrations: database.migrations || [],
   queries: database.queries || [],
 });
-
 export const buildDatabaseSchemaDDL = (database: DatabaseBlock) => {
   const dbType = database.dbType;
   const engine = (database.engine || "").toLowerCase();
@@ -65,7 +62,6 @@ export const buildDatabaseSchemaDDL = (database: DatabaseBlock) => {
     : engine.includes("sqlite")
       ? "sqlite"
       : "postgresql";
-
   let output = "";
   if (dbType === "sql") {
     const tables = database.tables || [];
@@ -113,7 +109,6 @@ export const buildDatabaseSchemaDDL = (database: DatabaseBlock) => {
       )
       .join("\n");
   }
-
   return {
     output: output || "-- No schema data --",
     extension: dbType === "sql" ? `${dialect}.sql` : "schema.txt",

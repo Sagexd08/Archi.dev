@@ -1,30 +1,25 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import { DatabaseBlock } from "@/lib/schema/node";
 import {
   analyzeDatabaseHealth,
   DatabaseHealthWarning,
 } from "@/lib/db-health-checker";
-
 type HealthCheckSectionProps = {
   database: DatabaseBlock;
   onChange: (updates: Partial<DatabaseBlock>) => void;
   sectionStyle: React.CSSProperties;
 };
-
 const severityColor: Record<DatabaseHealthWarning["severity"], string> = {
   info: "var(--muted)",
   warning: "#c9a14a",
   error: "#db6a6a",
 };
-
 const scoreTone = (score: number) => {
   if (score >= 90) return { icon: "🟢", color: "#4bbf73" };
   if (score >= 70) return { icon: "🟡", color: "#d8b24a" };
   return { icon: "🔴", color: "#d16b6b" };
 };
-
 const applyQuickFix = (
   warning: DatabaseHealthWarning,
   database: DatabaseBlock,
@@ -40,7 +35,6 @@ const applyQuickFix = (
     });
     return;
   }
-
   if (warning.code === "encryption_disabled_production") {
     onChange({
       security: {
@@ -54,7 +48,6 @@ const applyQuickFix = (
     });
     return;
   }
-
   if (warning.code === "monitoring_thresholds_missing") {
     onChange({
       monitoring: {
@@ -69,7 +62,6 @@ const applyQuickFix = (
     });
     return;
   }
-
   if (
     warning.code === "connection_pool_too_small" ||
     warning.code === "connection_pool_too_large"
@@ -91,7 +83,6 @@ const applyQuickFix = (
     });
     return;
   }
-
   if (warning.code === "query_without_conditions") {
     const queryId = String(warning.details?.queryId || "");
     if (!queryId) return;
@@ -102,7 +93,6 @@ const applyQuickFix = (
     });
     return;
   }
-
   if (warning.code === "foreign_key_missing_index") {
     const tableName = String(warning.details?.tableName || "");
     const fieldName = String(warning.details?.fieldName || "");
@@ -119,7 +109,6 @@ const applyQuickFix = (
     });
     return;
   }
-
   if (warning.code === "table_without_primary_key") {
     const tableName = String(warning.details?.tableName || "");
     if (!tableName) return;
@@ -144,7 +133,6 @@ const applyQuickFix = (
     });
   }
 };
-
 const quickFixLabel = (warning: DatabaseHealthWarning): string | null => {
   switch (warning.code) {
     case "backup_not_configured":
@@ -166,7 +154,6 @@ const quickFixLabel = (warning: DatabaseHealthWarning): string | null => {
       return null;
   }
 };
-
 export function HealthCheckSection({
   database,
   onChange,
@@ -175,7 +162,6 @@ export function HealthCheckSection({
   const [isExpanded, setIsExpanded] = useState(true);
   const report = useMemo(() => analyzeDatabaseHealth(database), [database]);
   const tone = scoreTone(report.score);
-
   return (
     <div style={sectionStyle}>
       <button
@@ -199,7 +185,6 @@ export function HealthCheckSection({
         <span>{isExpanded ? "â–¾" : "â–¸"}</span>
         <span>Health Check</span>
       </button>
-
       {isExpanded && (
         <div style={{ display: "grid", gap: 8 }}>
           <div
@@ -218,13 +203,11 @@ export function HealthCheckSection({
               {tone.icon} {report.score}
             </span>
           </div>
-
           {report.warnings.length === 0 && (
             <div style={{ fontSize: 11, color: "var(--secondary)" }}>
               No health warnings detected.
             </div>
           )}
-
           {report.warnings.length > 0 && (
             <div style={{ display: "grid", gap: 6 }}>
               {report.warnings.map((warning, index) => {
@@ -274,7 +257,6 @@ export function HealthCheckSection({
               })}
             </div>
           )}
-
           {report.recommendations.length > 0 && (
             <div
               style={{
@@ -299,4 +281,3 @@ export function HealthCheckSection({
     </div>
   );
 }
-

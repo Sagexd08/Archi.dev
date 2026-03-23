@@ -1,19 +1,15 @@
 import type { SidebarSection } from "@/components/studio/WorkspaceCanvas";
-
 export type WorkspaceTab = "api" | "database" | "functions" | "agent";
-
 export const tabLabel: Record<WorkspaceTab, string> = {
   api: "API",
   database: "Database",
   functions: "Functions",
   agent: "Agent",
 };
-
 export const STORAGE_KEYS = {
   activeTab: "ermiz.activeTab",
   graphs: "ermiz.graphs",
 };
-
 export const apiSections: SidebarSection[] = [
   {
     id: "api-processes",
@@ -131,7 +127,6 @@ export const apiSections: SidebarSection[] = [
     ],
   },
 ];
-
 const _infraSections: SidebarSection[] = [
   {
     id: "infra-compute",
@@ -283,7 +278,6 @@ const _infraSections: SidebarSection[] = [
     ],
   },
 ];
-
 export const databaseSections: SidebarSection[] = [
   {
     id: "db-engines",
@@ -422,7 +416,6 @@ export const databaseSections: SidebarSection[] = [
     ],
   },
 ];
-
 export const functionSections: SidebarSection[] = [
   {
     id: "functions-start",
@@ -464,14 +457,12 @@ export const functionSections: SidebarSection[] = [
     ],
   },
 ];
-
 export const STATUS_TEXT_BY_TAB: Record<WorkspaceTab, string> = {
   api: "API workspace ready",
   database: "Database workspace ready",
   functions: "Functions workspace ready",
   agent: "Agent view ready",
 };
-
 export const HEADER_MENU_TEXT = {
   saveChanges: "Save Changes",
   commit: "Commit",

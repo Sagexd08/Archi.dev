@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useMemo, useRef, useState } from "react";
 import { useStore } from "@/store/useStore";
 import {
@@ -8,7 +7,6 @@ import {
   DatabaseOrmTarget,
   DatabaseTable,
 } from "@/lib/schema/node";
-
 const inputStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   borderRadius: 8,
@@ -17,7 +15,6 @@ const inputStyle: React.CSSProperties = {
   color: "var(--foreground)",
   fontSize: 12,
 };
-
 const buttonStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   borderRadius: 8,
@@ -27,7 +24,6 @@ const buttonStyle: React.CSSProperties = {
   fontSize: 11,
   cursor: "pointer",
 };
-
 const sampleForType = (type: DatabaseFieldType, index: number): unknown => {
   switch (type) {
     case "int":
@@ -50,7 +46,6 @@ const sampleForType = (type: DatabaseFieldType, index: number): unknown => {
       return `value_${index + 1}`;
   }
 };
-
 const estimateComplexity = (query: string): { score: number; note: string } => {
   const q = query.toLowerCase();
   let score = 1;
@@ -70,7 +65,6 @@ const estimateComplexity = (query: string): { score: number; note: string } => {
           : "Very high";
   return { score: bounded, note };
 };
-
 const validateForDbType = (
   query: string,
   dbType: DatabaseBlock["dbType"],
@@ -113,7 +107,6 @@ const validateForDbType = (
     message: ok ? "Graph query pattern looks valid." : "Use MATCH/CREATE for graph queries.",
   };
 };
-
 const parseSqlFrom = (query: string): { tableName?: string; limit?: number } => {
   const fromMatch = query.match(/\bfrom\s+["`]?([a-zA-Z_][\w]*)["`]?/i);
   const limitMatch = query.match(/\blimit\s+(\d+)/i);
@@ -122,7 +115,6 @@ const parseSqlFrom = (query: string): { tableName?: string; limit?: number } => 
     limit: limitMatch ? Number(limitMatch[1]) : undefined,
   };
 };
-
 const buildOrmSnippet = (
   ormTarget: DatabaseOrmTarget,
   table: DatabaseTable | undefined,
@@ -146,13 +138,11 @@ const rows = await repo.find({
   ${whereField}: "value_1",
 }).limit(20);`;
 };
-
 export function DatabaseQueryBuilder() {
   const nodes = useStore((state) => state.nodes);
   const updateNodeData = useStore((state) => state.updateNodeData);
   const queryRef = useRef<HTMLTextAreaElement | null>(null);
   const [resultJson, setResultJson] = useState<string>("");
-
   const databaseNodes = useMemo(
     () =>
       nodes.filter(
@@ -168,7 +158,6 @@ export function DatabaseQueryBuilder() {
     databaseNodes.find((node) => node.selected) || databaseNodes[0];
   const dbData = activeDatabaseNode?.data;
   const tables = useMemo(() => dbData?.tables || [], [dbData]);
-
   const setWorkbench = (updates: Partial<DatabaseBlock["queryWorkbench"]>) => {
     if (!activeDatabaseNode || !dbData) return;
     updateNodeData(activeDatabaseNode.id, {
@@ -178,17 +167,14 @@ export function DatabaseQueryBuilder() {
       },
     } as Partial<DatabaseBlock>);
   };
-
   const queryText = dbData?.queryWorkbench?.query || "";
   const ormTarget = dbData?.queryWorkbench?.ormTarget || "prisma";
   const mockRows = dbData?.queryWorkbench?.mockRows || 5;
-
   const validation = useMemo(
     () => validateForDbType(queryText, dbData?.dbType || "sql"),
     [dbData?.dbType, queryText],
   );
   const complexity = useMemo(() => estimateComplexity(queryText), [queryText]);
-
   const suggestions = useMemo(() => {
     const values = new Set<string>();
     for (const table of tables) {
@@ -201,7 +187,6 @@ export function DatabaseQueryBuilder() {
     }
     return Array.from(values).slice(0, 30);
   }, [tables]);
-
   const applySuggestion = (token: string) => {
     if (!queryRef.current) {
       setWorkbench({ query: `${queryText} ${token}`.trim() });
@@ -220,7 +205,6 @@ export function DatabaseQueryBuilder() {
       target.setSelectionRange(cursor, cursor);
     });
   };
-
   const runMockQuery = () => {
     if (!dbData) return;
     if (dbData.dbType !== "sql") {
@@ -233,7 +217,6 @@ export function DatabaseQueryBuilder() {
       setResultJson(JSON.stringify(payload, null, 2));
       return;
     }
-
     const parsed = parseSqlFrom(queryText);
     const table = tables.find((t) => t.name.toLowerCase() === parsed.tableName?.toLowerCase());
     if (!table) {
@@ -269,19 +252,15 @@ export function DatabaseQueryBuilder() {
       ),
     );
   };
-
   const selectedTable = useMemo(() => {
     const parsed = parseSqlFrom(queryText);
     return tables.find((table) => table.name.toLowerCase() === parsed.tableName?.toLowerCase());
   }, [queryText, tables]);
-
   const ormSnippet = useMemo(
     () => buildOrmSnippet(ormTarget, selectedTable || tables[0]),
     [ormTarget, selectedTable, tables],
   );
-
   if (!dbData) return null;
-
   return (
     <section
       style={{
@@ -324,7 +303,6 @@ export function DatabaseQueryBuilder() {
             </span>
           </div>
         </div>
-
         <div style={{ padding: "8px 12px", borderBottom: "1px solid var(--border)", display: "flex", gap: 6, flexWrap: "wrap" }}>
           {suggestions.slice(0, 12).map((suggestion) => (
             <button
@@ -342,7 +320,6 @@ export function DatabaseQueryBuilder() {
             </button>
           ))}
         </div>
-
         <div style={{ padding: 10, overflow: "auto" }}>
           <textarea
             ref={queryRef}
@@ -371,7 +348,6 @@ export function DatabaseQueryBuilder() {
             }}
           />
         </div>
-
         <div
           style={{
             padding: "8px 12px",
@@ -406,7 +382,6 @@ export function DatabaseQueryBuilder() {
           </div>
         </div>
       </div>
-
       <div
         style={{
           borderLeft: "1px solid var(--border)",
@@ -438,7 +413,6 @@ export function DatabaseQueryBuilder() {
             <option value="mongoose">Mongoose</option>
           </select>
         </div>
-
         <textarea
           readOnly
           value={ormSnippet}
@@ -456,7 +430,6 @@ export function DatabaseQueryBuilder() {
             fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
           }}
         />
-
         <textarea
           readOnly
           value={resultJson || "{\n  \"result\": \"Run mock query to preview output\"\n}"}

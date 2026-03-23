@@ -1,25 +1,20 @@
 import { Edge, Node } from "@xyflow/react";
-
 export type WorkspaceTab = "api" | "database" | "functions" | "agent";
-
 export type GraphState = {
   nodes: Node[];
   edges: Edge[];
 };
-
 export type WorkspaceTemplateId =
   | "blank"
   | "hello_world_api"
   | "saas_auth"
   | "rag_pipeline"
   | "ecommerce_crud";
-
 export type WorkspaceTemplateDefinition = {
   id: WorkspaceTemplateId;
   label: string;
   description: string;
 };
-
 const cloneGraph = (graph: GraphState): GraphState => ({
   nodes: graph.nodes.map((node) => ({
     ...node,
@@ -28,14 +23,12 @@ const cloneGraph = (graph: GraphState): GraphState => ({
   })) as Node[],
   edges: graph.edges.map((edge) => ({ ...edge })) as Edge[],
 });
-
 const blankGraphs = (): Record<WorkspaceTab, GraphState> => ({
   api: { nodes: [], edges: [] },
   database: { nodes: [], edges: [] },
   functions: { nodes: [], edges: [] },
   agent: { nodes: [], edges: [] },
 });
-
 const helloWorldGraphs = (): Record<WorkspaceTab, GraphState> => ({
   api: cloneGraph({
     nodes: [
@@ -107,7 +100,6 @@ const helloWorldGraphs = (): Record<WorkspaceTab, GraphState> => ({
   functions: { nodes: [], edges: [] },
   agent: { nodes: [], edges: [] },
 });
-
 const saasAuthGraphs = (): Record<WorkspaceTab, GraphState> => ({
   api: cloneGraph({
     nodes: [
@@ -394,7 +386,6 @@ const saasAuthGraphs = (): Record<WorkspaceTab, GraphState> => ({
   }),
   agent: { nodes: [], edges: [] },
 });
-
 const ragPipelineGraphs = (): Record<WorkspaceTab, GraphState> => ({
   api: cloneGraph({
     nodes: [
@@ -578,7 +569,6 @@ const ragPipelineGraphs = (): Record<WorkspaceTab, GraphState> => ({
   }),
   agent: { nodes: [], edges: [] },
 });
-
 const ecommerceCrudGraphs = (): Record<WorkspaceTab, GraphState> => ({
   api: cloneGraph({
     nodes: [
@@ -734,7 +724,6 @@ const ecommerceCrudGraphs = (): Record<WorkspaceTab, GraphState> => ({
   }),
   agent: { nodes: [], edges: [] },
 });
-
 export const WORKSPACE_TEMPLATES: WorkspaceTemplateDefinition[] = [
   { id: "blank", label: "Blank Canvas", description: "Start with an empty multi-workspace studio." },
   { id: "hello_world_api", label: "Hello World API", description: "Single endpoint + function block starter." },
@@ -742,7 +731,6 @@ export const WORKSPACE_TEMPLATES: WorkspaceTemplateDefinition[] = [
   { id: "rag_pipeline", label: "AI RAG Pipeline", description: "Query API, retrieval function, document store, and indexing queue." },
   { id: "ecommerce_crud", label: "E-commerce CRUD", description: "Orders CRUD starter with domain flow and relational schema." },
 ];
-
 export function buildWorkspaceTemplateGraphs(
   templateId: WorkspaceTemplateId,
 ): Record<WorkspaceTab, GraphState> {
@@ -753,6 +741,5 @@ export function buildWorkspaceTemplateGraphs(
     rag_pipeline: ragPipelineGraphs,
     ecommerce_crud: ecommerceCrudGraphs,
   };
-
   return templates[templateId]();
 }

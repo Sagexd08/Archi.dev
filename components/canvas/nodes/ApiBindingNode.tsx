@@ -2,7 +2,6 @@ import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { ApiBinding, InputField, OutputField } from "@/lib/schema/node";
 import { useStore } from "@/store/useStore";
-
 export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) => {
   const apiData = data as unknown as ApiBinding;
   const protocol =
@@ -15,7 +14,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
   const isGrpcProtocol = protocol === "grpc";
   const isSseProtocol = protocol === "sse";
   const isWebhookProtocol = protocol === "webhook";
-
   const methodColors: Record<string, string> = {
     GET: "#60a5fa",
     POST: "#4ade80",
@@ -83,7 +81,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
       rateLimit?: { enabled?: boolean; requests?: number; window?: string };
     }
     | undefined;
-
   const securityIcons: Record<string, string> = {
     none: "🔓",
     api_key: "🔑",
@@ -91,10 +88,8 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
     oauth2: "🔐",
     basic: "👤",
   };
-
   const openApiTableModal = useStore((s) => s.openApiTableModal);
   const tables = apiData.tables ?? [];
-
   const hasRequestBody = Boolean(apiData.request?.body?.schema?.length);
   const hasQueryParams = Boolean(apiData.request?.queryParams?.length);
   const hasPathParams = Boolean(apiData.request?.pathParams?.length);
@@ -105,7 +100,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
     !isRestProtocol && (isWsProtocol || isSocketIOProtocol)
       ? instanceConfig?.rateLimit
       : undefined;
-
   return (
     <div
       style={{
@@ -126,7 +120,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           : "0 4px 12px rgba(0, 0, 0, 0.3)",
       }}
     >
-      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -171,8 +164,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           )}
         </div>
       </div>
-
-      {/* Interface Definition */}
       <div
         style={{
           padding: "10px 12px",
@@ -230,8 +221,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           </div>
         )}
       </div>
-
-      {/* REST Request Section */}
       {isRestProtocol && (hasPathParams || hasQueryParams || hasRequestBody) && (
         <div
           style={{
@@ -249,7 +238,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           >
             Request
           </div>
-
           {hasPathParams && (
             <div style={{ marginBottom: 4 }}>
               <span style={{ fontSize: 9, color: "#60a5fa" }}>Path: </span>
@@ -267,7 +255,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
               ))}
             </div>
           )}
-
           {hasQueryParams && !isWsProtocol && (
             <div style={{ marginBottom: 4 }}>
               <span style={{ fontSize: 9, color: "#facc15" }}>Query: </span>
@@ -285,7 +272,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
               ))}
             </div>
           )}
-
           {hasRequestBody && (
             <div>
               <span style={{ fontSize: 9, color: "#4ade80" }}>Body: </span>
@@ -305,8 +291,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           )}
         </div>
       )}
-
-      {/* REST Response Section */}
       {isRestProtocol &&
         ((apiData.responses?.success?.schema?.length ?? 0) > 0 ||
           (apiData.responses?.error?.schema?.length ?? 0) > 0) && (
@@ -326,7 +310,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
             >
               Response
             </div>
-
             <div style={{ display: "flex", gap: 12 }}>
               <div>
                 <span
@@ -353,7 +336,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
                   ),
                 )}
               </div>
-
               <div>
                 <span
                   style={{
@@ -382,8 +364,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
             </div>
           </div>
         )}
-
-      {/* Protocol Config Summary */}
       {!isRestProtocol && (
         <div
           style={{
@@ -561,8 +541,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           )}
         </div>
       )}
-
-      {/* Rate Limit & Security Info */}
       <div
         style={{
           padding: "8px 12px",
@@ -601,8 +579,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           </div>
         )}
       </div>
-
-      {/* Data Tables */}
       <div style={{ padding: "8px 12px", borderTop: "1px solid var(--border)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
           <span style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase" }}>
@@ -657,8 +633,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           </>
         )}
       </div>
-
-      {/* Function Block Reference */}
       <div
         style={{ padding: "8px 12px", borderTop: "1px solid var(--border)" }}
       >
@@ -685,8 +659,6 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
           {apiData.processRef || "(not connected)"}
         </div>
       </div>
-
-      {/* Handles */}
       <Handle
         type="target"
         position={Position.Left}
@@ -710,5 +682,4 @@ export const ApiBindingNode = memo(({ id: nodeId, data, selected }: NodeProps) =
     </div>
   );
 });
-
 ApiBindingNode.displayName = "ApiBindingNode";

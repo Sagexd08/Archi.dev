@@ -3,7 +3,6 @@ import { z } from "zod";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ensureUser } from "@/lib/credit";
-
 const tabEnum = z.enum([
   "api",
   "process",
@@ -12,12 +11,10 @@ const tabEnum = z.enum([
   "requestTab",
   "other",
 ]);
-
 const createSchema = z.object({
   tab: tabEnum,
   name: z.string().trim().min(1, "Name is required"),
 });
-
 export async function GET(req: NextRequest) {
   try {
     const supabase = await getSupabaseServerClient();
@@ -25,15 +22,12 @@ export async function GET(req: NextRequest) {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
-
     if (authError || !user) {
       return NextResponse.json(
         { error: "Unauthorized", details: authError?.message },
         { status: 401 }
       );
     }
-
-    // Ensure user exists in our DB
     try {
       await ensureUser(user.id, user.email ?? undefined);
     } catch (dbError) {
@@ -43,11 +37,8 @@ export async function GET(req: NextRequest) {
         { status: 500 }
       );
     }
-
     const { searchParams } = new URL(req.url);
     const tab = searchParams.get("tab");
-
-    // Validate tab if present
     let parsedTab = undefined;
     if (tab) {
       const result = tabEnum.safeParse(tab);
@@ -59,7 +50,6 @@ export async function GET(req: NextRequest) {
       }
       parsedTab = result.data;
     }
-
     const sets = await prisma.documentSet.findMany({
       where: {
         userId: user.id,
@@ -68,7 +58,6 @@ export async function GET(req: NextRequest) {
       include: { documents: true },
       orderBy: { updatedAt: 'desc' }
     });
-
     return NextResponse.json({ documentSets: sets });
   } catch (error) {
     console.error("GET /api/document-sets error:", error);
@@ -78,7 +67,6 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
 export async function POST(req: NextRequest) {
   try {
     const supabase = await getSupabaseServerClient();
@@ -86,14 +74,12 @@ export async function POST(req: NextRequest) {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
-
     if (authError || !user) {
       return NextResponse.json(
         { error: "Unauthorized", details: authError?.message },
         { status: 401 }
       );
     }
-
     try {
       await ensureUser(user.id, user.email ?? undefined);
     } catch (dbError) {
@@ -103,7 +89,6 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-
     let json;
     try {
       json = await req.json();
@@ -113,7 +98,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
     const parsed = createSchema.safeParse(json);
     if (!parsed.success) {
       return NextResponse.json(
@@ -121,7 +105,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
     const set = await prisma.documentSet.create({
       data: {
         userId: user.id,
@@ -129,7 +112,6 @@ export async function POST(req: NextRequest) {
         name: parsed.data.name,
       },
     });
-
     return NextResponse.json({ documentSet: set }, { status: 201 });
   } catch (error) {
     console.error("POST /api/document-sets error:", error);

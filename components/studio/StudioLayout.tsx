@@ -1,8 +1,6 @@
 "use client";
-
 import React from "react";
 import { StudioFooter } from "@/components/studio/StudioFooter";
-
 type StudioLayoutProps = {
   isCompactViewport: boolean;
   statusText: string;
@@ -11,7 +9,6 @@ type StudioLayoutProps = {
   commitStatus: string;
   children: React.ReactNode;
 };
-
 export function StudioLayout({
   isCompactViewport,
   statusText,

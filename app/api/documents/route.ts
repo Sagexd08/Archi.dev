@@ -3,7 +3,6 @@ import { z } from "zod";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ensureUser, requireCredits } from "@/lib/credit";
-
 const tabEnum = z.enum([
   "api",
   "process",
@@ -12,7 +11,6 @@ const tabEnum = z.enum([
   "requestTab",
   "other",
 ]);
-
 const createSchema = z.object({
   tab: tabEnum,
   title: z.string().trim().min(1, "Title is required"),
@@ -20,7 +18,6 @@ const createSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
   documentSetId: z.string().optional(),
 });
-
 export async function GET(req: NextRequest) {
   try {
     const supabase = await getSupabaseServerClient();
@@ -28,14 +25,12 @@ export async function GET(req: NextRequest) {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
-
     if (authError || !user) {
       return NextResponse.json(
         { error: "Unauthorized", details: authError?.message },
         { status: 401 }
       );
     }
-
     try {
       await ensureUser(user.id, user.email ?? undefined);
     } catch (dbError) {
@@ -45,10 +40,8 @@ export async function GET(req: NextRequest) {
         { status: 500 }
       );
     }
-
     const { searchParams } = new URL(req.url);
     const tabParam = searchParams.get("tab");
-
     let parsedTab = undefined;
     if (tabParam) {
       const result = tabEnum.safeParse(tabParam);
@@ -60,7 +53,6 @@ export async function GET(req: NextRequest) {
       }
       parsedTab = result.data;
     }
-
     const documents = await prisma.document.findMany({
       where: {
         userId: user.id,
@@ -68,7 +60,6 @@ export async function GET(req: NextRequest) {
       },
       orderBy: { updatedAt: "desc" },
     });
-
     return NextResponse.json({ documents });
   } catch (error) {
     console.error("GET /api/documents error:", error);
@@ -78,7 +69,6 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
 export async function POST(req: NextRequest) {
   try {
     const supabase = await getSupabaseServerClient();
@@ -86,14 +76,12 @@ export async function POST(req: NextRequest) {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
-
     if (authError || !user) {
       return NextResponse.json(
         { error: "Unauthorized", details: authError?.message },
         { status: 401 }
       );
     }
-
     try {
       await ensureUser(user.id, user.email ?? undefined);
     } catch (dbError) {
@@ -103,7 +91,6 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-
     let json;
     try {
       json = await req.json();
@@ -113,7 +100,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
     const parsed = createSchema.safeParse(json);
     if (!parsed.success) {
       return NextResponse.json(
@@ -121,7 +107,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
     try {
       await requireCredits(user.id, 1);
     } catch (err) {
@@ -130,7 +115,6 @@ export async function POST(req: NextRequest) {
         { status: 402 }
       );
     }
-
     const doc = await prisma.document.create({
       data: {
         userId: user.id,
@@ -142,7 +126,6 @@ export async function POST(req: NextRequest) {
         documentSetId: parsed.data.documentSetId,
       },
     });
-
     return NextResponse.json({ document: doc }, { status: 201 });
   } catch (error) {
     console.error("POST /api/documents error:", error);

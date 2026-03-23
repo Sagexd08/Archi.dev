@@ -5,11 +5,8 @@ import { z } from "zod";
 import { EdgeSchema } from "@/lib/schema/graph";
 import { analyzeDesignSystem } from "@/lib/runtime/architecture";
 import { ProcessNodeSchema } from "@/lib/schema/node";
-
 export const runtime = "nodejs";
-
 const WorkspaceTabSchema = z.enum(["api", "database", "functions", "agent"]);
-
 const CopilotRequestSchema = z.object({
   prompt: z.string().trim().min(1),
   activeTab: WorkspaceTabSchema,
@@ -26,16 +23,13 @@ const CopilotRequestSchema = z.object({
     })
     .default({}),
 });
-
 const CopilotPatchSchema = z.object({
   summary: z.string(),
   nodes: z.array(ProcessNodeSchema).default([]),
   edges: z.array(EdgeSchema).default([]),
 });
-
 type CopilotRequest = z.infer<typeof CopilotRequestSchema>;
 type CopilotPatch = z.infer<typeof CopilotPatchSchema>;
-
 type SimpleNode = {
   id: string;
   type: string;
@@ -43,16 +37,13 @@ type SimpleNode = {
   data: Record<string, unknown>;
   selected?: boolean;
 };
-
 type SimpleEdge = {
   id: string;
   source: string;
   target: string;
   type?: "default" | "step";
 };
-
 type GraphCollectionInput = CopilotRequest["allGraphs"];
-
 function summarizeGraphs(allGraphs: GraphCollectionInput) {
   const tabs = Object.entries(allGraphs).map(([tab, graph]) => ({
     tab,
@@ -64,14 +55,12 @@ function summarizeGraphs(allGraphs: GraphCollectionInput) {
       kind: (node.data as { kind?: string }).kind || node.type,
     })),
   }));
-
   const designReport = analyzeDesignSystem({
     api: allGraphs.api,
     database: allGraphs.database,
     functions: allGraphs.functions,
     agent: allGraphs.agent,
   });
-
   return {
     tabs,
     runtimeIssues: designReport.runtimeModel.issues.slice(0, 8),
@@ -80,7 +69,6 @@ function summarizeGraphs(allGraphs: GraphCollectionInput) {
     deploy: designReport.deploy,
   };
 }
-
 function findNodeByKind(
   allGraphs: GraphCollectionInput,
   kind: string,
@@ -97,7 +85,6 @@ function findNodeByKind(
       })),
   );
 }
-
 function inferServiceName(prompt: string): string {
   if (/billing|invoice|payment|stripe/.test(prompt)) return "Billing Service";
   if (/auth|login|signup|user/.test(prompt)) return "Auth Service";
@@ -106,14 +93,12 @@ function inferServiceName(prompt: string): string {
   if (/notification|email|sms/.test(prompt)) return "Notification Service";
   return "Generated Service";
 }
-
 function inferApiLabel(prompt: string): string {
   if (/webhook/.test(prompt) && /stripe/.test(prompt)) return "Stripe Webhook";
   if (/subscription/.test(prompt)) return "Subscription API";
   if (/order/.test(prompt)) return "Order API";
   return "Generated API";
 }
-
 function inferFunctionLabel(prompt: string): string {
   if (/validate/.test(prompt)) return "Validate Input";
   if (/stripe/.test(prompt)) return "Handle Stripe Event";
@@ -121,7 +106,6 @@ function inferFunctionLabel(prompt: string): string {
   if (/order/.test(prompt)) return "Process Order";
   return "Generated Function";
 }
-
 function inferTableName(prompt: string): string {
   if (/subscription/.test(prompt)) return "subscriptions";
   if (/invoice|billing|payment/.test(prompt)) return "payments";
@@ -129,18 +113,15 @@ function inferTableName(prompt: string): string {
   if (/user|auth/.test(prompt)) return "users";
   return "items";
 }
-
 function getGeminiApiKey(): string | null {
   const numbered = process.env.GEMINI_API_KEY_1?.trim();
   if (numbered) return numbered;
   const raw = process.env.GEMINI_API_KEY?.split(",").map((value) => value.trim()).filter(Boolean)[0];
   return raw || null;
 }
-
 function makeId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
-
 function nextPosition(index: number, currentNodes: Array<{ position: { x: number; y: number } }>): { x: number; y: number } {
   const last = currentNodes[currentNodes.length - 1];
   if (!last) {
@@ -151,7 +132,6 @@ function nextPosition(index: number, currentNodes: Array<{ position: { x: number
     y: last.position.y + index * 24,
   };
 }
-
 function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
   const prompt = input.prompt.toLowerCase();
   const nodes: SimpleNode[] = [];
@@ -161,7 +141,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
   const databases = findNodeByKind(input.allGraphs, "database");
   const apis = findNodeByKind(input.allGraphs, "api_binding");
   const queues = findNodeByKind(input.allGraphs, "queue");
-
   const relevantService =
     serviceBoundaries.find((service) =>
       service.label.toLowerCase().includes(inferServiceName(prompt).split(" ")[0].toLowerCase()),
@@ -175,7 +154,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
     databases[0];
   const relevantApi = apis[0];
   const relevantQueue = queues[0];
-
   if (input.activeTab === "api") {
     const method = prompt.includes("webhook") ? "POST" : prompt.includes("update") ? "PATCH" : prompt.includes("create") ? "POST" : "GET";
     const route = prompt.includes("stripe")
@@ -183,12 +161,10 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
       : prompt.includes("subscription")
         ? "/api/subscriptions"
         : "/api/copilot/generated";
-
     const apiNodeId = makeId("node");
     const processNodeId = makeId("node");
     const processRef = relevantFunction?.dataId ?? makeId("process");
     const shouldCreateApiFunction = !relevantFunction || prompt.includes("new function") || prompt.includes("new handler");
-
     nodes.push({
       id: apiNodeId,
       type: "api_binding",
@@ -237,7 +213,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
           : input.prompt,
       },
     });
-
     if (shouldCreateApiFunction) {
       nodes.push({
         id: processNodeId,
@@ -267,7 +242,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
           ],
         },
       });
-
       edges.push({
         id: makeId("edge"),
         source: apiNodeId,
@@ -275,7 +249,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
         type: "step",
       });
     }
-
     if (prompt.includes("queue") && !relevantQueue) {
       const queueNodeId = makeId("node");
       nodes.push({
@@ -297,7 +270,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
         edges.push({ id: makeId("edge"), source: processNodeId, target: queueNodeId, type: "step" });
       }
     }
-
     return {
       summary: shouldCreateApiFunction
         ? `Added ${nodes.length} API workspace block${nodes.length !== 1 ? "s" : ""} and linked them to existing studio context.`
@@ -306,7 +278,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
       edges: edges as CopilotPatch["edges"],
     };
   }
-
   if (input.activeTab === "database") {
     const tableName = inferTableName(prompt);
     if (relevantApi) {
@@ -334,7 +305,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
         edges: [],
       };
     }
-
     const dbNodeId = makeId("node");
     return {
       summary: relevantDatabase
@@ -414,7 +384,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
       edges: [],
     };
   }
-
   if (input.activeTab === "functions") {
     const fnNodeId = makeId("node");
     const serviceBoundaryId = makeId("node");
@@ -479,7 +448,6 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
       edges: [],
     };
   }
-
   return {
     summary: serviceBoundaries.length > 0
       ? `Agent workspace guidance: existing service boundaries found (${serviceBoundaries.map((service) => service.label).join(", ")}). Agent-node expansion can build on those next.`
@@ -488,12 +456,10 @@ function buildHeuristicPatch(input: CopilotRequest): CopilotPatch {
     edges: [],
   };
 }
-
 async function tryGeneratePatchWithAI(input: CopilotRequest): Promise<CopilotPatch | null> {
   const geminiKey = getGeminiApiKey();
   const groqKey = process.env.GROQ_API_KEY?.trim();
   if (!geminiKey && !groqKey) return null;
-
   const architectureSummary = summarizeGraphs(input.allGraphs);
   const currentSummary = {
     nodeCount: input.currentGraph.nodes.length,
@@ -505,7 +471,6 @@ async function tryGeneratePatchWithAI(input: CopilotRequest): Promise<CopilotPat
       kind: (node.data as { kind?: string }).kind || node.type,
     })),
   };
-
   const prompt = [
     "You are Archi.dev Canvas Copilot.",
     `Current workspace: ${input.activeTab}`,
@@ -526,7 +491,6 @@ async function tryGeneratePatchWithAI(input: CopilotRequest): Promise<CopilotPat
     `Whole studio architecture summary: ${JSON.stringify(architectureSummary)}`,
     `User prompt: ${input.prompt}`,
   ].join("\n");
-
   try {
     if (geminiKey) {
       const ai = new GoogleGenAI({ apiKey: geminiKey });
@@ -540,9 +504,7 @@ async function tryGeneratePatchWithAI(input: CopilotRequest): Promise<CopilotPat
       }
     }
   } catch {
-    // fall through to Groq or heuristic
   }
-
   try {
     if (groqKey) {
       const groq = new Groq({ apiKey: groqKey });
@@ -560,15 +522,12 @@ async function tryGeneratePatchWithAI(input: CopilotRequest): Promise<CopilotPat
   } catch {
     return null;
   }
-
   return null;
 }
-
 function sanitizePatch(patch: CopilotPatch, currentGraph: CopilotRequest["currentGraph"]): CopilotPatch {
   const existingIds = new Set(currentGraph.nodes.map((node) => node.id));
   const validNodes: CopilotPatch["nodes"] = [];
   const newNodeIds = new Set<string>();
-
   for (const node of patch.nodes) {
     const parsed = ProcessNodeSchema.safeParse(node);
     if (!parsed.success) continue;
@@ -576,12 +535,10 @@ function sanitizePatch(patch: CopilotPatch, currentGraph: CopilotRequest["curren
     validNodes.push(parsed.data);
     newNodeIds.add(parsed.data.id);
   }
-
   const addressableNodeIds = new Set([
     ...existingIds,
     ...validNodes.map((node) => node.id),
   ]);
-
   const validEdges: CopilotPatch["edges"] = [];
   const edgeIds = new Set<string>();
   for (const edge of patch.edges) {
@@ -592,14 +549,12 @@ function sanitizePatch(patch: CopilotPatch, currentGraph: CopilotRequest["curren
     validEdges.push(parsed.data);
     edgeIds.add(parsed.data.id);
   }
-
   return {
     summary: patch.summary,
     nodes: validNodes,
     edges: validEdges,
   };
 }
-
 export async function POST(req: NextRequest) {
   let body: unknown;
   try {
@@ -607,16 +562,13 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
-
   const parsed = CopilotRequestSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid_payload", details: parsed.error.flatten() }, { status: 400 });
   }
-
   const aiPatch = await tryGeneratePatchWithAI(parsed.data);
   const rawPatch = aiPatch ?? buildHeuristicPatch(parsed.data);
   const patch = sanitizePatch(rawPatch, parsed.data.currentGraph);
-
   return NextResponse.json({
     patch,
     source: aiPatch ? "ai" : "heuristic",

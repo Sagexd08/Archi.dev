@@ -1,8 +1,6 @@
 "use client";
-
 import React, { useState } from "react";
 import { DatabaseBlock } from "@/lib/schema/node";
-
 type MonitoringSectionProps = {
   database: DatabaseBlock;
   onChange: (updates: Partial<DatabaseBlock>) => void;
@@ -10,7 +8,6 @@ type MonitoringSectionProps = {
   selectStyle: React.CSSProperties;
   sectionStyle: React.CSSProperties;
 };
-
 export function MonitoringSection({
   database,
   onChange,
@@ -22,7 +19,6 @@ export function MonitoringSection({
   const [alertConditionDraft, setAlertConditionDraft] = useState("");
   const [alertChannelDraft, setAlertChannelDraft] = useState("email");
   const [alertRecipientsDraft, setAlertRecipientsDraft] = useState("");
-
   const monitoring = database.monitoring || {
     thresholds: {
       cpuPercent: 80,
@@ -36,7 +32,6 @@ export function MonitoringSection({
       maxLatencyMs: 300,
     },
   };
-
   return (
     <div style={sectionStyle}>
       <button
@@ -60,7 +55,6 @@ export function MonitoringSection({
         <span>{isExpanded ? "▾" : "▸"}</span>
         <span>Monitoring & SLA</span>
       </button>
-
       {isExpanded && (
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ display: "grid", gap: 6 }}>
@@ -142,7 +136,6 @@ export function MonitoringSection({
               );
             })}
           </div>
-
           <div style={{ borderTop: "1px solid var(--border)", paddingTop: 8, display: "grid", gap: 6 }}>
             <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase" }}>
               Alert Rules
@@ -260,7 +253,6 @@ export function MonitoringSection({
               </div>
             ))}
           </div>
-
           <div style={{ borderTop: "1px solid var(--border)", paddingTop: 8 }}>
             <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", marginBottom: 6 }}>
               SLA Targets
@@ -311,4 +303,3 @@ export function MonitoringSection({
     </div>
   );
 }
-

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import {
   DatabaseBlock,
@@ -7,7 +6,6 @@ import {
   DatabaseQueryComplexity,
   DatabaseQueryOperation,
 } from "@/lib/schema/node";
-
 const inputStyle: React.CSSProperties = {
   width: "100%",
   background: "var(--background)",
@@ -18,12 +16,10 @@ const inputStyle: React.CSSProperties = {
   color: "var(--foreground)",
   outline: "none",
 };
-
 const selectStyle: React.CSSProperties = {
   ...inputStyle,
   cursor: "pointer",
 };
-
 const getGeneratedCode = (
   dbType: DatabaseBlock["dbType"],
   query: Pick<DatabaseQuery, "operation" | "target" | "conditions">,
@@ -32,7 +28,6 @@ const getGeneratedCode = (
   const condition = query.conditions.trim();
   const sqlWhere = condition ? ` WHERE ${condition}` : "";
   const mongoCondition = condition || "{}";
-
   if (dbType === "nosql") {
     if (query.operation === "SELECT") return `db.${target}.find(${mongoCondition})`;
     if (query.operation === "INSERT") return `db.${target}.insertOne({ ...document })`;
@@ -41,13 +36,11 @@ const getGeneratedCode = (
     }
     return `db.${target}.deleteMany(${mongoCondition})`;
   }
-
   if (query.operation === "SELECT") return `SELECT * FROM ${target}${sqlWhere};`;
   if (query.operation === "INSERT") return `INSERT INTO ${target} (...) VALUES (...);`;
   if (query.operation === "UPDATE") return `UPDATE ${target} SET ...${sqlWhere};`;
   return `DELETE FROM ${target}${sqlWhere};`;
 };
-
 const getConditionFields = (
   conditions: string,
   tableFieldNames: string[],
@@ -60,7 +53,6 @@ const getConditionFields = (
     .filter((token) => tableFieldSet.has(token));
   return Array.from(new Set(fields));
 };
-
 const parseIndexedFields = (
   indexes: string[],
   tableFieldNames: string[],
@@ -78,7 +70,6 @@ const parseIndexedFields = (
   });
   return indexed;
 };
-
 const analyzeQueryPerformance = (
   database: DatabaseBlock,
   query: Pick<DatabaseQuery, "operation" | "target" | "conditions">,
@@ -90,7 +81,6 @@ const analyzeQueryPerformance = (
   (targetTable?.fields || []).forEach((field) => {
     if (field.isPrimaryKey) indexedFields.add(field.name.toLowerCase());
   });
-
   const usesIndex =
     conditionFields.length > 0 &&
     conditionFields.some((field) => indexedFields.has(field.toLowerCase()));
@@ -100,22 +90,18 @@ const analyzeQueryPerformance = (
       : conditionFields
           .filter((field) => !indexedFields.has(field.toLowerCase()))
           .map((field) => `${query.target}.${field}`);
-
   const joinCount = (query.conditions.match(/\bjoin\b/gi) || []).length;
   const predicateCount = query.conditions.trim()
     ? 1 + (query.conditions.match(/\b(and|or)\b/gi) || []).length
     : 0;
-
   let score = 1;
   if (joinCount > 0) score += joinCount * 2;
   if (predicateCount >= 3) score += 1;
   if (predicateCount >= 6) score += 1;
   if (predicateCount > 0 && !usesIndex) score += 1;
   if (query.operation !== "SELECT") score += 1;
-
   const complexity: DatabaseQueryComplexity =
     score <= 2 ? "simple" : score <= 4 ? "moderate" : "complex";
-
   const baseRows = 10000;
   let estimatedRowsScanned = baseRows;
   if (query.operation === "INSERT") {
@@ -128,7 +114,6 @@ const analyzeQueryPerformance = (
     );
   }
   estimatedRowsScanned = Math.max(1, estimatedRowsScanned);
-
   return {
     complexity,
     usesIndex,
@@ -136,18 +121,15 @@ const analyzeQueryPerformance = (
     estimatedRowsScanned,
   };
 };
-
 const getComplexityBadge = (complexity: DatabaseQueryComplexity) => {
   if (complexity === "simple") return "🟢";
   if (complexity === "moderate") return "🟡";
   return "🔴";
 };
-
 type QueryEditorProps = {
   database: DatabaseBlock;
   onChange: (queries: DatabaseQuery[]) => void;
 };
-
 export function QueryEditor({ database, onChange }: QueryEditorProps) {
   const [expandedById, setExpandedById] = useState<Record<string, boolean>>({});
   const queries = database.queries || [];
@@ -158,7 +140,6 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
         : (database.tables || []).map((table) => table.name),
     [database.schemas, database.tables],
   );
-
   const updateQuery = (
     queryId: string,
     updates: Partial<Omit<DatabaseQuery, "id">>,
@@ -175,7 +156,6 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
     });
     onChange(next);
   };
-
   const addQuery = () => {
     const id = `query_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`;
     const target = targetOptions[0] || "";
@@ -199,11 +179,9 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
     onChange([...queries, query]);
     setExpandedById((prev) => ({ ...prev, [id]: true }));
   };
-
   const removeQuery = (queryId: string) => {
     onChange(queries.filter((query) => query.id !== queryId));
   };
-
   return (
     <div style={{ display: "grid", gap: 8 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -226,11 +204,9 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
           + Query
         </button>
       </div>
-
       {queries.length === 0 && (
         <div style={{ fontSize: 11, color: "var(--muted)" }}>No queries yet.</div>
       )}
-
       {queries.map((query) => {
         const isExpanded = expandedById[query.id] ?? false;
         const performance = analyzeQueryPerformance(database, query);
@@ -301,7 +277,6 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
                 Remove
               </button>
             </div>
-
             {isExpanded && (
               <div
                 style={{
@@ -317,7 +292,6 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
                   placeholder="Query name"
                   style={inputStyle}
                 />
-
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                   <select
                     value={query.operation}
@@ -349,7 +323,6 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
                     )}
                   </select>
                 </div>
-
                 <input
                   value={query.conditions}
                   onChange={(e) => updateQuery(query.id, { conditions: e.target.value })}
@@ -360,7 +333,6 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
                   }
                   style={inputStyle}
                 />
-
                 <div
                   style={{
                     border: "1px solid var(--border)",
@@ -376,7 +348,6 @@ export function QueryEditor({ database, onChange }: QueryEditorProps) {
                 >
                   {query.generatedCode || getGeneratedCode(database.dbType, query)}
                 </div>
-
                 <div
                   style={{
                     border: "1px solid var(--border)",

@@ -1,12 +1,6 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
-
-/**
- * Returns a Supabase client for use in Route Handlers (server-side).
- * Uses @supabase/ssr which correctly handles the async cookies() API
- * introduced in Next.js 15/16.
- */
 export async function getSupabaseServerClient(): Promise<SupabaseClient> {
   const cookieStore = await cookies();
   return createServerClient(
@@ -23,11 +17,9 @@ export async function getSupabaseServerClient(): Promise<SupabaseClient> {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Ignore errors when called from Server Components
           }
         },
       },
     }
   );
 }
-

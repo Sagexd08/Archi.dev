@@ -1,14 +1,6 @@
 import { z } from "zod";
-
-// ============================================
-// Basic Types
-// ============================================
 export const NodeIdSchema = z.string();
 export const PositionSchema = z.object({ x: z.number(), y: z.number() });
-
-// ============================================
-// Input/Output Field Schema (Supports Complex Types)
-// ============================================
 export const FieldTypeSchema = z.enum([
   "string",
   "number",
@@ -17,28 +9,20 @@ export const FieldTypeSchema = z.enum([
   "array",
   "any",
 ]);
-
-// Recursive schema for nested properties (object fields)
 export type NestedProperty = {
   name: string;
   type: "string" | "number" | "boolean" | "object" | "array" | "any";
   required?: boolean;
   description?: string;
-  // For object type: nested properties
   properties?: NestedProperty[];
-  // For array type: item type
   items?: NestedProperty;
-  // For string: validation
   format?: "email" | "uri" | "date" | "date-time" | "uuid" | "regex";
   pattern?: string;
-  // For number: constraints
   minimum?: number;
   maximum?: number;
-  // For string/array: length constraints
   minLength?: number;
   maxLength?: number;
 };
-
 export const NestedPropertySchema: z.ZodType<NestedProperty> = z.lazy(() =>
   z.object({
     name: z.string(),
@@ -57,42 +41,29 @@ export const NestedPropertySchema: z.ZodType<NestedProperty> = z.lazy(() =>
     maxLength: z.number().optional(),
   }),
 );
-
 export const InputFieldSchema = z.object({
   name: z.string(),
   type: FieldTypeSchema,
   required: z.boolean().default(true),
   description: z.string().optional(),
-  // For object type: nested properties
   properties: z.array(NestedPropertySchema).optional(),
-  // For array type: item type definition
   items: NestedPropertySchema.optional(),
-  // For string: validation format
   format: z
     .enum(["email", "uri", "date", "date-time", "uuid", "regex"])
     .optional(),
   pattern: z.string().optional(),
-  // For number: constraints
   minimum: z.number().optional(),
   maximum: z.number().optional(),
-  // For string/array: length constraints
   minLength: z.number().optional(),
   maxLength: z.number().optional(),
 });
-
 export const OutputFieldSchema = z.object({
   name: z.string(),
   type: FieldTypeSchema,
   description: z.string().optional(),
-  // For object type: nested properties
   properties: z.array(NestedPropertySchema).optional(),
-  // For array type: item type definition
   items: NestedPropertySchema.optional(),
 });
-
-// ============================================
-// Process Step Types
-// ============================================
 export const StepKindSchema = z.enum([
   "compute",
   "db_operation",
@@ -102,7 +73,6 @@ export const StepKindSchema = z.enum([
   "ref",
   "return",
 ]);
-
 export const ProcessStepSchema = z.object({
   id: z.string(),
   kind: StepKindSchema,
@@ -110,22 +80,16 @@ export const ProcessStepSchema = z.object({
   config: z.record(z.string(), z.unknown()).optional(),
   ref: z.string().optional(),
 });
-
-// ============================================
-// Process Definition (Core Unit)
-// ============================================
 export const ProcessTypeSchema = z.enum([
   "function_block",
   "start_function",
 ]);
-
 export const ExecutionModeSchema = z.enum([
   "sync",
   "async",
   "scheduled",
   "event_driven",
 ]);
-
 export const ProcessDefinitionSchema = z.object({
   kind: z.literal("process"),
   id: z.string(),
@@ -166,12 +130,7 @@ export const ProcessDefinitionSchema = z.object({
   concurrency: z.number().int().min(1).optional(),
   testInputs: z.record(z.string(), z.string()).optional(),
 });
-
-// ============================================
-// Database Block (Infrastructure)
-// ============================================
 export const DatabaseTypeSchema = z.enum(["sql", "nosql", "kv", "graph"]);
-
 export const DatabaseCapabilitiesSchema = z.object({
   crud: z.boolean(),
   transactions: z.boolean(),
@@ -181,7 +140,6 @@ export const DatabaseCapabilitiesSchema = z.object({
   constraints: z.boolean(),
   pagination: z.boolean(),
 });
-
 export const DatabasePerformanceSchema = z.object({
   connectionPool: z.object({
     min: z.number().default(2),
@@ -203,7 +161,6 @@ export const DatabasePerformanceSchema = z.object({
     partitionKey: z.string().default(""),
   }),
 });
-
 export const DatabaseBackupSchema = z.object({
   schedule: z.string().default(""),
   retention: z.object({
@@ -216,14 +173,12 @@ export const DatabaseBackupSchema = z.object({
     regions: z.array(z.string()).default([]),
   }),
 });
-
 export const DatabaseCostEstimationSchema = z.object({
   storageGb: z.number().default(0),
   estimatedIOPS: z.number().default(0),
   backupSizeGb: z.number().default(0),
   replicaCount: z.number().default(0),
 });
-
 export const DatabaseSecuritySchema = z.object({
   roles: z
     .array(
@@ -243,7 +198,6 @@ export const DatabaseSecuritySchema = z.object({
   }),
   auditLogging: z.boolean().default(false),
 });
-
 export const DatabaseMonitoringSchema = z.object({
   thresholds: z.object({
     cpuPercent: z.number().default(80),
@@ -265,24 +219,20 @@ export const DatabaseMonitoringSchema = z.object({
     maxLatencyMs: z.number().default(300),
   }),
 });
-
 export const DatabaseEnvironmentTierSchema = z.enum([
   "small",
   "medium",
   "large",
 ]);
-
 export const DatabaseEnvironmentOverrideSchema = z.object({
   enabled: z.boolean().default(false),
   performance: DatabasePerformanceSchema.optional(),
   backup: DatabaseBackupSchema.optional(),
   monitoring: DatabaseMonitoringSchema.optional(),
 });
-
 export const DatabaseEnvironmentProviderSchema = z.object({
   region: z.string().default(""),
 });
-
 export const DatabaseEnvironmentConfigSchema = z.object({
   connectionString: z.string().default(""),
   provider: DatabaseEnvironmentProviderSchema.default({
@@ -293,7 +243,6 @@ export const DatabaseEnvironmentConfigSchema = z.object({
     enabled: false,
   }),
 });
-
 export const DatabaseEnvironmentsSchema = z.object({
   dev: DatabaseEnvironmentConfigSchema.default({
     connectionString: "",
@@ -320,13 +269,11 @@ export const DatabaseEnvironmentsSchema = z.object({
     overrides: { enabled: false },
   }),
 });
-
 export const DatabaseOrmTargetSchema = z.enum([
   "prisma",
   "typeorm",
   "mongoose",
 ]);
-
 export const DatabaseFieldTypeSchema = z.enum([
   "string",
   "number",
@@ -341,13 +288,11 @@ export const DatabaseFieldTypeSchema = z.enum([
   "json",
   "uuid",
 ]);
-
 export const DatabaseRelationTypeSchema = z.enum([
   "one_to_one",
   "one_to_many",
   "many_to_many",
 ]);
-
 export const DatabaseSchemaChangeTypeSchema = z.enum([
   "table_added",
   "field_added",
@@ -355,7 +300,6 @@ export const DatabaseSchemaChangeTypeSchema = z.enum([
   "field_removed",
   "table_removed",
 ]);
-
 export const DatabaseSchemaHistoryEntrySchema = z.object({
   timestamp: z.string(),
   changeType: DatabaseSchemaChangeTypeSchema,
@@ -367,26 +311,22 @@ export const DatabaseSchemaHistoryEntrySchema = z.object({
     })
     .default({}),
 });
-
 export const DatabaseQueryOperationSchema = z.enum([
   "SELECT",
   "INSERT",
   "UPDATE",
   "DELETE",
 ]);
-
 export const DatabaseQueryComplexitySchema = z.enum([
   "simple",
   "moderate",
   "complex",
 ]);
-
 export const DatabaseSeedStrategySchema = z.enum([
   "random",
   "fixture",
   "custom",
 ]);
-
 export const DatabaseQuerySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -399,7 +339,6 @@ export const DatabaseQuerySchema = z.object({
   complexity: DatabaseQueryComplexitySchema.optional(),
   suggestedIndexes: z.array(z.string()).optional(),
 });
-
 export const DatabaseMigrationSchema = z.object({
   version: z.string(),
   timestamp: z.string(),
@@ -408,7 +347,6 @@ export const DatabaseMigrationSchema = z.object({
   downScript: z.string().default(""),
   applied: z.boolean().default(false),
 });
-
 export const DatabaseSeedSchema = z.object({
   tableName: z.string(),
   rowCount: z.number().default(10),
@@ -416,7 +354,6 @@ export const DatabaseSeedSchema = z.object({
   fixtureData: z.array(z.record(z.string(), z.unknown())).default([]),
   customScript: z.string().default(""),
 });
-
 export const DatabaseTableFieldSchema = z.object({
   id: z.string().optional(),
   name: z.string(),
@@ -431,19 +368,16 @@ export const DatabaseTableFieldSchema = z.object({
       field: z.string(),
     })
     .optional(),
-  // Legacy fields kept for backward compatibility.
   required: z.boolean().optional(),
   unique: z.boolean().optional(),
   primaryKey: z.boolean().optional(),
 });
-
 export const DatabaseTableSchema = z.object({
   id: z.string().optional(),
   name: z.string(),
   fields: z.array(DatabaseTableFieldSchema).default([]),
   indexes: z.array(z.string()).optional(),
 });
-
 export const DatabaseRelationshipSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
@@ -454,13 +388,11 @@ export const DatabaseRelationshipSchema = z.object({
   toFieldId: z.string().optional(),
   onDelete: z.enum(["cascade", "restrict", "set_null", "no_action"]).default("no_action"),
 });
-
 export const DatabaseQueryWorkbenchSchema = z.object({
   query: z.string().default(""),
   ormTarget: DatabaseOrmTargetSchema.default("prisma"),
   mockRows: z.number().min(1).max(50).default(5),
 });
-
 export const DatabaseBlockSchema = z.object({
   kind: z.literal("database"),
   id: z.string(),
@@ -546,21 +478,15 @@ export const DatabaseBlockSchema = z.object({
   }),
   description: z.string().optional(),
 });
-
-// ============================================
-// Queue Block (Infrastructure)
-// ============================================
 export const QueueDeliverySchema = z.enum([
   "at_least_once",
   "at_most_once",
   "exactly_once",
 ]);
-
 export const QueueRetrySchema = z.object({
   maxAttempts: z.number(),
   backoff: z.enum(["linear", "exponential"]),
 });
-
 export const QueueBlockSchema = z.object({
   kind: z.literal("queue"),
   id: z.string(),
@@ -570,10 +496,6 @@ export const QueueBlockSchema = z.object({
   deadLetter: z.boolean(),
   description: z.string().optional(),
 });
-
-// ============================================
-// Service Boundary Block (Microservice Ownership)
-// ============================================
 export const ServiceBoundaryBlockSchema = z.object({
   kind: z.literal("service_boundary"),
   id: z.string(),
@@ -597,10 +519,6 @@ export const ServiceBoundaryBlockSchema = z.object({
       allowDirectDbAccess: false,
     }),
 });
-
-// ============================================
-// Infra Resources (Terraform-aligned)
-// ============================================
 export const InfraProviderSchema = z.enum(["aws", "gcp", "azure", "generic"]);
 export const InfraEnvironmentSchema = z.enum([
   "production",
@@ -608,7 +526,6 @@ export const InfraEnvironmentSchema = z.enum([
   "preview",
   "dev",
 ]);
-
 const InfraBaseSchema = z.object({
   kind: z.literal("infra"),
   id: z.string(),
@@ -619,7 +536,6 @@ const InfraBaseSchema = z.object({
   region: z.string(),
   tags: z.array(z.string()).default([]),
 });
-
 export const InfraResourceTypeSchema = z.enum([
   "ec2",
   "lambda",
@@ -630,7 +546,6 @@ export const InfraResourceTypeSchema = z.enum([
   "load_balancer",
   "hpc",
 ]);
-
 const Ec2ConfigSchema = z.object({
   instanceType: z.string(),
   ami: z.string(),
@@ -641,7 +556,6 @@ const Ec2ConfigSchema = z.object({
   autoscalingMin: z.number(),
   autoscalingMax: z.number(),
 });
-
 const LambdaConfigSchema = z.object({
   runtime: z.string(),
   memoryMb: z.number(),
@@ -651,7 +565,6 @@ const LambdaConfigSchema = z.object({
   trigger: z.string(),
   environmentVars: z.string(),
 });
-
 const EksConfigSchema = z.object({
   version: z.string(),
   nodeType: z.string(),
@@ -662,7 +575,6 @@ const EksConfigSchema = z.object({
   privateSubnets: z.string(),
   clusterLogs: z.string(),
 });
-
 const VpcConfigSchema = z.object({
   cidr: z.string(),
   publicSubnets: z.string(),
@@ -670,7 +582,6 @@ const VpcConfigSchema = z.object({
   natGateways: z.number(),
   flowLogs: z.boolean(),
 });
-
 const S3ConfigSchema = z.object({
   bucketName: z.string(),
   versioning: z.boolean(),
@@ -678,7 +589,6 @@ const S3ConfigSchema = z.object({
   lifecycle: z.string(),
   publicAccess: z.string(),
 });
-
 const RdsConfigSchema = z.object({
   engine: z.string(),
   engineVersion: z.string(),
@@ -688,7 +598,6 @@ const RdsConfigSchema = z.object({
   backupRetentionDays: z.number(),
   subnetGroup: z.string(),
 });
-
 const LoadBalancerConfigSchema = z.object({
   lbType: z.string(),
   scheme: z.string(),
@@ -697,7 +606,6 @@ const LoadBalancerConfigSchema = z.object({
   healthCheckPath: z.string(),
   tlsCertArn: z.string(),
 });
-
 const HpcConfigSchema = z.object({
   scheduler: z.string(),
   instanceType: z.string(),
@@ -706,47 +614,38 @@ const HpcConfigSchema = z.object({
   sharedStorage: z.string(),
   queue: z.string(),
 });
-
 const Ec2ResourceSchema = InfraBaseSchema.extend({
   resourceType: z.literal("ec2"),
   config: Ec2ConfigSchema,
 });
-
 const LambdaResourceSchema = InfraBaseSchema.extend({
   resourceType: z.literal("lambda"),
   config: LambdaConfigSchema,
 });
-
 const EksResourceSchema = InfraBaseSchema.extend({
   resourceType: z.literal("eks"),
   config: EksConfigSchema,
 });
-
 const VpcResourceSchema = InfraBaseSchema.extend({
   resourceType: z.literal("vpc"),
   config: VpcConfigSchema,
 });
-
 const S3ResourceSchema = InfraBaseSchema.extend({
   resourceType: z.literal("s3"),
   config: S3ConfigSchema,
 });
-
 const RdsResourceSchema = InfraBaseSchema.extend({
   resourceType: z.literal("rds"),
   config: RdsConfigSchema,
 });
-
 const LoadBalancerResourceSchema = InfraBaseSchema.extend({
   resourceType: z.literal("load_balancer"),
   config: LoadBalancerConfigSchema,
 });
-
 const HpcResourceSchema = InfraBaseSchema.extend({
   resourceType: z.literal("hpc"),
   config: HpcConfigSchema,
 });
-
 export const InfraBlockSchema = z.discriminatedUnion("resourceType", [
   Ec2ResourceSchema,
   LambdaResourceSchema,
@@ -757,10 +656,6 @@ export const InfraBlockSchema = z.discriminatedUnion("resourceType", [
   LoadBalancerResourceSchema,
   HpcResourceSchema,
 ]);
-
-// ============================================
-// API Binding (Full OpenAPI/AsyncAPI Features)
-// ============================================
 export const HttpMethodSchema = z.enum([
   "GET",
   "POST",
@@ -768,7 +663,6 @@ export const HttpMethodSchema = z.enum([
   "DELETE",
   "PATCH",
 ]);
-
 export const ApiProtocolSchema = z.enum([
   "rest",
   "ws",
@@ -779,19 +673,16 @@ export const ApiProtocolSchema = z.enum([
   "sse",
   "webhook",
 ]);
-
 export const SecuritySchemeSchema = z.object({
   type: z.enum(["none", "api_key", "bearer", "oauth2", "basic"]),
   headerName: z.string().optional(),
   scopes: z.array(z.string()),
 });
-
 export const RateLimitSchema = z.object({
   enabled: z.boolean(),
   requests: z.number(),
   window: z.enum(["second", "minute", "hour", "day"]),
 });
-
 export const RequestBodySchema = z.object({
   contentType: z.enum([
     "application/json",
@@ -800,19 +691,16 @@ export const RequestBodySchema = z.object({
   ]),
   schema: z.array(InputFieldSchema),
 });
-
 export const RequestSchema = z.object({
   pathParams: z.array(InputFieldSchema),
   queryParams: z.array(InputFieldSchema),
   headers: z.array(InputFieldSchema),
   body: RequestBodySchema,
 });
-
 export const ResponseSchema = z.object({
   statusCode: z.number(),
   schema: z.array(OutputFieldSchema),
 });
-
 export const WebSocketConfigSchema = z
   .object({
     endpoint: z.string(),
@@ -824,7 +712,6 @@ export const WebSocketConfigSchema = z
     rateLimit: RateLimitSchema,
   })
   .strict();
-
 export const SocketIOConfigSchema = z
   .object({
     endpoint: z.string(),
@@ -836,7 +723,6 @@ export const SocketIOConfigSchema = z
     rateLimit: RateLimitSchema,
   })
   .strict();
-
 export const WebRTCConfigSchema = z
   .object({
     signalingTransportRef: z.string().min(1),
@@ -846,7 +732,6 @@ export const WebRTCConfigSchema = z
     topology: z.literal("p2p"),
   })
   .strict();
-
 export const GraphQLConfigSchema = z
   .object({
     endpoint: z.string().min(1),
@@ -863,7 +748,6 @@ export const GraphQLConfigSchema = z
       ),
   })
   .strict();
-
 export const GrpcConfigSchema = z
   .object({
     protobufDefinition: z.string().min(1),
@@ -885,7 +769,6 @@ export const GrpcConfigSchema = z
       .min(1),
   })
   .strict();
-
 export const SSEConfigSchema = z
   .object({
     endpoint: z.string().min(1),
@@ -895,7 +778,6 @@ export const SSEConfigSchema = z
     direction: z.literal("server_to_client"),
   })
   .strict();
-
 export const WebhookConfigSchema = z
   .object({
     endpoint: z.string().min(1),
@@ -916,55 +798,45 @@ export const WebhookConfigSchema = z
       .strict(),
   })
   .strict();
-
 const WebSocketInstanceSchema = z.object({
   protocol: z.literal("ws"),
   config: WebSocketConfigSchema,
 });
-
 const SocketIOInstanceSchema = z.object({
   protocol: z.literal("socket.io"),
   config: SocketIOConfigSchema,
 });
-
 const WebRTCInstanceSchema = z.object({
   protocol: z.literal("webrtc"),
   config: WebRTCConfigSchema,
 });
-
 const GraphQLInstanceSchema = z.object({
   protocol: z.literal("graphql"),
   config: GraphQLConfigSchema,
 });
-
 const GrpcInstanceSchema = z.object({
   protocol: z.literal("grpc"),
   config: GrpcConfigSchema,
 });
-
 const SSEInstanceSchema = z.object({
   protocol: z.literal("sse"),
   config: SSEConfigSchema,
 });
-
 const WebhookInstanceSchema = z.object({
   protocol: z.literal("webhook"),
   config: WebhookConfigSchema,
 });
-
 export const RealtimeInstanceSchema = z.discriminatedUnion("protocol", [
   WebSocketInstanceSchema,
   SocketIOInstanceSchema,
   WebRTCInstanceSchema,
 ]);
-
 export const ApiInstanceSchema = z.discriminatedUnion("protocol", [
   GraphQLInstanceSchema,
   GrpcInstanceSchema,
   SSEInstanceSchema,
   WebhookInstanceSchema,
 ]);
-
 export const NonRestInstanceSchema = z.discriminatedUnion("protocol", [
   WebSocketInstanceSchema,
   SocketIOInstanceSchema,
@@ -974,59 +846,36 @@ export const NonRestInstanceSchema = z.discriminatedUnion("protocol", [
   SSEInstanceSchema,
   WebhookInstanceSchema,
 ]);
-
 export const ApiBindingSchema = z.object({
   kind: z.literal("api_binding"),
   id: z.string(),
   label: z.string(),
   description: z.string().optional(),
-
-  // Primitive protocol
   protocol: ApiProtocolSchema,
-  // Legacy compatibility with existing data model
   apiType: z.enum(["openapi", "asyncapi"]).optional(),
-  // Strict instance union (non-REST protocols)
   instance: NonRestInstanceSchema.optional(),
-
-  // Route Definition
   method: HttpMethodSchema.optional(),
   route: z.string().optional(),
-
-  // Request Schema
   request: RequestSchema.optional(),
-
-  // Response Schemas
   responses: z
     .object({
       success: ResponseSchema,
       error: ResponseSchema,
     })
     .optional(),
-
-  // Security
   security: SecuritySchemeSchema.optional(),
-
-  // Rate Limiting
   rateLimit: RateLimitSchema.optional(),
-
-  // Versioning
   version: z.string(),
   deprecated: z.boolean(),
-
-  // CORS Configuration (REST only)
   cors: z.object({
     enabled: z.boolean(),
     origins: z.array(z.string()),
     methods: z.array(z.string()),
     credentials: z.boolean(),
   }).optional(),
-
-  // Data model tables owned by this API binding
   tables: z.array(DatabaseTableSchema).default([]),
   tableRelationships: z.array(DatabaseRelationshipSchema).default([]),
   linkedDbNodeId: z.string().optional(),
-
-  // Process Reference
   processRef: z.string(),
 }).superRefine((value, ctx) => {
   const isRealtime =
@@ -1038,7 +887,6 @@ export const ApiBindingSchema = z.object({
     value.protocol === "grpc" ||
     value.protocol === "sse" ||
     value.protocol === "webhook";
-
   if (value.protocol === "rest") {
     if (!value.method || !value.route || !value.request || !value.responses) {
       ctx.addIssue({
@@ -1060,7 +908,6 @@ export const ApiBindingSchema = z.object({
     }
     return;
   }
-
   if (!isRealtime && !isAdditionalInstanceProtocol) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -1068,7 +915,6 @@ export const ApiBindingSchema = z.object({
     });
     return;
   }
-
   if (!value.instance) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -1076,14 +922,12 @@ export const ApiBindingSchema = z.object({
     });
     return;
   }
-
   if (value.instance.protocol !== value.protocol) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Protocol must match instance protocol",
     });
   }
-
   if (
     value.method ||
     value.route ||
@@ -1098,7 +942,6 @@ export const ApiBindingSchema = z.object({
         "Non-REST protocols cannot include REST method/route/request/response/security/rateLimit fields",
     });
   }
-
   if (value.protocol === "webrtc") {
     const signaling = value.instance.protocol === "webrtc"
       ? value.instance.config.signalingTransportRef
@@ -1110,7 +953,6 @@ export const ApiBindingSchema = z.object({
       });
     }
   }
-
   if (value.protocol === "graphql" && value.instance.protocol === "graphql") {
     if (!value.instance.config.schemaSDL.trim()) {
       ctx.addIssue({
@@ -1119,7 +961,6 @@ export const ApiBindingSchema = z.object({
       });
     }
   }
-
   if (value.protocol === "grpc" && value.instance.protocol === "grpc") {
     if (!value.instance.config.protobufDefinition.trim()) {
       ctx.addIssue({
@@ -1141,28 +982,16 @@ export const ApiBindingSchema = z.object({
     }
   }
 });
-
-// ============================================
-// API Endpoint Block (Database tab – links to API interface)
-// ============================================
 export const ApiEndpointBlockSchema = z.object({
   kind: z.literal("api_endpoint"),
   id: z.string(),
   label: z.string(),
   description: z.string().optional(),
-  /** ID of the API binding node in the API canvas this references */
   targetApiId: z.string().default(""),
-  /** HTTP method shown on the badge (derived from the referenced API) */
   method: z.string().optional(),
-  /** Route path shown on the badge */
   route: z.string().optional(),
-  /** Protocol hint: rest, ws, graphql, etc. */
   protocol: z.string().optional(),
 });
-
-// ============================================
-// Node Data - Union of all kinds
-// ============================================
 export const NodeDataSchema = z.union([
   ProcessDefinitionSchema,
   DatabaseBlockSchema,
@@ -1172,10 +1001,6 @@ export const NodeDataSchema = z.union([
   ApiBindingSchema,
   ApiEndpointBlockSchema,
 ]);
-
-// ============================================
-// React Flow Node Wrapper
-// ============================================
 export const ProcessNodeSchema = z.object({
   id: z.string(),
   type: z.string(),
@@ -1183,10 +1008,6 @@ export const ProcessNodeSchema = z.object({
   data: NodeDataSchema,
   selected: z.boolean().optional(),
 });
-
-// ============================================
-// Type Exports
-// ============================================
 export type ProcessNode = z.infer<typeof ProcessNodeSchema>;
 export type NodeData = z.infer<typeof NodeDataSchema>;
 export type ProcessDefinition = z.infer<typeof ProcessDefinitionSchema>;

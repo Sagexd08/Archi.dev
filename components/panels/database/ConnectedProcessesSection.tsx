@@ -1,14 +1,11 @@
 "use client";
-
 import React from "react";
 import { DBConnectionSummary } from "@/lib/schema/graph";
-
 type ConnectedProcessesSectionProps = {
   summary: DBConnectionSummary | null;
   labelStyle: React.CSSProperties;
   sectionStyle: React.CSSProperties;
 };
-
 export function ConnectedProcessesSection({
   summary,
   labelStyle,
@@ -26,7 +23,6 @@ export function ConnectedProcessesSection({
           <div style={{ fontSize: 11, color: "var(--muted)" }}>
             {summary.operationCount} operations across {summary.connectionCount} nodes
           </div>
-
           <div style={{ display: "grid", gap: 4 }}>
             <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase" }}>
               Reads
@@ -57,7 +53,6 @@ export function ConnectedProcessesSection({
               </div>
             )}
           </div>
-
           <div style={{ display: "grid", gap: 4 }}>
             <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase" }}>
               Writes
@@ -93,4 +88,3 @@ export function ConnectedProcessesSection({
     </div>
   );
 }
-

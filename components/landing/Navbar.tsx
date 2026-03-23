@@ -1,12 +1,9 @@
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-
 const navLinks = ["Product", "Solutions", "Docs", "Pricing"];
-
 export default function Navbar() {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
@@ -15,30 +12,22 @@ export default function Navbar() {
   const [activeLink, setActiveLink] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const lastScrollY = useRef(0);
-
   useEffect(() => {
     const onScroll = () => {
       const currentScrollY = window.scrollY;
-      
       setScrolled(currentScrollY > 20);
-
-      // Hide navbar when scrolling down past 100px, show when scrolling up
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
         setHidden(true);
-        setMobileOpen(false); // also close mobile menu if scrolling down
+        setMobileOpen(false);
       } else {
         setHidden(false);
       }
-      
       lastScrollY.current = currentScrollY;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // Single source of truth for the underline position — hover takes priority
   const indicatorLink = hoveredLink ?? activeLink;
-
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
@@ -56,7 +45,6 @@ export default function Navbar() {
             scrolled ? "glass-panel shadow-2xl border border-white/10 backdrop-blur-md bg-black/40" : "bg-transparent"
           }`}
         >
-          {/* Logo */}
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00F0FF] opacity-75" />
@@ -75,8 +63,6 @@ export default function Navbar() {
               Archi.dev
             </span>
           </div>
-
-          {/* Center nav — shared layout underline slides between items */}
           <div
             className="hidden md:flex items-center gap-8"
             onMouseLeave={() => setHoveredLink(null)}
@@ -104,8 +90,6 @@ export default function Navbar() {
               </button>
             ))}
           </div>
-
-          {/* Right — CTA + mobile burger */}
           <div className="flex items-center gap-3">
             <motion.button
               type="button"
@@ -119,7 +103,6 @@ export default function Navbar() {
             >
               Start free trial
             </motion.button>
-
             <button
               type="button"
               className="md:hidden p-1.5 text-white/60 hover:text-white transition-colors"
@@ -131,8 +114,6 @@ export default function Navbar() {
           </div>
         </motion.nav>
       </div>
-
-      {/* Mobile drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div

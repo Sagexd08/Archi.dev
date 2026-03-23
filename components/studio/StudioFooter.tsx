@@ -1,5 +1,4 @@
 "use client";
-
 type StudioFooterProps = {
   isCompactViewport: boolean;
   statusText: string;
@@ -7,14 +6,12 @@ type StudioFooterProps = {
   saveState: string;
   commitStatus: string;
 };
-
 const statusTone = (value: string): "success" | "warning" => {
   const normalized = value.toLowerCase();
   return normalized.includes("saved") || normalized.includes("committed")
     ? "success"
     : "warning";
 };
-
 export function StudioFooter({
   isCompactViewport,
   statusText,
@@ -23,7 +20,6 @@ export function StudioFooter({
   commitStatus,
 }: StudioFooterProps) {
   const creditTone = creditUsedPercent >= 85 ? "warning" : "success";
-
   return (
     <footer
       style={{
@@ -80,7 +76,6 @@ export function StudioFooter({
             </div>
           </div>
         </div>
-
         <div
           style={{
             display: "grid",
@@ -115,7 +110,6 @@ export function StudioFooter({
             />
           </div>
         </div>
-
         <div
           style={{
             display: "flex",

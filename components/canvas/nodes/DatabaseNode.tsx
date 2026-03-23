@@ -5,7 +5,6 @@ import { estimateDatabaseMonthlyCost } from "@/lib/cost-estimator";
 import { analyzeDBConnections } from "@/lib/schema/graph";
 import { analyzeDatabaseHealth } from "@/lib/db-health-checker";
 import { useStore } from "@/store/useStore";
-
 export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
   const dbData = data as unknown as DatabaseBlock;
   const nodes = useStore((state) => state.nodes);
@@ -23,7 +22,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
     });
     return analysis[id] || null;
   }, [edges, id, nodes]);
-
   const engineColors: Record<string, string> = {
     postgres: "#336791",
     mysql: "#4479A1",
@@ -31,7 +29,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
     redis: "#DC382D",
     sqlite: "#003B57",
   };
-
   const enabledCapabilities = Object.entries(dbData.capabilities)
     .filter(([, enabled]) => enabled)
     .map(([name]) => name);
@@ -127,10 +124,8 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
       Boolean(environmentData.overrides?.enabled);
     return count + (isConfigured ? 1 : 0);
   }, 0);
-
   const tables = dbData.tables || [];
   const relationships = dbData.relationships || [];
-
   const handleAddTable = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -142,7 +137,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
     },
     [id, tables, updateNodeData],
   );
-
   const handleAddField = useCallback(
     (e: React.MouseEvent, tableIndex: number) => {
       e.stopPropagation();
@@ -160,11 +154,9 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
     },
     [id, tables, updateNodeData],
   );
-
   const toggleTableExpand = useCallback((index: number) => {
     setExpandedTables((prev) => ({ ...prev, [index]: !prev[index] }));
   }, []);
-
   return (
     <div
       style={{
@@ -179,7 +171,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
           : "0 4px 12px rgba(0, 0, 0, 0.3)",
       }}
     >
-      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -258,8 +249,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
           </span>
         )}
       </div>
-
-      {/* Title */}
       <div
         style={{
           padding: "10px 12px",
@@ -312,8 +301,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
           </div>
         )}
       </div>
-
-      {/* Capabilities */}
       {enabledCapabilities.length > 0 && (
         <div
           style={{
@@ -367,8 +354,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
           </div>
         </div>
       )}
-
-      {/* Tables */}
       <div
         style={{
           padding: "8px 12px",
@@ -408,13 +393,11 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
             + Add
           </button>
         </div>
-
         {tables.length === 0 && (
           <div style={{ fontSize: 10, color: "var(--muted)", fontStyle: "italic" }}>
             No tables defined yet
           </div>
         )}
-
         <div style={{ maxHeight: 220, overflowY: tables.length > 3 ? "auto" : "visible" }}>
           {tables.map((table, i) => {
             const isExpanded = expandedTables[i] ?? false;
@@ -556,8 +539,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
           })}
         </div>
       </div>
-
-      {/* Relationships */}
       {relationships.length > 0 && (
         <div style={{ padding: "8px 12px" }}>
           <div
@@ -609,7 +590,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
           })}
         </div>
       )}
-
       <div
         style={{
           padding: "8px 12px",
@@ -690,8 +670,6 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
           {healthTone.icon} {healthReport.score}
         </span>
       </div>
-
-      {/* Handles */}
       <Handle
         type="target"
         position={Position.Left}
@@ -715,7 +693,4 @@ export const DatabaseNode = memo(({ id, data, selected }: NodeProps) => {
     </div>
   );
 });
-
 DatabaseNode.displayName = "DatabaseNode";
-
-

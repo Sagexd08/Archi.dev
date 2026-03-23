@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import { AgentWorkspace } from "@/components/studio/AgentWorkspace";
 import { WorkspaceCanvas } from "@/components/studio/WorkspaceCanvas";
@@ -9,12 +8,10 @@ import {
   databaseSections,
   functionSections,
 } from "@/components/studio/config";
-
 type StudioWorkspaceProps = {
   activeTab: WorkspaceTab;
   resetLayoutSignal: number;
 };
-
 export function StudioWorkspace({ activeTab, resetLayoutSignal }: StudioWorkspaceProps) {
   return (
     <div style={{ display: "flex", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>

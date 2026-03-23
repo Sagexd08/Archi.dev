@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import Image from "next/image";
 import {
@@ -11,13 +10,11 @@ import {
   WORKSPACE_TEMPLATES,
   type WorkspaceTemplateId,
 } from "@/lib/studio/graph-templates";
-
 export type StudioUser = {
   email?: string | null;
   user_metadata?: Record<string, unknown> | null;
   identities?: Array<{ identity_data?: Record<string, unknown> | null }> | null;
 };
-
 type HeaderAction = {
   id: "save" | "gen" | "commit" | "reset" | "test" | "layout" | "export";
   label: string;
@@ -26,20 +23,17 @@ type HeaderAction = {
   highlighted?: boolean;
   isLoading?: boolean;
 };
-
 type HeaderTabsProps = {
   activeTab: WorkspaceTab;
   isCompactViewport: boolean;
   setActiveTab: (tab: WorkspaceTab) => void;
 };
-
 const workspaceCaption: Record<WorkspaceTab, string> = {
   api: "Interface contracts, routes, and event surfaces",
   database: "Schemas, pipelines, and operational data flows",
   functions: "Business logic, jobs, and automation blocks",
   agent: "AI-assisted architecture help and next-step guidance",
 };
-
 const baseActionStyle: React.CSSProperties = {
   borderRadius: 12,
   padding: "8px 12px",
@@ -48,10 +42,8 @@ const baseActionStyle: React.CSSProperties = {
   lineHeight: 1.1,
   cursor: "pointer",
 };
-
 function getActionStyle(action: HeaderAction, variant: "desktop" | "menu"): React.CSSProperties {
   const isPrimary = action.id === "gen" || action.highlighted;
-
   return {
     ...baseActionStyle,
     width: variant === "menu" ? "100%" : undefined,
@@ -67,7 +59,6 @@ function getActionStyle(action: HeaderAction, variant: "desktop" | "menu"): Reac
     boxShadow: isPrimary ? "var(--shadow-glow)" : "none",
   };
 }
-
 function HeaderTabs({
   activeTab,
   isCompactViewport,
@@ -149,7 +140,6 @@ function HeaderTabs({
           </div>
         </div>
       </div>
-
       <div
         className="studio-card"
         style={{
@@ -194,12 +184,10 @@ function HeaderTabs({
     </div>
   );
 }
-
 type TemplatePickerProps = {
   isCompactViewport: boolean;
   onSelectTemplate: (templateId: WorkspaceTemplateId) => void;
 };
-
 function TemplatePicker({
   isCompactViewport,
   onSelectTemplate,
@@ -254,12 +242,10 @@ function TemplatePicker({
     </label>
   );
 }
-
 type HeaderActionButtonsProps = {
   actions: HeaderAction[];
   variant: "desktop" | "menu";
 };
-
 function HeaderActionButtons({ actions, variant }: HeaderActionButtonsProps) {
   return (
     <>
@@ -278,7 +264,6 @@ function HeaderActionButtons({ actions, variant }: HeaderActionButtonsProps) {
     </>
   );
 }
-
 type ProfileButtonProps = {
   avatarUrl: string;
   avatarFailed: boolean;
@@ -288,7 +273,6 @@ type ProfileButtonProps = {
   setIsProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setAvatarFailed: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
 function ProfileButton({
   avatarUrl,
   avatarFailed,
@@ -332,7 +316,6 @@ function ProfileButton({
     </button>
   );
 }
-
 type ProfileMenuProps = {
   displayName: string;
   displayEmail: string;
@@ -344,7 +327,6 @@ type ProfileMenuProps = {
   handleLogout: () => void;
   handleBuyPro: () => void;
 };
-
 function ProfileMenu({
   displayName,
   displayEmail,
@@ -385,7 +367,6 @@ function ProfileMenu({
           {displayEmail || "Not signed in"}
         </div>
       </div>
-
       <div className="studio-card" style={{ borderRadius: 14, padding: 12, marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
           <span style={{ fontSize: 11, color: "var(--muted)" }}>Credits this cycle</span>
@@ -397,7 +378,6 @@ function ProfileMenu({
           <div className="progress-fill" style={{ width: `${creditUsedPercent}%` }} />
         </div>
       </div>
-
       <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
         <button
           type="button"
@@ -416,7 +396,6 @@ function ProfileMenu({
           <HeaderActionButtons actions={headerActions} variant="menu" />
         </div>
       </div>
-
       <div style={{ display: "grid", gap: 8 }}>
         <button
           type="button"
@@ -442,11 +421,9 @@ function ProfileMenu({
     </div>
   );
 }
-
 type LoginMenuProps = {
   handleLogin: () => void;
 };
-
 function LoginMenu({ handleLogin }: LoginMenuProps) {
   return (
     <div
@@ -480,7 +457,6 @@ function LoginMenu({ handleLogin }: LoginMenuProps) {
     </div>
   );
 }
-
 type StudioHeaderProps = {
   activeTab: WorkspaceTab;
   setActiveTab: (tab: WorkspaceTab) => void;
@@ -510,7 +486,6 @@ type StudioHeaderProps = {
   handleNewProject: () => void;
   handleBuyPro: () => void;
 };
-
 export function StudioHeader({
   activeTab,
   setActiveTab,
@@ -563,7 +538,6 @@ export function StudioHeader({
       .slice(0, 2)
       .map((part) => part[0]?.toUpperCase())
       .join("") || "U";
-
   const headerActions: HeaderAction[] = [
     {
       id: "test",
@@ -608,7 +582,6 @@ export function StudioHeader({
       title: "Reset panel layout (Ctrl/Cmd+0)",
     },
   ];
-
   return (
     <header
       style={{
@@ -632,12 +605,10 @@ export function StudioHeader({
           isCompactViewport={isCompactViewport}
           setActiveTab={setActiveTab}
         />
-
         <TemplatePicker
           isCompactViewport={isCompactViewport}
           onSelectTemplate={handleLoadTemplate}
         />
-
         <div
           ref={profileRef}
           style={{
@@ -684,7 +655,6 @@ export function StudioHeader({
               {HEADER_MENU_TEXT.signIn}
             </button>
           )}
-
           {isProfileOpen && user && (
             <ProfileMenu
               displayName={displayName}
@@ -702,11 +672,9 @@ export function StudioHeader({
               handleBuyPro={handleBuyPro}
             />
           )}
-
           {isLoginOpen && !user && <LoginMenu handleLogin={handleLogin} />}
         </div>
       </div>
-
       {isCompactViewport && (
         <div
           style={{

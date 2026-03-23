@@ -1,8 +1,6 @@
 "use client";
-
 import React, { useState } from "react";
 import { DatabaseBlock } from "@/lib/schema/node";
-
 type BackupSectionProps = {
   database: DatabaseBlock;
   onChange: (updates: Partial<DatabaseBlock>) => void;
@@ -10,7 +8,6 @@ type BackupSectionProps = {
   selectStyle: React.CSSProperties;
   sectionStyle: React.CSSProperties;
 };
-
 export function BackupSection({
   database,
   onChange,
@@ -26,7 +23,6 @@ export function BackupSection({
     pointInTimeRecovery: false,
     multiRegion: { enabled: false, regions: [] },
   };
-
   return (
     <div style={sectionStyle}>
       <button
@@ -50,7 +46,6 @@ export function BackupSection({
         <span>{isExpanded ? "▾" : "▸"}</span>
         <span>Backup & Recovery</span>
       </button>
-
       {isExpanded && (
         <div style={{ display: "grid", gap: 6 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
@@ -108,7 +103,6 @@ export function BackupSection({
               style={inputStyle}
             />
           </div>
-
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
             <label style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
               <input
@@ -144,7 +138,6 @@ export function BackupSection({
               Multi-region DR
             </label>
           </div>
-
           {backup.multiRegion.enabled && (
             <div style={{ display: "grid", gap: 6 }}>
               <div style={{ display: "flex", gap: 6 }}>
@@ -188,7 +181,6 @@ export function BackupSection({
                   Add
                 </button>
               </div>
-
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {(backup.multiRegion.regions || []).map((region) => (
                   <button
@@ -226,4 +218,3 @@ export function BackupSection({
     </div>
   );
 }
-

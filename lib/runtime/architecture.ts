@@ -7,7 +7,6 @@ import {
   QueueBlock,
   ServiceBoundaryBlock,
 } from "@/lib/schema/node";
-
 export type WorkspaceGraphTab =
   | "api"
   | "infra"
@@ -15,38 +14,30 @@ export type WorkspaceGraphTab =
   | "functions"
   | "agent"
   | "deploy";
-
 type GraphNode = {
   id: string;
   type?: string;
   data: NodeData;
 };
-
 type GraphState = {
   nodes: GraphNode[];
   edges?: Array<{ source: string; target: string }>;
 };
-
 export type GraphCollection = Partial<Record<WorkspaceGraphTab, GraphState>>;
-
 export type IssueSeverity = "error" | "warning";
-
 export type ArchitectureIssue = {
   code: string;
   severity: IssueSeverity;
   message: string;
   refs?: string[];
 };
-
 export type WorkflowStageStatus = "complete" | "incomplete" | "blocked";
-
 export type WorkflowStage = {
   id: string;
   title: string;
   status: WorkflowStageStatus;
   detail: string;
 };
-
 export type ServiceSummary = {
   id: string;
   label: string;
@@ -55,7 +46,6 @@ export type ServiceSummary = {
   dataCount: number;
   computeRef?: string;
 };
-
 export type DesignSystemReport = {
   runtimeModel: {
     dependencyDirection: "API -> Functional -> Data -> Infra";
@@ -85,35 +75,25 @@ export type DesignSystemReport = {
     warningCount: number;
   };
 };
-
 const isApiBinding = (node: NodeData): node is ApiBinding =>
   node.kind === "api_binding";
-
 const isProcess = (node: NodeData): node is ProcessDefinition =>
   node.kind === "process";
-
 const isDatabase = (node: NodeData): node is DatabaseBlock =>
   node.kind === "database";
-
 const isInfra = (node: NodeData): node is InfraBlock => node.kind === "infra";
-
 const isQueue = (node: NodeData): node is QueueBlock => node.kind === "queue";
-
 const isServiceBoundary = (node: NodeData): node is ServiceBoundaryBlock =>
   node.kind === "service_boundary";
-
 const COMPUTE_RESOURCE_TYPES = new Set(["ec2", "lambda", "eks", "hpc"]);
-
 const toNodeData = (graph?: GraphState): NodeData[] =>
   (graph?.nodes ?? []).map((node) => node.data);
-
 const pushIssue = (
   target: ArchitectureIssue[],
   issue: ArchitectureIssue,
 ): void => {
   target.push(issue);
 };
-
 export const analyzeDesignSystem = (
   graphs: GraphCollection,
 ): DesignSystemReport => {
@@ -122,7 +102,6 @@ export const analyzeDesignSystem = (
   ).flatMap((tab) => toNodeData(graphs[tab]));
   const apiNodeData = toNodeData(graphs.api);
   const functionTabNodeData = toNodeData(graphs.functions);
-
   const apiBlocks = allNodeData.filter(isApiBinding);
   const allFunctionBlocks = allNodeData.filter(isProcess);
   const apiFunctionBlocks = apiNodeData.filter(isProcess);
@@ -131,11 +110,9 @@ export const analyzeDesignSystem = (
   const infraBlocks = allNodeData.filter(isInfra);
   const queueBlocks = allNodeData.filter(isQueue);
   const serviceBoundaries = allNodeData.filter(isServiceBoundary);
-
   const computeBlocks = infraBlocks.filter((infra) =>
     COMPUTE_RESOURCE_TYPES.has(infra.resourceType),
   );
-
   const allFunctionById = new Map(allFunctionBlocks.map((fn) => [fn.id, fn]));
   const businessFunctionById = new Map(businessFunctions.map((fn) => [fn.id, fn]));
   const dataById = new Map(dataBlocks.map((db) => [db.id, db]));
@@ -146,10 +123,8 @@ export const analyzeDesignSystem = (
     ...queueBlocks.map((queue) => queue.id),
     ...apiBlocks.map((api) => api.id),
   ]);
-
   const runtimeIssues: ArchitectureIssue[] = [];
   const serviceIssues: ArchitectureIssue[] = [];
-
   for (const api of apiBlocks) {
     const processRef = (api.processRef || "").trim();
     if (!processRef) {
@@ -170,13 +145,11 @@ export const analyzeDesignSystem = (
       });
     }
   }
-
   for (const apiFunction of apiFunctionBlocks) {
     const importRefs = apiFunction.steps
       .filter((step) => step.kind === "ref" && Boolean(step.ref))
       .map((step) => (step.ref || "").trim())
       .filter(Boolean);
-
     if (importRefs.length === 0) {
       pushIssue(runtimeIssues, {
         code: "api.function.no_imports",
@@ -186,7 +159,6 @@ export const analyzeDesignSystem = (
       });
       continue;
     }
-
     for (const ref of importRefs) {
       if (!businessFunctionById.has(ref)) {
         pushIssue(runtimeIssues, {
@@ -198,12 +170,10 @@ export const analyzeDesignSystem = (
       }
     }
   }
-
   for (const fn of businessFunctions) {
     for (const step of fn.steps) {
       const ref = (step.ref || "").trim();
       if (!ref) continue;
-
       if (step.kind === "db_operation" && !dataById.has(ref)) {
         pushIssue(runtimeIssues, {
           code: "function.unresolved_data_dependency",
@@ -212,7 +182,6 @@ export const analyzeDesignSystem = (
           refs: [fn.id, ref],
         });
       }
-
       if (step.kind === "external_call" && !runtimeResourceIds.has(ref)) {
         pushIssue(runtimeIssues, {
           code: "function.unresolved_infra_dependency",
@@ -223,7 +192,6 @@ export const analyzeDesignSystem = (
       }
     }
   }
-
   if (dataBlocks.length > 0 && computeBlocks.length === 0) {
     pushIssue(runtimeIssues, {
       code: "data.no_compute_host",
@@ -232,11 +200,9 @@ export const analyzeDesignSystem = (
       refs: dataBlocks.map((db) => db.id),
     });
   }
-
   const apiOwner = new Map<string, string>();
   const functionOwner = new Map<string, string>();
   const dataOwner = new Map<string, string>();
-
   const services: ServiceSummary[] = serviceBoundaries.map((service) => ({
     id: service.id,
     label: service.label || service.id,
@@ -245,7 +211,6 @@ export const analyzeDesignSystem = (
     dataCount: service.dataRefs.length,
     computeRef: service.computeRef,
   }));
-
   for (const service of serviceBoundaries) {
     if (service.communication.allowDirectDbAccess) {
       pushIssue(serviceIssues, {
@@ -257,7 +222,6 @@ export const analyzeDesignSystem = (
         refs: [service.id],
       });
     }
-
     if (!service.computeRef || !computeById.has(service.computeRef)) {
       pushIssue(serviceIssues, {
         code: "service.compute_missing",
@@ -266,7 +230,6 @@ export const analyzeDesignSystem = (
         refs: [service.id, service.computeRef || ""].filter(Boolean),
       });
     }
-
     for (const apiRef of service.apiRefs) {
       if (!apiById.has(apiRef)) {
         pushIssue(serviceIssues, {
@@ -289,7 +252,6 @@ export const analyzeDesignSystem = (
         apiOwner.set(apiRef, service.id);
       }
     }
-
     for (const functionRef of service.functionRefs) {
       if (!allFunctionById.has(functionRef)) {
         pushIssue(serviceIssues, {
@@ -312,7 +274,6 @@ export const analyzeDesignSystem = (
         functionOwner.set(functionRef, service.id);
       }
     }
-
     for (const dataRef of service.dataRefs) {
       if (!dataById.has(dataRef)) {
         pushIssue(serviceIssues, {
@@ -336,7 +297,6 @@ export const analyzeDesignSystem = (
       }
     }
   }
-
   if (serviceBoundaries.length === 0) {
     pushIssue(serviceIssues, {
       code: "service.none_defined",
@@ -375,11 +335,9 @@ export const analyzeDesignSystem = (
       }
     }
   }
-
   for (const fn of allFunctionBlocks) {
     const sourceService = functionOwner.get(fn.id);
     if (!sourceService) continue;
-
     for (const step of fn.steps) {
       if (step.kind !== "ref" || !step.ref) continue;
       const targetService = functionOwner.get(step.ref);
@@ -395,11 +353,9 @@ export const analyzeDesignSystem = (
       }
     }
   }
-
   const allIssues = [...runtimeIssues, ...serviceIssues];
   const errorIssues = allIssues.filter((issue) => issue.severity === "error");
   const warningIssues = allIssues.filter((issue) => issue.severity === "warning");
-
   const hasApis = apiBlocks.length > 0;
   const allApisBound =
     apiBlocks.length > 0 &&
@@ -416,7 +372,6 @@ export const analyzeDesignSystem = (
     apiBlocks.every((api) => apiOwner.has(api.id)) &&
     allFunctionBlocks.every((fn) => functionOwner.has(fn.id)) &&
     dataBlocks.every((db) => dataOwner.has(db.id));
-
   const deployReady =
     errorIssues.length === 0 &&
     hasApis &&
@@ -426,9 +381,7 @@ export const analyzeDesignSystem = (
     hasInfra &&
     hasCompute &&
     servicesAssigned;
-
   const blockers = errorIssues.map((issue) => issue.message);
-
   const stages: WorkflowStage[] = [
     {
       id: "create_api",
@@ -484,7 +437,6 @@ export const analyzeDesignSystem = (
         : "Resolve blocking validation issues before deploy",
     },
   ];
-
   return {
     runtimeModel: {
       dependencyDirection: "API -> Functional -> Data -> Infra",

@@ -1,30 +1,24 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import { DatabaseRelationship, DatabaseTable } from "@/lib/schema/node";
-
 type DatabaseERDViewerProps = {
   tables: DatabaseTable[];
   relationships: DatabaseRelationship[];
 };
-
 const TABLE_WIDTH = 180;
 const TABLE_HEIGHT = 60;
 const COLS = 3;
-
 const relationColors: Record<DatabaseRelationship["type"], string> = {
   one_to_one: "#60a5fa",
   one_to_many: "#4ade80",
   many_to_many: "#a78bfa",
 };
-
 export function DatabaseERDViewer({
   tables,
   relationships,
 }: DatabaseERDViewerProps) {
   const [scale, setScale] = useState(1);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
-
   const layout = useMemo(() => {
     return tables.map((table, index) => {
       const col = index % COLS;
@@ -40,16 +34,13 @@ export function DatabaseERDViewer({
       };
     });
   }, [tables]);
-
   const indexById = useMemo(() => {
     const map = new Map<string, { x: number; y: number }>();
     layout.forEach((item) => map.set(item.id, { x: item.x, y: item.y }));
     layout.forEach((item) => map.set(item.name, { x: item.x, y: item.y }));
     return map;
   }, [layout]);
-
   const diagramHeight = Math.max(300, Math.ceil(layout.length / COLS) * 90 + 70);
-
   return (
     <div
       style={{
@@ -183,7 +174,6 @@ export function DatabaseERDViewer({
           </button>
         </div>
       </div>
-
       <div
         style={{
           position: "relative",
@@ -231,7 +221,6 @@ export function DatabaseERDViewer({
               );
             })}
           </svg>
-
           {layout.map((table) => (
             <div
               key={table.id}
@@ -271,4 +260,3 @@ export function DatabaseERDViewer({
     </div>
   );
 }
-

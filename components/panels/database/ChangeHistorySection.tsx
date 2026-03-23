@@ -1,17 +1,14 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import {
   DatabaseBlock,
   DatabaseSchemaChangeType,
 } from "@/lib/schema/node";
-
 type ChangeHistorySectionProps = {
   database: DatabaseBlock;
   sectionStyle: React.CSSProperties;
   selectStyle: React.CSSProperties;
 };
-
 const changeTypeOptions: DatabaseSchemaChangeType[] = [
   "table_added",
   "field_added",
@@ -19,7 +16,6 @@ const changeTypeOptions: DatabaseSchemaChangeType[] = [
   "field_removed",
   "table_removed",
 ];
-
 const changeTypeLabel: Record<DatabaseSchemaChangeType, string> = {
   table_added: "Table added",
   field_added: "Field added",
@@ -27,13 +23,11 @@ const changeTypeLabel: Record<DatabaseSchemaChangeType, string> = {
   field_removed: "Field removed",
   table_removed: "Table removed",
 };
-
 const formatTimestamp = (value: string) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
 };
-
 export function ChangeHistorySection({
   database,
   sectionStyle,
@@ -42,13 +36,11 @@ export function ChangeHistorySection({
   const [isExpanded, setIsExpanded] = useState(false);
   const [filter, setFilter] = useState<"all" | DatabaseSchemaChangeType>("all");
   const [openDiffIds, setOpenDiffIds] = useState<Record<string, boolean>>({});
-
   const history = useMemo(() => database.schemaHistory || [], [database.schemaHistory]);
   const filteredHistory = useMemo(() => {
     const entries = filter === "all" ? history : history.filter((entry) => entry.changeType === filter);
     return [...entries].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   }, [filter, history]);
-
   return (
     <div style={sectionStyle}>
       <button
@@ -84,7 +76,6 @@ export function ChangeHistorySection({
           {history.length}
         </span>
       </button>
-
       {isExpanded && (
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 6, alignItems: "center" }}>
@@ -102,13 +93,11 @@ export function ChangeHistorySection({
               ))}
             </select>
           </div>
-
           {filteredHistory.length === 0 && (
             <div style={{ fontSize: 11, color: "var(--muted)" }}>
               No schema changes found for this filter.
             </div>
           )}
-
           {filteredHistory.length > 0 && (
             <div style={{ display: "grid", gap: 6, paddingRight: 2 }}>
               {filteredHistory.map((entry, index) => {
@@ -117,7 +106,6 @@ export function ChangeHistorySection({
                 const after = entry.details?.after;
                 const hasDiff = typeof before !== "undefined" || typeof after !== "undefined";
                 const isDiffOpen = Boolean(openDiffIds[rowId]);
-
                 return (
                   <div
                     key={rowId}
@@ -136,7 +124,6 @@ export function ChangeHistorySection({
                       </span>
                       <span style={{ fontSize: 10, color: "var(--muted)" }}>{formatTimestamp(entry.timestamp)}</span>
                     </div>
-
                     {hasDiff && (
                       <button
                         type="button"
@@ -160,7 +147,6 @@ export function ChangeHistorySection({
                         {isDiffOpen ? "Hide diff" : "View diff"}
                       </button>
                     )}
-
                     {hasDiff && isDiffOpen && (
                       <div style={{ display: "grid", gap: 6 }}>
                         <div

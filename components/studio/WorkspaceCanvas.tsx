@@ -5,11 +5,9 @@ import { PropertyInspector } from "@/components/panels/PropertyInspector";
 import { DatabaseSchemaDesigner } from "@/components/panels/DatabaseSchemaDesigner";
 import { DatabaseQueryBuilder } from "@/components/panels/DatabaseQueryBuilder";
 import { useStore, type NodeKind } from "@/store/useStore";
-
 const FlowCanvas = dynamic(() => import("@/components/canvas/FlowCanvas"), {
   ssr: false,
 });
-
 const STORAGE_KEYS = {
   leftSidebarCollapsed: "ermiz.leftSidebarCollapsed",
   rightSidebarCollapsed: "ermiz.rightSidebarCollapsed",
@@ -18,11 +16,10 @@ const STORAGE_KEYS = {
   dbPanelHeight: "ermiz.dbPanelHeight",
   dbSplitRatio: "ermiz.dbSplitRatio",
 };
-
 const DEFAULT_LEFT_WIDTH = 236;
 const DEFAULT_INSPECTOR_WIDTH = 320;
 const DEFAULT_DB_PANEL_HEIGHT = 340;
-const DEFAULT_DB_SPLIT_RATIO = 0.55; // schema designer gets 55%
+const DEFAULT_DB_SPLIT_RATIO = 0.55;
 const clampLeftWidth = (value: number) =>
   Math.max(200, Math.min(420, value || DEFAULT_LEFT_WIDTH));
 const clampInspectorWidth = (value: number) =>
@@ -31,7 +28,6 @@ const clampDbHeight = (value: number) =>
   Math.max(120, Math.min(window.innerHeight * 0.75, value || DEFAULT_DB_PANEL_HEIGHT));
 const clampSplitRatio = (value: number) =>
   Math.max(0.2, Math.min(0.8, value || DEFAULT_DB_SPLIT_RATIO));
-
 export type SidebarItem = {
   kind: NodeKind;
   label: string;
@@ -40,7 +36,6 @@ export type SidebarItem = {
   mono?: boolean;
   hint?: string;
 };
-
 export type SidebarSection = {
   id: string;
   title: string;
@@ -93,7 +88,6 @@ export function WorkspaceCanvas({
     startHeight: 0,
     startRatio: 0,
   });
-
   const flatItems = useMemo(
     () =>
       sections.flatMap((section) =>
@@ -105,7 +99,6 @@ export function WorkspaceCanvas({
       ),
     [sections],
   );
-
   const filteredFlatItems = useMemo(() => {
     if (!flatList) return flatItems;
     const query = componentSearch.trim().toLowerCase();
@@ -117,7 +110,6 @@ export function WorkspaceCanvas({
         (item.hint?.toLowerCase().includes(query) ?? false),
     );
   }, [componentSearch, flatItems, flatList]);
-
   const workspaceCopy = useMemo(() => {
     if (activeTab === "database") {
       return {
@@ -142,22 +134,17 @@ export function WorkspaceCanvas({
       placeholder: "Create a Stripe webhook to update subscriptions",
     };
   }, [activeTab]);
-
   const availableItemCount = useMemo(
     () => sections.reduce((count, section) => count + section.items.length, 0),
     [sections],
   );
-
   const visibleItemCount = flatList ? filteredFlatItems.length : availableItemCount;
   const isCanvasEmpty = nodes.length === 0;
-
   const handleCopilotSubmit = async () => {
     const prompt = copilotPrompt.trim();
     if (!prompt || isCopilotLoading) return;
-
     setIsCopilotLoading(true);
     setCopilotStatus("Generating graph patch…");
-
     try {
       const response = await fetch("/api/copilot", {
         method: "POST",
@@ -171,7 +158,6 @@ export function WorkspaceCanvas({
           allGraphs: exportGraphs(),
         }),
       });
-
       const json = (await response.json()) as {
         error?: string;
         source?: "ai" | "heuristic";
@@ -185,12 +171,10 @@ export function WorkspaceCanvas({
           edges?: Array<Record<string, unknown>>;
         };
       };
-
       if (!response.ok || !json.patch) {
         setCopilotStatus(json.error ? `Copilot failed: ${json.error}` : "Copilot could not generate a patch.");
         return;
       }
-
       applyGraphPatch({
         nodes: (json.patch.nodes ?? []) as never,
         edges: (json.patch.edges ?? []) as never,
@@ -213,15 +197,11 @@ export function WorkspaceCanvas({
       setIsCopilotLoading(false);
     }
   };
-
   useEffect(() => {
-    // Load saved widths and collapsed states from localStorage after mount
     if (typeof window !== "undefined") {
       const isNarrow = window.matchMedia("(max-width: 1024px)").matches;
-
       const savedLeftCollapsed = localStorage.getItem(STORAGE_KEYS.leftSidebarCollapsed);
       const savedRightCollapsed = localStorage.getItem(STORAGE_KEYS.rightSidebarCollapsed);
-
       const nextLeftCollapsed = isNarrow ? true : savedLeftCollapsed === "1";
       const nextInspectorCollapsed = isNarrow ? true : savedRightCollapsed === "1";
       const storedLeftWidth = Number(localStorage.getItem(STORAGE_KEYS.leftSidebarWidth));
@@ -240,7 +220,6 @@ export function WorkspaceCanvas({
       const nextDbSplit = storedDbSplit
         ? clampSplitRatio(storedDbSplit)
         : DEFAULT_DB_SPLIT_RATIO;
-
       const frame = window.requestAnimationFrame(() => {
         setIsLeftSidebarCollapsed(nextLeftCollapsed);
         setIsInspectorCollapsed(nextInspectorCollapsed);
@@ -249,18 +228,15 @@ export function WorkspaceCanvas({
         setDbPanelHeight(nextDbHeight);
         setDbSplitRatio(nextDbSplit);
       });
-
       return () => {
         window.cancelAnimationFrame(frame);
       };
     }
   }, []);
-
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       const state = resizeStateRef.current;
       if (!state.side) return;
-
       if (state.side === "left") {
         const nextWidth = Math.max(200, Math.min(420, state.startWidth + (event.clientX - state.startX)));
         setLeftSidebarWidth(nextWidth);
@@ -268,34 +244,29 @@ export function WorkspaceCanvas({
         const nextWidth = Math.max(260, Math.min(520, state.startWidth + (state.startX - event.clientX)));
         setInspectorWidth(nextWidth);
       } else if (state.side === "dbHeight") {
-        // Drag upward = increase DB panel height
         const deltaY = state.startY - event.clientY;
         const nextHeight = Math.max(120, Math.min(window.innerHeight * 0.75, state.startHeight + deltaY));
         setDbPanelHeight(nextHeight);
       } else if (state.side === "dbSplit") {
-        // Drag within the DB panel to adjust split
         const deltaY = event.clientY - state.startY;
         const totalH = state.startHeight;
         const nextRatio = Math.max(0.2, Math.min(0.8, state.startRatio + deltaY / totalH));
         setDbSplitRatio(nextRatio);
       }
     };
-
     const handleMouseUp = (event: MouseEvent) => {
       const state = resizeStateRef.current;
-      // Persist DB panel sizes — recompute final value from ref to avoid stale closure
       if (state.side === "dbHeight") {
         const deltaY = state.startY - event.clientY;
         const finalH = Math.max(120, Math.min(window.innerHeight * 0.75, state.startHeight + deltaY));
-        try { localStorage.setItem(STORAGE_KEYS.dbPanelHeight, String(finalH)); } catch { /* ignore */ }
+        try { localStorage.setItem(STORAGE_KEYS.dbPanelHeight, String(finalH)); } catch {  }
       } else if (state.side === "dbSplit") {
         const deltaY = event.clientY - state.startY;
         const finalR = Math.max(0.2, Math.min(0.8, state.startRatio + deltaY / state.startHeight));
-        try { localStorage.setItem(STORAGE_KEYS.dbSplitRatio, String(finalR)); } catch { /* ignore */ }
+        try { localStorage.setItem(STORAGE_KEYS.dbSplitRatio, String(finalR)); } catch {  }
       }
       resizeStateRef.current.side = null;
     };
-
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     return () => {
@@ -303,7 +274,6 @@ export function WorkspaceCanvas({
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mediaQuery = window.matchMedia("(max-width: 1024px)");
@@ -317,7 +287,6 @@ export function WorkspaceCanvas({
       mediaQuery.removeEventListener("change", updateViewport);
     };
   }, []);
-
   useEffect(() => {
     try {
       localStorage.setItem(
@@ -331,10 +300,8 @@ export function WorkspaceCanvas({
       localStorage.setItem(STORAGE_KEYS.leftSidebarWidth, String(leftSidebarWidth));
       localStorage.setItem(STORAGE_KEYS.inspectorWidth, String(inspectorWidth));
     } catch {
-      // ignore storage errors
     }
   }, [isLeftSidebarCollapsed, isInspectorCollapsed, leftSidebarWidth, inspectorWidth]);
-
   useEffect(() => {
     const handleLayoutShortcuts = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey)) return;
@@ -369,7 +336,6 @@ export function WorkspaceCanvas({
       window.removeEventListener("keydown", handleLayoutShortcuts);
     };
   }, []);
-
   return (
     <div style={{ display: "flex", flex: 1, minHeight: 0, height: "100%", overflow: "hidden", position: "relative" }}>
       {isNarrowViewport && (!isLeftSidebarCollapsed || !isInspectorCollapsed) && (
@@ -392,7 +358,6 @@ export function WorkspaceCanvas({
           }}
         />
       )}
-
       {isNarrowViewport && (
         <div
           style={{
@@ -472,7 +437,6 @@ export function WorkspaceCanvas({
           </button>
         </div>
       )}
-
       {isLeftSidebarCollapsed ? (
         <button
           type="button"
@@ -530,11 +494,9 @@ export function WorkspaceCanvas({
           >
             ‹
           </button>
-
           <aside
             className="sidebar-scroll sidebar-panel"
             onWheel={(e) => {
-              // Prevent canvas zoom while scrolling sidebar, but allow native scroll
               const target = e.currentTarget;
               const isScrollable = target.scrollHeight > target.clientHeight;
               if (isScrollable) {
@@ -585,7 +547,6 @@ export function WorkspaceCanvas({
                 </span>
               </div>
             </div>
-
             <div
               className="studio-card"
               style={{
@@ -660,7 +621,6 @@ export function WorkspaceCanvas({
                 </div>
               )}
             </div>
-
             {flatList ? (
               <>
                 {showSearch && (
@@ -904,7 +864,6 @@ export function WorkspaceCanvas({
           </aside>
         </div>
       )}
-
       {!isLeftSidebarCollapsed && (
         <div
           onMouseDown={(event) => {
@@ -928,7 +887,6 @@ export function WorkspaceCanvas({
           }}
         />
       )}
-
       <main
         style={{
           flex: 1,
@@ -976,7 +934,6 @@ export function WorkspaceCanvas({
             </span>
           </div>
         </div>
-
         <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
           <FlowCanvas />
           {isCanvasEmpty && (
@@ -1019,7 +976,6 @@ export function WorkspaceCanvas({
         </div>
         {isDatabaseWorkspace && (
           <>
-            {/* ── Vertical resize handle: canvas ↔ DB panels ──────── */}
             <div
               onMouseDown={(event) => {
                 resizeStateRef.current = {
@@ -1056,7 +1012,6 @@ export function WorkspaceCanvas({
               <div style={{ flex: dbSplitRatio, minHeight: 0, overflow: "auto" }}>
                 <DatabaseSchemaDesigner />
               </div>
-              {/* ── Horizontal resize handle: schema ↔ query ────── */}
               <div
                 onMouseDown={(event) => {
                   resizeStateRef.current = {
@@ -1085,7 +1040,6 @@ export function WorkspaceCanvas({
           </>
         )}
       </main>
-
       {isInspectorCollapsed ? (
         <button
           type="button"
@@ -1169,4 +1123,3 @@ export function WorkspaceCanvas({
     </div>
   );
 }
-

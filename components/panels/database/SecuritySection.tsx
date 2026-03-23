@@ -1,15 +1,12 @@
 "use client";
-
 import React, { useState } from "react";
 import { DatabaseBlock } from "@/lib/schema/node";
-
 type SecuritySectionProps = {
   database: DatabaseBlock;
   onChange: (updates: Partial<DatabaseBlock>) => void;
   inputStyle: React.CSSProperties;
   sectionStyle: React.CSSProperties;
 };
-
 export function SecuritySection({
   database,
   onChange,
@@ -20,14 +17,12 @@ export function SecuritySection({
   const [roleNameDraft, setRoleNameDraft] = useState("");
   const [rolePermDraft, setRolePermDraft] = useState("");
   const [allowedIpDraft, setAllowedIpDraft] = useState("");
-
   const security = database.security || {
     roles: [],
     encryption: { atRest: false, inTransit: false },
     network: { vpcId: "", allowedIPs: [] },
     auditLogging: false,
   };
-
   return (
     <div style={sectionStyle}>
       <button
@@ -51,7 +46,6 @@ export function SecuritySection({
         <span>{isExpanded ? "▾" : "▸"}</span>
         <span>Security</span>
       </button>
-
       {isExpanded && (
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ display: "grid", gap: 6 }}>
@@ -149,7 +143,6 @@ export function SecuritySection({
               ))}
             </div>
           </div>
-
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
             <label style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6 }}>
               <input
@@ -203,7 +196,6 @@ export function SecuritySection({
               Audit logging
             </label>
           </div>
-
           <div style={{ display: "grid", gap: 6 }}>
             <input
               type="text"
@@ -301,4 +293,3 @@ export function SecuritySection({
     </div>
   );
 }
-

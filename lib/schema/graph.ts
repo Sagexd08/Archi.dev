@@ -1,16 +1,14 @@
 import { z } from "zod";
 import { ProcessNodeSchema } from "./node";
-
 export const EdgeSchema = z.object({
   id: z.string(),
   source: z.string(),
   target: z.string(),
   sourceHandle: z.string().optional(),
   targetHandle: z.string().optional(),
-  type: z.enum(["default", "step"]).default("default"), // 'step' for control flow
+  type: z.enum(["default", "step"]).default("default"),
   animated: z.boolean().default(false),
 });
-
 export const GraphSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
@@ -18,30 +16,24 @@ export const GraphSchema = z.object({
   nodes: z.array(ProcessNodeSchema),
   edges: z.array(EdgeSchema),
 });
-
 export type ProcessEdge = z.infer<typeof EdgeSchema>;
 export type ProcessGraph = z.infer<typeof GraphSchema>;
-
 type GraphNode = {
   id: string;
   type?: string;
   data?: Record<string, unknown>;
 };
-
 type GraphEdge = {
   source: string;
   target: string;
 };
-
 type DBConnectionOperation = "read" | "write" | "unknown";
-
 export type DBConnectionEntry = {
   nodeId: string;
   nodeName: string;
   nodeType: "process" | "api" | "trigger" | "unknown";
   operation: DBConnectionOperation;
 };
-
 export type DBConnectionSummary = {
   databaseNodeId: string;
   databaseId: string;
@@ -51,10 +43,8 @@ export type DBConnectionSummary = {
   operationCount: number;
   connectionCount: number;
 };
-
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
-
 const detectNodeType = (node: GraphNode): DBConnectionEntry["nodeType"] => {
   const kind = isObject(node.data) ? String(node.data.kind || "") : "";
   if (kind === "process") return "process";
@@ -62,14 +52,12 @@ const detectNodeType = (node: GraphNode): DBConnectionEntry["nodeType"] => {
   if (node.type === "trigger") return "trigger";
   return "unknown";
 };
-
 const detectNodeName = (node: GraphNode): string => {
   if (isObject(node.data) && typeof node.data.label === "string") {
     return node.data.label;
   }
   return node.id;
 };
-
 const inferOperation = (raw: string): DBConnectionOperation => {
   const text = raw.toLowerCase();
   if (/(select|get|read|fetch|query|find)\b/.test(text)) return "read";
@@ -78,7 +66,6 @@ const inferOperation = (raw: string): DBConnectionOperation => {
   }
   return "unknown";
 };
-
 const containsDBRef = (
   text: string,
   databaseNodeId: string,
@@ -91,7 +78,6 @@ const containsDBRef = (
     .filter(Boolean);
   return references.some((value) => raw.includes(value));
 };
-
 const scanForDatabasePropertyLinks = (
   data: unknown,
   databaseNodeId: string,
@@ -101,12 +87,10 @@ const scanForDatabasePropertyLinks = (
   const matches: string[] = [];
   const walk = (value: unknown, keyPath: string) => {
     if (!isObject(value) && !Array.isArray(value)) return;
-
     if (Array.isArray(value)) {
       value.forEach((item, index) => walk(item, `${keyPath}[${index}]`));
       return;
     }
-
     Object.entries(value).forEach(([key, next]) => {
       const path = keyPath ? `${keyPath}.${key}` : key;
       if (
@@ -122,7 +106,6 @@ const scanForDatabasePropertyLinks = (
   walk(data, "");
   return matches;
 };
-
 export const analyzeDBConnections = (graphState: {
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -130,7 +113,6 @@ export const analyzeDBConnections = (graphState: {
   const nodes = graphState.nodes || [];
   const edges = graphState.edges || [];
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
-
   const processNodes = nodes.filter(
     (node) => detectNodeType(node) === "process",
   );
@@ -141,22 +123,17 @@ export const analyzeDBConnections = (graphState: {
       processDataIdToNodeId.set(node.data.id, node.id);
     }
   });
-
   const databaseNodes = nodes.filter(
     (node) => isObject(node.data) && node.data.kind === "database",
   );
-
   const result: Record<string, DBConnectionSummary> = {};
-
   databaseNodes.forEach((databaseNode) => {
     const dbData = isObject(databaseNode.data) ? databaseNode.data : {};
     const databaseId =
       typeof dbData.id === "string" ? dbData.id : databaseNode.id;
     const databaseLabel =
       typeof dbData.label === "string" ? dbData.label : databaseNode.id;
-
     const connectionMap = new Map<string, DBConnectionEntry>();
-
     const upsert = (entry: DBConnectionEntry) => {
       const existing = connectionMap.get(entry.nodeId);
       if (!existing) {
@@ -167,12 +144,9 @@ export const analyzeDBConnections = (graphState: {
         connectionMap.set(entry.nodeId, { ...entry, operation: "unknown" });
       }
     };
-
-    // 1) Direct graph connections.
     edges.forEach((edge) => {
       let connectedNode: GraphNode | undefined;
       let op: DBConnectionOperation = "unknown";
-
       if (edge.target === databaseNode.id) {
         connectedNode = nodeById.get(edge.source);
         op = "write";
@@ -183,7 +157,6 @@ export const analyzeDBConnections = (graphState: {
       if (!connectedNode) return;
       const nodeType = detectNodeType(connectedNode);
       if (!["process", "api", "trigger"].includes(nodeType)) return;
-
       upsert({
         nodeId: connectedNode.id,
         nodeName: detectNodeName(connectedNode),
@@ -191,14 +164,11 @@ export const analyzeDBConnections = (graphState: {
         operation: op,
       });
     });
-
-    // 2) Process step refs + db-linked properties.
     processNodes.forEach((node) => {
       const data = isObject(node.data) ? node.data : {};
       const steps = Array.isArray(data.steps) ? data.steps : [];
       let matched = false;
       let op: DBConnectionOperation = "unknown";
-
       steps.forEach((step) => {
         const blob = JSON.stringify(step);
         if (
@@ -210,7 +180,6 @@ export const analyzeDBConnections = (graphState: {
           else if (op !== inferred && inferred !== "unknown") op = "unknown";
         }
       });
-
       const linkedProps = scanForDatabasePropertyLinks(
         data,
         databaseNode.id,
@@ -223,7 +192,6 @@ export const analyzeDBConnections = (graphState: {
           op = inferOperation(linkedProps.join(" "));
         }
       }
-
       if (!matched) return;
       upsert({
         nodeId: node.id,
@@ -232,14 +200,11 @@ export const analyzeDBConnections = (graphState: {
         operation: op,
       });
     });
-
-    // 3) API nodes referencing connected processes through processRef.
     apiNodes.forEach((apiNode) => {
       const apiData = isObject(apiNode.data) ? apiNode.data : {};
       const processRef =
         typeof apiData.processRef === "string" ? apiData.processRef : "";
       if (!processRef) return;
-
       const processNodeId =
         processDataIdToNodeId.get(processRef) ||
         processNodes.find((node) => {
@@ -247,10 +212,8 @@ export const analyzeDBConnections = (graphState: {
           return label === processRef || node.id === processRef;
         })?.id;
       if (!processNodeId) return;
-
       const processConnection = connectionMap.get(processNodeId);
       if (!processConnection) return;
-
       upsert({
         nodeId: apiNode.id,
         nodeName: detectNodeName(apiNode),
@@ -258,12 +221,10 @@ export const analyzeDBConnections = (graphState: {
         operation: processConnection.operation,
       });
     });
-
     const connections = Array.from(connectionMap.values());
     const readers = connections.filter((connection) => connection.operation === "read");
     const writers = connections.filter((connection) => connection.operation === "write");
     const operationCount = readers.length + writers.length;
-
     result[databaseNode.id] = {
       databaseNodeId: databaseNode.id,
       databaseId,
@@ -274,6 +235,5 @@ export const analyzeDBConnections = (graphState: {
       connectionCount: connections.length,
     };
   });
-
   return result;
 };
