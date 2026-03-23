@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Handle, Position, NodeProps } from "@xyflow/react";
+import { Handle, Position, NodeProps, NodeToolbar } from "@xyflow/react";
 import { ProcessDefinition, InputField, OutputField } from "@/lib/schema/node";
 export const ProcessNode = memo(({ data, selected }: NodeProps) => {
   const processData = data as unknown as ProcessDefinition;
@@ -27,8 +27,40 @@ export const ProcessNode = memo(({ data, selected }: NodeProps) => {
         boxShadow: selected
           ? `0 0 0 2px ${isStartFunction ? "rgba(74,222,128,0.2)" : "rgba(124,108,255,0.2)"}`
           : "0 4px 12px rgba(0,0,0,0.3)",
+        overflow: "hidden",
       }}
     >
+      <NodeToolbar
+        isVisible={selected}
+        position={Position.Top}
+        offset={10}
+        style={{
+          background: "rgba(10, 16, 24, 0.88)",
+          border: "1px solid var(--border)",
+          borderRadius: 999,
+          padding: "4px 8px",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          boxShadow: "var(--shadow-soft)",
+          display: "flex",
+          gap: 6,
+        }}
+      >
+        <span className="studio-badge" style={{ padding: "2px 8px", fontSize: 10 }}>
+          Function
+        </span>
+        <span className="studio-badge" style={{ padding: "2px 8px", fontSize: 10 }}>
+          {processData.execution}
+        </span>
+      </NodeToolbar>
+      <div
+        style={{
+          height: 2,
+          width: "100%",
+          background: headerColor,
+          boxShadow: `0 0 14px ${headerColor}80`,
+        }}
+      />
       <div
         style={{
           display: "flex",

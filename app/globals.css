@@ -42,10 +42,20 @@
   }
 
   .glass-panel {
-    background: rgba(10, 10, 10, 0.4);
+    background: rgba(7, 10, 15, 0.56);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  .cyber-glass {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0)),
+      rgba(7, 11, 18, 0.68);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(120, 183, 255, 0.2);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.44), 0 0 0 1px rgba(127, 197, 255, 0.06);
   }
 
   .mask-radial {
@@ -61,11 +71,11 @@
 /* Design Tokens */
 :root {
   /* Background Layers */
-  --background: #08111d;
-  --panel: #101a2b;
-  --floating: #152338;
-  --panel-raised: #1a2a43;
-  --panel-soft: #0d1728;
+  --background: #040507;
+  --panel: #0c1017;
+  --floating: #121923;
+  --panel-raised: #171f2c;
+  --panel-soft: #0a0f16;
 
   /* Text Colors */
   --foreground: #eef4ff;
@@ -73,16 +83,16 @@
   --muted: #8e9ab2;
 
   /* Accent */
-  --primary: #79b7ff;
-  --primary-strong: #4d93ff;
+  --primary: #7fc5ff;
+  --primary-strong: #4ba8ff;
   --success: #3ad69f;
   --warning: #ffbf5b;
   --destructive: #ff6b82;
 
   /* Borders and shadows */
-  --border: #22324b;
-  --border-muted: #2b3d58;
-  --border-strong: #39506f;
+  --border: #1f2a3a;
+  --border-muted: #27364b;
+  --border-strong: #35506f;
   --shadow-soft: 0 16px 36px rgba(3, 8, 18, 0.32);
   --shadow-float: 0 24px 48px rgba(3, 8, 18, 0.42);
   --shadow-glow: 0 0 0 1px rgba(121, 183, 255, 0.12), 0 18px 46px rgba(52, 115, 255, 0.14);
@@ -111,9 +121,9 @@ html {
 
 body {
   background:
-    radial-gradient(1200px 700px at 100% -10%, rgba(86, 153, 255, 0.16), transparent 55%),
-    radial-gradient(900px 540px at -10% 120%, rgba(62, 111, 214, 0.14), transparent 55%),
-    radial-gradient(780px 420px at 50% 0%, rgba(40, 72, 138, 0.12), transparent 60%),
+    radial-gradient(1200px 700px at 100% -10%, rgba(86, 153, 255, 0.13), transparent 55%),
+    radial-gradient(900px 540px at -10% 120%, rgba(62, 111, 214, 0.11), transparent 55%),
+    radial-gradient(780px 420px at 50% 0%, rgba(40, 72, 138, 0.09), transparent 60%),
     var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -694,6 +704,15 @@ aside {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes edge-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -20;
   }
 }
 
