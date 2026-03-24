@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import type { Edge, Node } from "@xyflow/react";
 import { ProcessNodeSchema } from "@/lib/schema/node";
 import { EdgeSchema } from "@/lib/schema/graph";
 import { analyzeDesignSystem } from "@/lib/runtime/architecture";

@@ -17,6 +17,7 @@ const stats = [
   { value: 100, suffix: "%", label: "Portable" },
   { value: 60, suffix: "s", label: "Deploy" },
 ];
+const heroEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
 function Counter({
   target,
   suffix,
@@ -87,7 +88,7 @@ export default function Hero() {
       y: 0,
       opacity: 1,
       filter: "blur(0px)",
-      transition: { duration: 0.82, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 0.82, ease: heroEase },
     },
   };
 
