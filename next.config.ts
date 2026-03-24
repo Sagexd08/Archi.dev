@@ -20,7 +20,6 @@ const nextConfig: NextConfig = {
         hostname: "avatars.githubusercontent.com",
         pathname: "/**",
       },
-      // Catch-all for other Supabase/OAuth avatar hosts
       {
         protocol: "https",
         hostname: "**.supabase.co",
