@@ -100,8 +100,12 @@ const quickLinks = [
   { label: "Canvas keybindings", href: "/docs" },
   { label: "Export formats", href: "/docs" },
   { label: "AI prompting guide", href: "/docs" },
+  { label: "Refund policy", href: "/refund-policy" },
+  { label: "Cancellation policy", href: "/cancellation-policy" },
+  { label: "Shipping policy", href: "/shipping-policy" },
+  { label: "Contact support", href: "/contact" },
   { label: "API rate limits", href: "/docs" },
-  { label: "Changelog", href: "/changelog" },
+  { label: "Razorpay setup", href: "/docs" },
 ];
 
 const changelogItems = [

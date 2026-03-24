@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 const footerLinks = [
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
+  { label: "Refunds", href: "/refund-policy" },
+  { label: "Cancellation", href: "/cancellation-policy" },
+  { label: "Shipping", href: "/shipping-policy" },
+  { label: "Contact", href: "/contact" },
   { label: "Status", href: "/status" },
   { label: "Docs", href: "/docs" },
   { label: "Blog", href: "/blog" },
-  { label: "Changelog", href: "/changelog" },
 ];
 const socialLinks = [
   {

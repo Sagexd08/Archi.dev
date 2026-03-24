@@ -169,16 +169,22 @@ Typical variables used by the app include:
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
 DATABASE_URL=
 DIRECT_URL=
 FREE_RESET_DAY_OF_MONTH=1
 ```
 
-For Google OAuth via Supabase, ensure your callback URL includes:
+For Google OAuth via Supabase, configure the Google provider in your Supabase dashboard and ensure your callback URL includes:
 
 ```bash
 http://localhost:3000/auth/callback
 ```
+
+No app-level Auth0 or NextAuth configuration is required.
+
+For Razorpay integration, use your publishable key in `NEXT_PUBLIC_RAZORPAY_KEY_ID` and keep `RAZORPAY_KEY_SECRET` server-side only. Do not commit live payment credentials.
 
 ### Prisma setup
 
@@ -233,8 +239,31 @@ Authentication is handled with Supabase.
 - browser auth uses a lazy Supabase client getter
 - server auth uses SSR-aware Supabase helpers
 - protected routes rely on middleware/session checks
+- Google is the only enabled OAuth provider
+- OAuth credentials are managed in the Supabase dashboard
 - `/login` triggers Google OAuth sign-in
 - `/auth/callback` exchanges the auth code and restores the session
+
+## Public Legal & Billing Pages
+
+The marketing site now exposes the core public-facing compliance pages often required for payment gateway review and user trust:
+
+- `/privacy`
+- `/terms`
+- `/refund-policy`
+- `/cancellation-policy`
+- `/shipping-policy`
+- `/contact`
+
+These pages are linked from the landing site footer and CTA footer.
+
+## Razorpay Setup Notes
+
+- add `NEXT_PUBLIC_RAZORPAY_KEY_ID` to the client environment only if you render a Razorpay checkout flow in the browser
+- keep `RAZORPAY_KEY_SECRET` server-only and never expose it in client code
+- use test keys for development and separate live keys for production
+- ensure the website exposes public policy pages before submitting for payment gateway review
+- rotate any secret that has been shared in chat, screenshots, logs, or commits
 
 ## Data Model
 

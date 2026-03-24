@@ -14,13 +14,14 @@ const footerLinks = {
     { name: "Blog", href: "/blog" },
     { name: "Changelog", href: "/changelog" },
     { name: "Status", href: "/status" },
-    { name: "Contact", href: "mailto:support@archi.dev" },
+    { name: "Contact", href: "/contact" },
   ],
   legal: [
     { name: "Privacy", href: "/privacy" },
     { name: "Terms", href: "/terms" },
-    { name: "Security", href: "/status" },
-    { name: "Compliance", href: "/status" },
+    { name: "Refund Policy", href: "/refund-policy" },
+    { name: "Cancellation Policy", href: "/cancellation-policy" },
+    { name: "Shipping Policy", href: "/shipping-policy" },
   ],
 };
 
@@ -143,7 +144,8 @@ export default function Footer() {
             <div className="flex items-center gap-6">
               <FooterLink href="/privacy">Privacy</FooterLink>
               <FooterLink href="/terms">Terms</FooterLink>
-              <FooterLink href="/status">Security</FooterLink>
+              <FooterLink href="/refund-policy">Refunds</FooterLink>
+              <FooterLink href="/contact">Contact</FooterLink>
             </div>
           </motion.div>
         </div>
