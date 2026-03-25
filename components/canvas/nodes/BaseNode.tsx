@@ -28,7 +28,7 @@ export function BaseNode({
         className
       )}
       style={{
-        borderTop: \2px solid \\,
+        borderTop: `2px solid ${color}`,
         ...(selected ? { ringColor: color } : {})
       }}
     >

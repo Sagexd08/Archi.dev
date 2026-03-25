@@ -1,5 +1,6 @@
 "use client";
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 
 const steps = [
   {
@@ -377,43 +378,6 @@ function MobileStepCard({
     </motion.div>
   );
 }
-
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
-
-// [... existing steps array ...]
-const steps = [
-  {
-    step: "01",
-    eyebrow: "Sketch the system",
-    title: "Map services, data, and traffic on one living canvas.",
-    description:
-      "Start with the architecture itself. Drop gateways, queues, databases, and workers into place and let the layout tell the story of how the backend should behave.",
-    color: "#00F0FF",
-    bullets: ["Multi-tab canvas", "Edge-aware nodes", "Shared graph state"],
-    metrics: ["24 services", "6 events", "3 regions"],
-  },
-  {
-    step: "02",
-    eyebrow: "Generate the backbone",
-    title: "Turn visual intent into contracts, code, and runtime scaffolding.",
-    description:
-      "As the graph sharpens, the platform fills in the heavy lifting: OpenAPI routes, Prisma models, runtime flows, and deployment-safe defaults.",
-    color: "#8A2BE2",
-    bullets: ["Typed APIs", "Database models", "AI-assisted workflows"],
-    metrics: ["142 endpoints", "98% typed", "0 glue code"],
-  },
-  {
-    step: "03",
-    eyebrow: "Ship with confidence",
-    title: "Promote the stack with observability baked in from the first deploy.",
-    description:
-      "Push to production with region-aware rollout, health checks, and a status layer that makes releases feel calm instead of risky.",
-    color: "#28C840",
-    bullets: ["Blue-green rollout", "Health checks", "Realtime status"],
-    metrics: ["13 regions", "99.98% uptime", "41ms p95"],
-  },
-];
 
 export default function ScrollSequence() {
   const containerRef = useRef<HTMLDivElement>(null);
