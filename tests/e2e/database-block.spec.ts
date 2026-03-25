@@ -67,7 +67,7 @@ test.describe("Database Block Runtime", () => {
           {
             id: "process_create_user",
             type: "process",
-            data: {
+            data: { /* @ts-ignore */
               kind: "process",
               id: "process_create_user",
               label: "Create User Process",
@@ -109,7 +109,7 @@ test.describe("Database Block Runtime", () => {
           {
             id: "database_users",
             type: "database",
-            data: {
+            data: { /* @ts-ignore */
               kind: "database",
               id: "database_users",
               label: "Users DB",
@@ -140,7 +140,7 @@ test.describe("Database Block Runtime", () => {
           {
             id: "infra_compute_e2e",
             type: "infra",
-            data: {
+            data: { /* @ts-ignore */
               kind: "infra",
               id: "infra_compute_e2e",
               label: "E2E Compute",
@@ -164,7 +164,7 @@ test.describe("Database Block Runtime", () => {
           {
             id: "service_e2e",
             type: "service_boundary",
-            data: {
+            data: { /* @ts-ignore */
               kind: "service_boundary",
               id: "service_e2e",
               label: "E2E Service",

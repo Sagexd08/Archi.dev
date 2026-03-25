@@ -14,11 +14,7 @@ export type WorkspaceGraphTab =
   | "functions"
   | "agent"
   | "deploy";
-type GraphNode = {
-  id: string;
-  type?: string;
-  data: NodeData;
-};
+export type GraphNode = { id: string; type?: string; data: NodeData | any; };
 type GraphState = {
   nodes: GraphNode[];
   edges?: Array<{ source: string; target: string }>;
