@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { CommandPalette } from "./CommandPalette";
 import { StudioFooter } from "@/components/studio/StudioFooter";
 type StudioLayoutProps = {
   isCompactViewport: boolean;
@@ -31,6 +32,7 @@ export function StudioLayout({
       }}
     >
       {children}
+      <CommandPalette />
       <StudioFooter
         isCompactViewport={isCompactViewport}
         statusText={statusText}
