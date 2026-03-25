@@ -143,10 +143,11 @@ function FlowCanvasInner() {
   );
   return (
     <div
-      className="h-full w-full"
+      className="h-full w-full bg-[#050505]"
       onContextMenu={handleContextMenu}
       style={{ position: "relative" }}
     >
+      <div className="bg-architect-grid absolute inset-0 pointer-events-none opacity-20" />
       <div
         className="canvas-hint-card workspace-fade-up"
         style={{
@@ -369,7 +370,7 @@ function FlowCanvasInner() {
           gap={20}
           size={1}
           variant={BackgroundVariant.Dots}
-          style={{ background: "var(--background)" }}
+          style={{ background: "transparent" }}
         />
         <Background
           gap={120}
