@@ -97,7 +97,7 @@ export default function Navbar() {
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className={`pointer-events-auto w-full transition-colors duration-500 flex items-center justify-between px-6 py-4 ${
             scrolled
-              ? "glass-panel shadow-2xl border border-white/10 backdrop-blur-md bg-black/40"
+              ? "cyber-glass"
               : "bg-transparent"
           }`}
         >

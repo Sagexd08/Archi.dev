@@ -303,7 +303,7 @@ function SpotlightCard({
 }
 export default function BentoGrid() {
   return (
-    <section id="product" className="py-32 px-6 md:px-16 xl:px-24 bg-black relative z-20">
+    <section id="product" className="py-32 px-6 md:px-16 xl:px-24 relative z-20">
       <div className="section-top-line" />
 
       {/* Ambient section glow */}

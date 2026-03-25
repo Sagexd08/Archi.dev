@@ -89,7 +89,7 @@ export default function Hero() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="relative min-h-[100vh] w-full flex flex-col justify-center bg-black overflow-hidden pb-28 md:pb-32"
+      className="relative min-h-[100vh] w-full flex flex-col justify-center overflow-hidden pb-28 md:pb-32"
     >
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none opacity-30">
@@ -108,7 +108,7 @@ export default function Hero() {
           enableMouseInteraction={false}
         />
       </div>
-      <div className="bg-grid absolute inset-0 pointer-events-none" />
+      <div className="bg-architect-grid absolute inset-0 pointer-events-none opacity-40" />
       <div className="bg-noise absolute inset-0" />
 
       {/* Ambient glow orbs */}

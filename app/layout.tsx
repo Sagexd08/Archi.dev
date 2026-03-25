@@ -50,7 +50,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${bodyFont.variable} ${geistMono.variable} ${headingFont.variable}`}
+      className={`${geist.variable} ${geistMono.variable}`}
     >
       <body suppressHydrationWarning className="antialiased min-h-screen">
         {children}

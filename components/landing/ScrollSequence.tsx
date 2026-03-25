@@ -378,18 +378,67 @@ function MobileStepCard({
   );
 }
 
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+
+// [... existing steps array ...]
+const steps = [
+  {
+    step: "01",
+    eyebrow: "Sketch the system",
+    title: "Map services, data, and traffic on one living canvas.",
+    description:
+      "Start with the architecture itself. Drop gateways, queues, databases, and workers into place and let the layout tell the story of how the backend should behave.",
+    color: "#00F0FF",
+    bullets: ["Multi-tab canvas", "Edge-aware nodes", "Shared graph state"],
+    metrics: ["24 services", "6 events", "3 regions"],
+  },
+  {
+    step: "02",
+    eyebrow: "Generate the backbone",
+    title: "Turn visual intent into contracts, code, and runtime scaffolding.",
+    description:
+      "As the graph sharpens, the platform fills in the heavy lifting: OpenAPI routes, Prisma models, runtime flows, and deployment-safe defaults.",
+    color: "#8A2BE2",
+    bullets: ["Typed APIs", "Database models", "AI-assisted workflows"],
+    metrics: ["142 endpoints", "98% typed", "0 glue code"],
+  },
+  {
+    step: "03",
+    eyebrow: "Ship with confidence",
+    title: "Promote the stack with observability baked in from the first deploy.",
+    description:
+      "Push to production with region-aware rollout, health checks, and a status layer that makes releases feel calm instead of risky.",
+    color: "#28C840",
+    bullets: ["Blue-green rollout", "Health checks", "Realtime status"],
+    metrics: ["13 regions", "99.98% uptime", "41ms p95"],
+  },
+];
+
 export default function ScrollSequence() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (latest < 0.33) setActiveIndex(0);
+    else if (latest < 0.66) setActiveIndex(1);
+    else setActiveIndex(2);
+  });
+
+  const Visual = [StepOneVisual, StepTwoVisual, StepThreeVisual][activeIndex];
+
   return (
-    <section id="solutions" className="relative bg-black px-6 py-20 md:px-16 md:py-24 xl:px-24">
+    <section id="solutions" className="relative px-6 py-20 md:px-16 xl:px-24">
       <div className="section-top-line" />
-      <div className="mx-auto max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
-          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          viewport={{ once: true }}
-          className="mb-12 max-w-3xl"
-        >
+      
+      {/* Mobile view */}
+      <div className="mx-auto max-w-7xl md:hidden">
+        <div className="mb-12 max-w-3xl">
           <div className="flex items-center gap-3 mb-4">
             <span className="section-line-accent" />
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#00F0FF]">
@@ -399,15 +448,77 @@ export default function ScrollSequence() {
           <h2 className="text-gradient text-[clamp(2.4rem,4.6vw,4.4rem)] font-medium leading-[0.94] tracking-tighter">
             Three steps.<br />Zero boilerplate.
           </h2>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/45">
-            From a blank canvas to a deployed, production-ready API — without writing a single line of configuration.
-          </p>
-        </motion.div>
-
+        </div>
         <div className="grid gap-6">
           {steps.map((step, index) => (
             <MobileStepCard key={step.step} step={step} index={index} />
           ))}
+        </div>
+      </div>
+
+      {/* Desktop Sticky View */}
+      <div ref={containerRef} className="hidden md:block h-[300vh] relative w-full max-w-7xl mx-auto">
+        <div className="sticky top-0 h-screen flex items-center justify-between gap-12 py-20">
+          
+          {/* Left Text Sequence */}
+          <div className="w-1/2 flex flex-col justify-center h-full relative">
+            <div className="flex items-center gap-3 mb-4 absolute top-[10%]">
+              <span className="section-line-accent" />
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#00F0FF]">
+                Workflow
+              </p>
+            </div>
+            
+            <div className="relative w-full h-[60%] flex items-center">
+              {steps.map((step, i) => (
+                <motion.div
+                  key={step.step}
+                  className="absolute inset-0 flex flex-col justify-center"
+                  initial={false}
+                  animate={{ 
+                    opacity: activeIndex === i ? 1 : 0,
+                    y: activeIndex === i ? 0 : (activeIndex > i ? -40 : 40),
+                    filter: activeIndex === i ? "blur(0px)" : "blur(8px)",
+                    pointerEvents: activeIndex === i ? "auto" : "none"
+                  }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="rounded-full border border-white/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]" style={{ color: step.color }}>
+                      Step {step.step}
+                    </div>
+                  </div>
+                  <h3 className="text-[3rem] tracking-tighter font-semibold leading-tight text-white mb-6">
+                    {step.title}
+                  </h3>
+                  <p className="text-lg leading-relaxed text-white/50 max-w-lg mb-8">
+                    {step.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {step.bullets.map((bullet) => (
+                      <span
+                        key={bullet}
+                        className="rounded-full border border-white/[0.08] bg-black/25 px-4 py-2 text-[12px] text-white/60"
+                      >
+                        {bullet}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Visual sequence */}
+          <div className="w-1/2 h-[75vh] flex flex-col justify-center relative">
+            <motion.div 
+              className="absolute inset-0 w-full h-full rounded-[2rem] border border-white/[0.06] overflow-hidden cyber-glass"
+              layoutId="visual-container"
+            >
+              <Visual />
+            </motion.div>
+          </div>
+
         </div>
       </div>
     </section>

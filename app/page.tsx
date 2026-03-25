@@ -10,7 +10,7 @@ import Footer from "@/components/landing/Footer";
 export default function LandingPage() {
   return (
     <ReactLenis root>
-      <main className="bg-black min-h-screen overflow-x-hidden">
+      <main className="min-h-screen overflow-x-hidden">
         <Navbar />
         <Hero />
         <BentoGrid />

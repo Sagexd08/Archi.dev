@@ -22,9 +22,14 @@
 @layer utilities {
   .bg-grid {
     background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
+  }
+
+  .bg-architect-grid {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 
   .bg-noise {
@@ -35,27 +40,25 @@
   }
 
   .text-gradient {
-    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.4) 100%);
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .glass-panel {
-    background: rgba(7, 10, 15, 0.56);
+    background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .cyber-glass {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0)),
-      rgba(7, 11, 18, 0.68);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    border: 1px solid rgba(120, 183, 255, 0.2);
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.44), 0 0 0 1px rgba(127, 197, 255, 0.06);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
   }
 
   .mask-radial {
@@ -71,50 +74,49 @@
 /* Design Tokens */
 :root {
   /* Background Layers */
-  --background: #040507;
-  --panel: #0c1017;
-  --floating: #121923;
-  --panel-raised: #171f2c;
-  --panel-soft: #0a0f16;
+  --background: #050505;
+  --panel: #0a0a0a;
+  --floating: #111111;
+  --panel-raised: #141414;
+  --panel-soft: #080808;
 
   /* Text Colors */
-  --foreground: #eef4ff;
-  --secondary: #c5d1e6;
-  --muted: #8e9ab2;
+  --foreground: #fafafa;
+  --secondary: #a1a1aa;
+  --muted: #71717a;
 
   /* Accent */
-  --primary: #7fc5ff;
-  --primary-strong: #4ba8ff;
+  --primary: #00F0FF;
+  --primary-strong: #00dbe6;
   --success: #3ad69f;
   --warning: #ffbf5b;
   --gold: #d4af37;
   --gold-light: #f3e5ab;
   --destructive: #ff6b82;
+  --violet: #8A2BE2;
 
   /* Borders and shadows */
-  --border: #1f2a3a;
-  --border-muted: #27364b;
-  --border-strong: #35506f;
-  --shadow-soft: 0 16px 36px rgba(3, 8, 18, 0.32);
-  --shadow-float: 0 24px 48px rgba(3, 8, 18, 0.42);
-  --shadow-glow: 0 0 0 1px rgba(121, 183, 255, 0.12), 0 18px 46px rgba(52, 115, 255, 0.14);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-muted: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --shadow-soft: 0 16px 36px rgba(0, 0, 0, 0.5);
+  --shadow-float: 0 24px 48px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 0 1px rgba(0, 240, 255, 0.15), 0 18px 46px rgba(0, 240, 255, 0.15);
 }
 
 /* Tailwind v4 Theme Extension */
 @theme inline {
-  --font-heading: var(--font-heading);
-  --font-body: var(--font-body);
-  --color-background: #000000;
-  --color-foreground: #eef4ff;
-  --color-panel: #101a2b;
-  --color-floating: #152338;
-  --color-primary: #79b7ff;
-  --color-secondary: #c5d1e6;
-  --color-muted: #8e9ab2;
-  --color-gold: #d4af37;
-  --color-gold-light: #f3e5ab;
-  --color-destructive: #ff6b82;
-  --color-border: #22324b;
+  --font-heading: var(--font-geist);
+  --font-body: var(--font-geist);
+  --color-background: #050505;
+  --color-foreground: #fafafa;
+  --color-panel: #0a0a0a;
+  --color-floating: #111111;
+  --color-primary: #00F0FF;
+  --color-secondary: #a1a1aa;
+  --color-muted: #71717a;
+  --color-violet: #8A2BE2;
+  --color-border: rgba(255, 255, 255, 0.1);
 }
 
 /* ============================================
@@ -126,19 +128,14 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(1200px 700px at 100% -10%, rgba(86, 153, 255, 0.13), transparent 55%),
-    radial-gradient(900px 540px at -10% 120%, rgba(62, 111, 214, 0.11), transparent 55%),
-    radial-gradient(780px 420px at 50% 0%, rgba(40, 72, 138, 0.09), transparent 60%),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-body), "Barlow", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 400;
+  font-family: var(--font-body), "Geist", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 300;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   line-height: 1.55;
-  letter-spacing: 0.01em;
   min-height: 100vh;
 }
 
@@ -148,10 +145,10 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading), "Instrument Serif", serif;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-family: var(--font-heading), "Geist", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #fff;
   line-height: 1.05;
 }
 
