@@ -28,9 +28,9 @@ export function StepEdge({
         style={{
           ...style,
           strokeWidth: selected ? 2.2 : 1.7,
-          stroke: selected ? "var(--primary)" : "color-mix(in srgb, var(--muted) 82%, #00f0ff 18%)",
+          stroke: selected ? "#8A2BE2" : "#00F0FF",
           opacity: selected ? 0.95 : 0.62,
-          filter: selected ? "drop-shadow(0 0 6px color-mix(in srgb, var(--primary) 55%, transparent))" : "none",
+          filter: "drop-shadow(0 0 6px rgba(0, 240, 255, 0.4))",
           transition: "all 0.2s",
         }}
       />
