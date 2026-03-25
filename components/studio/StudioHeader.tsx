@@ -53,7 +53,10 @@ const handleInteractiveLeave = (event: React.MouseEvent<HTMLElement>) => {
   event.currentTarget.style.transform = "translate(0px, 0px)";
 };
 
-function getActionStyle(action: HeaderAction, variant: "desktop" | "menu"): React.CSSProperties {
+function getActionStyle(
+  action: HeaderAction,
+  variant: "desktop" | "menu",
+): React.CSSProperties {
   const isPrimary = action.id === "gen" || action.highlighted;
   return {
     ...baseActionStyle,
@@ -79,7 +82,9 @@ function HeaderTabs({
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: isCompactViewport ? "1fr" : "auto minmax(320px, 1fr)",
+        gridTemplateColumns: isCompactViewport
+          ? "1fr"
+          : "auto minmax(320px, 1fr)",
         alignItems: "center",
         gap: isCompactViewport ? 10 : 16,
         minWidth: 0,
@@ -120,8 +125,8 @@ function HeaderTabs({
         <div style={{ minWidth: 0 }}>
           <div
             style={{
-              fontFamily: "var(--font-poetic)",
-              fontWeight: 700,
+              fontFamily: "var(--font-heading)",
+              fontWeight: 400,
               fontSize: isCompactViewport ? 22 : 24,
               letterSpacing: "0.02em",
               lineHeight: 1,
@@ -158,7 +163,7 @@ function HeaderTabs({
               padding: isCompactViewport ? "8px 10px" : "9px 12px",
               cursor: "pointer",
               fontSize: 12,
-              fontWeight: 700,
+              fontWeight: 400,
               whiteSpace: "nowrap",
               background:
                 activeTab === tab
@@ -237,7 +242,9 @@ function HeaderActionButtons({ actions, variant }: HeaderActionButtonsProps) {
           className="magnetic-btn hover-trail"
           style={getActionStyle(action, variant)}
         >
-          {action.isLoading && action.id === "gen" ? "Generating…" : action.label}
+          {action.isLoading && action.id === "gen"
+            ? "Generating…"
+            : action.label}
         </button>
       ))}
     </>
@@ -340,7 +347,14 @@ function ProfileMenu({
           marginBottom: 10,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+          }}
+        >
           <strong style={{ fontSize: 13 }}>{displayName}</strong>
           <span className="studio-badge">Workspace owner</span>
         </div>
@@ -348,15 +362,33 @@ function ProfileMenu({
           {displayEmail || "Not signed in"}
         </div>
       </div>
-      <div className="studio-card" style={{ borderRadius: 14, padding: 12, marginBottom: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
-          <span style={{ fontSize: 11, color: "var(--muted)" }}>Credits this cycle</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "var(--secondary)" }}>
+      <div
+        className="studio-card"
+        style={{ borderRadius: 14, padding: 12, marginBottom: 10 }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+            marginBottom: 8,
+          }}
+        >
+          <span style={{ fontSize: 11, color: "var(--muted)" }}>
+            Credits this cycle
+          </span>
+          <span
+            style={{ fontSize: 12, fontWeight: 400, color: "var(--secondary)" }}
+          >
             {creditUsed} / {creditLimit}
           </span>
         </div>
         <div className="progress-track" aria-hidden="true">
-          <div className="progress-fill" style={{ width: `${creditUsedPercent}%` }} />
+          <div
+            className="progress-fill"
+            style={{ width: `${creditUsedPercent}%` }}
+          />
         </div>
       </div>
       <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
@@ -369,14 +401,18 @@ function ProfileMenu({
           style={{
             ...baseActionStyle,
             width: "100%",
-            border: "1px solid color-mix(in srgb, var(--border) 88%, transparent)",
+            border:
+              "1px solid color-mix(in srgb, var(--border) 88%, transparent)",
             background: "color-mix(in srgb, var(--floating) 90%, #09111a 10%)",
             color: "var(--foreground)",
           }}
         >
           {HEADER_MENU_TEXT.newProject}
         </button>
-        <div className="studio-card" style={{ borderRadius: 14, padding: 8, display: "grid", gap: 8 }}>
+        <div
+          className="studio-card"
+          style={{ borderRadius: 14, padding: 8, display: "grid", gap: 8 }}
+        >
           <HeaderActionButtons actions={headerActions} variant="menu" />
         </div>
       </div>
@@ -387,7 +423,15 @@ function ProfileMenu({
           onMouseMove={handleInteractiveMove}
           onMouseLeave={handleInteractiveLeave}
           className="magnetic-btn hover-trail"
-          style={getActionStyle({ id: "commit", label: HEADER_MENU_TEXT.buyPro, onClick: handleBuyPro, highlighted: true }, "menu")}
+          style={getActionStyle(
+            {
+              id: "commit",
+              label: HEADER_MENU_TEXT.buyPro,
+              onClick: handleBuyPro,
+              highlighted: true,
+            },
+            "menu",
+          )}
         >
           {HEADER_MENU_TEXT.buyPro}
         </button>
@@ -400,7 +444,8 @@ function ProfileMenu({
           style={{
             ...baseActionStyle,
             width: "100%",
-            border: "1px solid color-mix(in srgb, var(--border) 88%, transparent)",
+            border:
+              "1px solid color-mix(in srgb, var(--border) 88%, transparent)",
             background: "color-mix(in srgb, var(--floating) 90%, #09111a 10%)",
             color: "var(--foreground)",
           }}
@@ -428,7 +473,7 @@ function LoginMenu({ handleLogin }: LoginMenuProps) {
         zIndex: 24,
       }}
     >
-      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
+      <div style={{ fontSize: 14, fontWeight: 400, marginBottom: 6 }}>
         {HEADER_MENU_TEXT.signIn}
       </div>
       <div
@@ -446,7 +491,15 @@ function LoginMenu({ handleLogin }: LoginMenuProps) {
         onMouseMove={handleInteractiveMove}
         onMouseLeave={handleInteractiveLeave}
         className="magnetic-btn hover-trail"
-        style={getActionStyle({ id: "gen", label: HEADER_MENU_TEXT.signInWithGoogle, onClick: handleLogin, highlighted: true }, "menu")}
+        style={getActionStyle(
+          {
+            id: "gen",
+            label: HEADER_MENU_TEXT.signInWithGoogle,
+            onClick: handleLogin,
+            highlighted: true,
+          },
+          "menu",
+        )}
       >
         {HEADER_MENU_TEXT.signInWithGoogle}
       </button>
@@ -512,7 +565,10 @@ export function StudioHeader({
   handleBuyPro,
 }: StudioHeaderProps) {
   const userMetadata = (user?.user_metadata ?? {}) as Record<string, unknown>;
-  const identityData = (user?.identities?.[0]?.identity_data ?? {}) as Record<string, unknown>;
+  const identityData = (user?.identities?.[0]?.identity_data ?? {}) as Record<
+    string,
+    unknown
+  >;
   const displayName =
     (typeof userMetadata.full_name === "string" && userMetadata.full_name) ||
     (typeof userMetadata.name === "string" && userMetadata.name) ||
@@ -581,7 +637,8 @@ export function StudioHeader({
   return (
     <header
       style={{
-        borderBottom: "1px solid color-mix(in srgb, var(--border) 84%, transparent)",
+        borderBottom:
+          "1px solid color-mix(in srgb, var(--border) 84%, transparent)",
         background:
           "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), color-mix(in srgb, var(--panel) 94%, #09111a 6%)",
         padding: isCompactViewport ? "12px" : "14px 18px",
@@ -591,7 +648,9 @@ export function StudioHeader({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: isCompactViewport ? "1fr" : "minmax(0, 1fr) auto auto",
+          gridTemplateColumns: isCompactViewport
+            ? "1fr"
+            : "minmax(0, 1fr) auto auto",
           alignItems: isCompactViewport ? "stretch" : "center",
           gap: 12,
         }}
@@ -644,7 +703,15 @@ export function StudioHeader({
               aria-haspopup="dialog"
               aria-expanded={isLoginOpen}
               className="magnetic-btn hover-trail"
-              style={getActionStyle({ id: "gen", label: HEADER_MENU_TEXT.signIn, onClick: () => setIsLoginOpen((prev) => !prev), highlighted: true }, "desktop")}
+              style={getActionStyle(
+                {
+                  id: "gen",
+                  label: HEADER_MENU_TEXT.signIn,
+                  onClick: () => setIsLoginOpen((prev) => !prev),
+                  highlighted: true,
+                },
+                "desktop",
+              )}
             >
               {HEADER_MENU_TEXT.signIn}
             </button>
@@ -672,7 +739,9 @@ export function StudioHeader({
       {isCompactViewport && (
         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
           <HeaderActionButtons
-            actions={headerActions.filter((a) => a.id === "gen" || a.id === "test")}
+            actions={headerActions.filter(
+              (a) => a.id === "gen" || a.id === "test",
+            )}
             variant="menu"
           />
         </div>

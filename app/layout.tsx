@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Instrument_Serif, Barlow } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-geist",
+const instrumentSerif = Instrument_Serif({
+  weight: "400",
+  style: "italic",
+  variable: "--font-heading",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const barlow = Barlow({
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-body",
   subsets: ["latin"],
 });
 export const metadata: Metadata = {
@@ -50,9 +53,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geist.variable} ${geistMono.variable}`}
+      className={`${instrumentSerif.variable} ${barlow.variable} bg-black text-white`}
     >
-      <body suppressHydrationWarning className="antialiased min-h-screen">
+      <body suppressHydrationWarning className="antialiased min-h-screen font-body">
         {children}
       </body>
     </html>

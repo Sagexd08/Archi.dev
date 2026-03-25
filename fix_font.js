@@ -1,0 +1,1 @@
+const fs = require('fs'); let content = fs.readFileSync('components/studio/StudioHeader.tsx', 'utf8'); content = content.replace(/var\(--font-poetic\)/g, 'var(--font-heading)'); content = content.replace(/fontWeight:\s*700/g, 'fontWeight: 400'); fs.writeFileSync('components/studio/StudioHeader.tsx', content);

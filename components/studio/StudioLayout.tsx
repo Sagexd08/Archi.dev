@@ -21,27 +21,31 @@ export function StudioLayout({
 }: StudioLayoutProps) {
   return (
     <div
-      className="studio-shell"
+      className="studio-shell relative bg-black"
       style={{
         display: "flex",
         flexDirection: "column",
         height: "100vh",
         width: "100vw",
-        background: "var(--background)",
         color: "var(--foreground)",
         overflow: "hidden",
       }}
     >
-      {children}
-      <CommandPalette />
-      <CopilotChatPill />
-      <StudioFooter
-        isCompactViewport={isCompactViewport}
-        statusText={statusText}
-        creditUsedPercent={creditUsedPercent}
-        saveState={saveState}
-        commitStatus={commitStatus}
-      />
+      <div className="absolute inset-0 z-0 bg-architect-grid opacity-30 pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-noise pointer-events-none" />
+      
+      <div className="relative z-10 flex flex-col h-full w-full">
+        {children}
+        <CommandPalette />
+        <CopilotChatPill />
+        <StudioFooter
+          isCompactViewport={isCompactViewport}
+          statusText={statusText}
+          creditUsedPercent={creditUsedPercent}
+          saveState={saveState}
+          commitStatus={commitStatus}
+        />
+      </div>
     </div>
   );
 }

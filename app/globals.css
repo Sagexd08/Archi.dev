@@ -106,8 +106,8 @@
 
 /* Tailwind v4 Theme Extension */
 @theme inline {
-  --font-heading: var(--font-geist);
-  --font-body: var(--font-geist);
+  --font-heading: var(--font-heading), 'Instrument Serif', serif;
+  --font-body: var(--font-body), 'Barlow', sans-serif;
   --color-background: #050505;
   --color-foreground: #fafafa;
   --color-panel: #0a0a0a;
@@ -116,6 +116,8 @@
   --color-secondary: #a1a1aa;
   --color-muted: #71717a;
   --color-violet: #8A2BE2;
+  --color-gold: #D4AF37;
+  --color-gold-light: #F3E5AB;
   --color-border: rgba(255, 255, 255, 0.1);
 }
 
@@ -130,7 +132,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-body), "Geist", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-body), "Barlow", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -145,8 +147,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading), "Geist", sans-serif;
-  font-weight: 700;
+  font-family: var(--font-heading), "Instrument Serif", serif;
+  font-weight: 400;
   letter-spacing: -0.04em;
   color: #fff;
   line-height: 1.05;
@@ -881,7 +883,7 @@ aside {
   border-radius: 6px;
   padding: 3px 9px;
   background: rgba(255, 255, 255, 0.035);
-  font-family: var(--font-geist-mono), "Geist Mono", monospace;
+  font-family: monospace;
   font-size: 10px;
   letter-spacing: 0.01em;
   color: rgba(255, 255, 255, 0.42);
@@ -1092,7 +1094,7 @@ aside {
   -webkit-backdrop-filter: blur(8px);
   font-size: 10px;
   font-weight: 700;
-  font-family: var(--font-geist-mono), 'Geist Mono', monospace;
+  font-family: monospace;
   letter-spacing: 0.01em;
   white-space: nowrap;
   transition: all 0.2s ease;
