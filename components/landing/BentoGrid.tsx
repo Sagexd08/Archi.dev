@@ -262,7 +262,7 @@ function SpotlightCard({
   return (
     <motion.div
       ref={cardRef}
-      className={`bento-card rounded-3xl p-8 group relative overflow-hidden cursor-default ${colSpan} ${className}`}
+      className={`glass-panel rounded-3xl p-8 group relative overflow-hidden cursor-default ${colSpan} ${className}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -348,7 +348,7 @@ export default function BentoGrid() {
             Every feature you need to design, generate, and ship backend systems — in one canvas.
           </p>
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <SpotlightCard
             colSpan="md:col-span-2"
             accentColor="rgba(0,240,255,0.07)"
