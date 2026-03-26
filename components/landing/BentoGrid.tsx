@@ -18,6 +18,7 @@ const globeMarkers: GlobeMarker[] = [
   { lat: 1.3521, lng: 103.8198, src: "https://assets.aceternity.com/avatars/12.webp", label: "Singapore" },
   { lat: 37.5665, lng: 126.978, src: "https://assets.aceternity.com/avatars/13.webp", label: "Seoul" },
 ];
+
 const terminalLines = [
   { text: "$ archi deploy --env production", color: "rgba(255,255,255,0.28)" },
   { text: "✓ Building Docker image…", color: "#00F0FF" },
@@ -28,6 +29,7 @@ const terminalLines = [
   { text: "✓ Live  https://api.yourdomain.com", color: "#28C840" },
   { text: "  Deploy complete in 58s", color: "rgba(255,255,255,0.22)" },
 ];
+
 function Terminal() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
@@ -77,33 +79,313 @@ function Terminal() {
     </div>
   );
 }
-function DockerVisual() {
-  const lines = [
-    { text: "FROM node:20-alpine", color: "#00F0FF" },
-    { text: "WORKDIR /app", color: "rgba(255,255,255,0.48)" },
-    { text: "COPY package*.json ./", color: "rgba(255,255,255,0.48)" },
-    { text: "RUN npm ci --omit=dev", color: "rgba(255,255,255,0.48)" },
-    { text: "COPY . .", color: "rgba(255,255,255,0.48)" },
-    { text: "EXPOSE 3000", color: "rgba(255,255,255,0.48)" },
-    { text: 'CMD ["node", "index.js"]', color: "#28C840" },
-  ];
+
+/* ── AI Agent Workflows — pure SVG animated node graph ─────────────────── */
+function AIAgentVisual() {
   return (
-    <div className="mt-5 rounded-lg border border-white/[0.08] bg-[#070707] p-4 font-mono text-[11px] space-y-1.5 leading-relaxed overflow-hidden">
-      {lines.map((l, i) => (
-        <motion.div
-          key={l.text}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: i * 0.06, duration: 0.3 }}
-          viewport={{ once: true }}
-          style={{ color: l.color }}
-        >
-          {l.text}
-        </motion.div>
-      ))}
+    <div className="mt-5 relative">
+      {/* Purple ambient glow behind the graph */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(138,43,226,0.14) 0%, transparent 70%)",
+        }}
+      />
+      <svg
+        viewBox="0 0 240 148"
+        className="w-full relative z-10"
+        style={{ overflow: "visible" }}
+      >
+        <defs>
+          {/* Subtle grid pattern */}
+          <pattern
+            id="ai-mini-grid"
+            x="0"
+            y="0"
+            width="16"
+            height="16"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M 16 0 L 0 0 0 16"
+              fill="none"
+              stroke="rgba(255,255,255,0.04)"
+              strokeWidth="0.5"
+            />
+          </pattern>
+          {/* Arrow marker */}
+          <marker
+            id="arrow-violet"
+            viewBox="0 0 6 6"
+            refX="5"
+            refY="3"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto"
+          >
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgba(138,43,226,0.7)" />
+          </marker>
+          <marker
+            id="arrow-cyan"
+            viewBox="0 0 6 6"
+            refX="5"
+            refY="3"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto"
+          >
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgba(0,240,255,0.6)" />
+          </marker>
+          <marker
+            id="arrow-green"
+            viewBox="0 0 6 6"
+            refX="5"
+            refY="3"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto"
+          >
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgba(40,200,64,0.6)" />
+          </marker>
+        </defs>
+
+        {/* Background grid */}
+        <rect width="240" height="148" fill="url(#ai-mini-grid)" rx="10" />
+
+        {/* ── Connection: LLM Router → Vector DB ── */}
+        <motion.path
+          d="M 107 44 C 140 44, 140 80, 158 80"
+          fill="none"
+          stroke="rgba(138,43,226,0.55)"
+          strokeWidth="1.5"
+          strokeDasharray="5 4"
+          markerEnd="url(#arrow-violet)"
+          animate={{ strokeDashoffset: [0, -18] }}
+          transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
+        />
+        {/* ── Connection: LLM Router → Generate ── */}
+        <motion.path
+          d="M 107 48 C 138 48, 148 116, 158 116"
+          fill="none"
+          stroke="rgba(0,240,255,0.4)"
+          strokeWidth="1.5"
+          strokeDasharray="4 5"
+          markerEnd="url(#arrow-cyan)"
+          animate={{ strokeDashoffset: [0, -18] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "linear", delay: 0.5 }}
+        />
+        {/* ── Connection: Vector DB → Retrieve ── */}
+        <motion.path
+          d="M 200 80 C 215 80, 220 96, 220 100"
+          fill="none"
+          stroke="rgba(40,200,64,0.4)"
+          strokeWidth="1.2"
+          strokeDasharray="3 4"
+          animate={{ strokeDashoffset: [0, -14] }}
+          transition={{ duration: 1.0, repeat: Infinity, ease: "linear", delay: 0.2 }}
+        />
+
+        {/* ── LLM Router node ── */}
+        <g>
+          <rect
+            x="7"
+            y="24"
+            width="100"
+            height="40"
+            rx="8"
+            fill="rgba(138,43,226,0.13)"
+            stroke="rgba(138,43,226,0.5)"
+            strokeWidth="1"
+          />
+          {/* icon dot */}
+          <circle cx="21" cy="44" r="4.5" fill="rgba(138,43,226,0.25)" stroke="#8A2BE2" strokeWidth="1" />
+          <motion.circle
+            cx="21"
+            cy="44"
+            r="2"
+            fill="#8A2BE2"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.8, repeat: Infinity }}
+          />
+          <text x="31" y="40" fill="rgba(255,255,255,0.88)" fontSize="8.5" fontWeight="600" fontFamily="monospace">LLM Router</text>
+          <text x="31" y="52" fill="rgba(138,43,226,0.8)" fontSize="7" fontFamily="monospace">gpt-4o · active</text>
+        </g>
+
+        {/* ── Vector DB node ── */}
+        <g>
+          <rect
+            x="158"
+            y="60"
+            width="76"
+            height="40"
+            rx="8"
+            fill="rgba(0,240,255,0.08)"
+            stroke="rgba(0,240,255,0.38)"
+            strokeWidth="1"
+          />
+          <circle cx="170" cy="80" r="4.5" fill="rgba(0,240,255,0.15)" stroke="#00F0FF" strokeWidth="1" />
+          <motion.circle
+            cx="170"
+            cy="80"
+            r="2"
+            fill="#00F0FF"
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 2.2, repeat: Infinity, delay: 0.6 }}
+          />
+          <text x="180" y="76" fill="rgba(255,255,255,0.88)" fontSize="8.5" fontWeight="600" fontFamily="monospace">Vector DB</text>
+          <text x="180" y="88" fill="rgba(0,240,255,0.7)" fontSize="7" fontFamily="monospace">pgvector</text>
+        </g>
+
+        {/* ── Generate node ── */}
+        <g>
+          <rect
+            x="158"
+            y="96"
+            width="76"
+            height="40"
+            rx="8"
+            fill="rgba(40,200,64,0.08)"
+            stroke="rgba(40,200,64,0.32)"
+            strokeWidth="1"
+          />
+          <circle cx="170" cy="116" r="4.5" fill="rgba(40,200,64,0.15)" stroke="#28C840" strokeWidth="1" />
+          <motion.circle
+            cx="170"
+            cy="116"
+            r="2"
+            fill="#28C840"
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.9, repeat: Infinity, delay: 1.1 }}
+          />
+          <text x="180" y="112" fill="rgba(255,255,255,0.88)" fontSize="8.5" fontWeight="600" fontFamily="monospace">Generate</text>
+          <text x="180" y="124" fill="rgba(40,200,64,0.7)" fontSize="7" fontFamily="monospace">streaming</text>
+        </g>
+
+        {/* ── Animated particle: LLM Router → Vector DB ── */}
+        <motion.circle
+          r="2.5"
+          fill="#8A2BE2"
+          style={{ filter: "drop-shadow(0 0 3px #8A2BE2)" }}
+          animate={{ cx: [107, 140, 158], cy: [44, 44, 80] }}
+          transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
+        />
+        {/* ── Animated particle: LLM Router → Generate ── */}
+        <motion.circle
+          r="2.5"
+          fill="#00F0FF"
+          style={{ filter: "drop-shadow(0 0 3px #00F0FF)" }}
+          animate={{ cx: [107, 138, 158], cy: [48, 80, 116] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "linear", delay: 0.5 }}
+        />
+
+        {/* ── Live indicator badge ── */}
+        <g>
+          <rect x="7" y="108" width="68" height="22" rx="11" fill="rgba(0,0,0,0.5)" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+          <motion.circle
+            cx="19"
+            cy="119"
+            r="3"
+            fill="#28C840"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+          <text x="27" y="123" fill="rgba(255,255,255,0.5)" fontSize="7.5" fontFamily="monospace" textAnchor="start">
+            Live routing
+          </text>
+        </g>
+      </svg>
     </div>
   );
 }
+
+/* ── Docker visual: logo SVG + JSON config snippet ──────────────────────── */
+function DockerVisual() {
+  const jsonLines = [
+    { text: '{', color: "rgba(255,255,255,0.55)" },
+    { text: '  "image": "node:20-alpine",', color: "rgba(255,255,255,0.45)" },
+    { text: '  "ports": ["3000:3000"],', color: "#00F0FF" },
+    { text: '  "env": "production",', color: "rgba(255,255,255,0.45)" },
+    { text: '  "replicas": 3,', color: "#8A2BE2" },
+    { text: '  "healthCheck": "/health"', color: "#28C840" },
+    { text: '}', color: "rgba(255,255,255,0.55)" },
+  ];
+
+  return (
+    <div className="mt-5 relative">
+      {/* Docker whale SVG icon — glowing */}
+      <div className="flex items-center gap-3 mb-3">
+        <motion.div
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 2.5, repeat: Infinity }}
+          style={{ filter: "drop-shadow(0 0 8px rgba(0,159,227,0.6))" }}
+        >
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 100 100"
+            fill="none"
+            aria-label="Docker"
+          >
+            {/* Container boxes */}
+            <rect x="8"  y="38" width="14" height="12" rx="2" fill="#009FE3" opacity="0.9"/>
+            <rect x="25" y="38" width="14" height="12" rx="2" fill="#009FE3" opacity="0.9"/>
+            <rect x="42" y="38" width="14" height="12" rx="2" fill="#009FE3" opacity="0.9"/>
+            <rect x="25" y="23" width="14" height="12" rx="2" fill="#009FE3" opacity="0.9"/>
+            <rect x="42" y="23" width="14" height="12" rx="2" fill="#009FE3" opacity="0.9"/>
+            <rect x="59" y="38" width="14" height="12" rx="2" fill="#009FE3" opacity="0.9"/>
+            {/* Whale body */}
+            <path
+              d="M 6 54 C 14 70, 36 74, 55 68 C 68 64, 80 58, 92 62 C 88 72, 70 82, 45 82 C 24 82, 8 72, 6 54 Z"
+              fill="#009FE3"
+              opacity="0.95"
+            />
+            {/* Whale eye */}
+            <circle cx="62" cy="64" r="2.5" fill="white" />
+            {/* Water spout */}
+            <path
+              d="M 80 54 C 84 44, 90 42, 94 36"
+              stroke="#009FE3"
+              strokeWidth="3"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.7"
+            />
+            <path
+              d="M 84 50 C 88 40, 96 40, 98 32"
+              stroke="#009FE3"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.45"
+            />
+          </svg>
+        </motion.div>
+        <div>
+          <div className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">Docker</div>
+          <div className="text-[9px] text-white/30 font-mono">archi.dev/app:latest</div>
+        </div>
+      </div>
+
+      {/* JSON config snippet */}
+      <div className="rounded-lg border border-white/[0.07] bg-[#070707] p-3.5 font-mono text-[11px] space-y-1 leading-relaxed overflow-hidden">
+        {jsonLines.map((l, i) => (
+          <motion.div
+            key={l.text}
+            initial={{ opacity: 0, x: -4 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.07, duration: 0.3 }}
+            viewport={{ once: true }}
+            style={{ color: l.color }}
+          >
+            {l.text}
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SwaggerMock() {
   const endpoints = [
     { method: "GET", path: "/api/v1/users", color: "#61affe" },
@@ -143,6 +425,7 @@ function SwaggerMock() {
     </div>
   );
 }
+
 function RegionStatusPanel() {
   const regions = [
     { name: "iad1", label: "Virginia", latency: 23, color: "#00F0FF" },
@@ -240,6 +523,7 @@ function RegionStatusPanel() {
     </div>
   );
 }
+
 function SpotlightCard({
   children,
   colSpan = "",
@@ -301,6 +585,7 @@ function SpotlightCard({
     </motion.div>
   );
 }
+
 export default function BentoGrid() {
   return (
     <section id="product" className="py-32 px-6 md:px-16 xl:px-24 relative z-20">
@@ -348,7 +633,11 @@ export default function BentoGrid() {
             Every feature you need to design, generate, and ship backend systems — in one canvas.
           </p>
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        {/* ── Bento grid: 4 cards matching spec layout ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          {/* Card 1 (Span 2 Cols) — One-Click Deployments */}
           <SpotlightCard
             colSpan="md:col-span-2"
             accentColor="rgba(0,240,255,0.07)"
@@ -361,81 +650,47 @@ export default function BentoGrid() {
               True One-Click Deployments.
             </h3>
             <p className="text-sm text-white/40 mt-2 leading-relaxed">
-              From canvas to production in under 60 seconds. No YAML, no config
-              hell — just ship.
+              Generate your architecture, create a GitHub repo, and deploy to Vercel or Railway — all from the canvas.
             </p>
             <Terminal />
           </SpotlightCard>
+
+          {/* Card 2 (Span 1 Col) — AI Agent Workflows — pure CSS/SVG, no video */}
           <SpotlightCard accentColor="rgba(138,43,226,0.09)">
-            <video
-              src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screens-41716-large.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-[0.18] mix-blend-luminosity pointer-events-none"
-            />
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-1 h-3.5 rounded-full bg-[#8A2BE2] opacity-80" />
-                <span className="text-[10px] font-bold text-[#8A2BE2] uppercase tracking-[0.22em]">AI</span>
-              </div>
-              <h3 className="text-xl font-semibold text-white tracking-tight">
-                AI Agent Workflows.
-              </h3>
-              <p className="text-sm text-white/40 mt-2 leading-relaxed">
-                Let AI scaffold your entire architecture from a single natural
-                language prompt.
-              </p>
-              <div className="mt-6 space-y-3">
-                {["Understand intent", "Plan architecture", "Generate code", "Deploy"].map(
-                  (step, i) => (
-                    <motion.div
-                      key={step}
-                      className="flex items-center gap-3"
-                      initial={{ opacity: 0, x: -8 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: 0.3 + i * 0.07,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                      viewport={{ once: true }}
-                    >
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0"
-                        style={{
-                          border: "1px solid rgba(138,43,226,0.5)",
-                          color: "#8A2BE2",
-                        }}
-                      >
-                        {i + 1}
-                      </div>
-                      <span className="text-xs text-white/50">{step}</span>
-                    </motion.div>
-                  )
-                )}
-              </div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-1 h-3.5 rounded-full bg-[#8A2BE2] opacity-80" />
+              <span className="text-[10px] font-bold text-[#8A2BE2] uppercase tracking-[0.22em]">AI</span>
             </div>
+            <h3 className="text-xl font-semibold text-white tracking-tight">
+              AI Agent Workflows.
+            </h3>
+            <p className="text-sm text-white/40 mt-2 leading-relaxed">
+              Visual node graph for LLM routing, vector retrieval, and streaming generation — zero glue code.
+            </p>
+            <AIAgentVisual />
           </SpotlightCard>
-          <SpotlightCard accentColor="rgba(255,255,255,0.04)">
+
+          {/* Card 3 (Span 1 Col) — No Lock-in Guarantee */}
+          <SpotlightCard accentColor="rgba(0,159,227,0.07)">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-1 h-3.5 rounded-full bg-white/25" />
               <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.22em]">Export</span>
             </div>
             <h3 className="text-xl font-semibold text-white tracking-tight">
-              No Lock-in.
+              No Lock-in Guarantee.
             </h3>
             <p className="text-sm text-white/40 mt-2 leading-relaxed">
-              Export clean Dockerfiles and JSON configs. Your architecture, your
-              infrastructure, forever.
+              Export clean Dockerfiles and portable configs. Your architecture, your infrastructure, forever.
             </p>
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {["Dockerfile", "docker-compose.yml", "openapi.json", "schema.prisma", "deploy.zip"].map((fmt) => (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {["Dockerfile", "docker-compose.yml", "openapi.json", "schema.prisma"].map((fmt) => (
                 <span key={fmt} className="format-badge">{fmt}</span>
               ))}
             </div>
             <DockerVisual />
           </SpotlightCard>
+
+          {/* Card 4 (Span 2 Cols) — Auto-Generated OpenAPI */}
           <SpotlightCard
             colSpan="md:col-span-2"
             accentColor="rgba(0,240,255,0.06)"
@@ -448,12 +703,12 @@ export default function BentoGrid() {
               Auto-Generated OpenAPI.
             </h3>
             <p className="text-sm text-white/40 mt-2 leading-relaxed">
-              Every node generates a fully-typed, Swagger-ready API spec. Zero
-              effort, full coverage.
+              Your backend documentation writes itself as you draw the architecture. Every node generates a fully-typed, Swagger-ready API spec.
             </p>
             <SwaggerMock />
           </SpotlightCard>
 
+          {/* Card 5 (Span 3 Cols) — Deploy Anywhere / Global */}
           <SpotlightCard
             colSpan="md:col-span-3"
             accentColor="rgba(0,240,255,0.05)"
