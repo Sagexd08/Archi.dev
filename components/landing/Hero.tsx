@@ -145,181 +145,125 @@ export default function Hero() {
         style={{ y }}
         className="relative z-10 px-6 md:px-16 xl:px-24 max-w-7xl mx-auto w-full pt-34 pb-44 md:pb-40"
       >
-        <div className="max-w-3xl">
+        {/* Centered content block */}
+        <div className="mx-auto max-w-4xl text-center">
 
-          {/* ── Left column: content ── */}
-          <div>
-            {/* Pre-heading pill */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-              className="mb-6"
-            >
-              <span className="hero-pill">
-                <span className="hero-pill-dot" />
-                Visual Compiler for Backend Infrastructure
-              </span>
-            </motion.div>
+          {/* Pre-heading pill */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-8 flex justify-center"
+          >
+            <span className="hero-pill" style={{ fontFamily: "var(--font-inter), monospace" }}>
+              <span className="hero-pill-dot" />
+              The platform for backend architects
+            </span>
+          </motion.div>
 
-            {/* Headline */}
-            <motion.h1
-              initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
-              animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-2xl font-medium tracking-tight leading-[0.92] mb-6"
-              style={{ fontSize: "clamp(2.8rem, 6vw, 5.2rem)", color: "#fff" }}
-            >
+          {/* Headline — word-by-word blur reveal */}
+          <motion.h1
+            className="font-medium tracking-tighter leading-[0.9] mb-7"
+            style={{ fontSize: "clamp(3.2rem, 8vw, 6.5rem)" }}
+          >
+            {["The", "canvas", "to", "ship."].map((word, i) => (
               <motion.span
-                initial={{ y: 20, opacity: 0, filter: "blur(6px)" }}
+                key={word + i}
+                className="inline-block mr-[0.22em] last:mr-0 text-gradient"
+                initial={{ y: 28, opacity: 0, filter: "blur(8px)" }}
                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                transition={{ duration: 0.75, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-                className="block"
-              >
-                Design the
-              </motion.span>
-              <motion.span
-                initial={{ y: 20, opacity: 0, filter: "blur(6px)" }}
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                transition={{ duration: 0.75, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="block"
-              >
-                backend.
-              </motion.span>
-              <motion.span
-                initial={{ y: 20, opacity: 0, filter: "blur(6px)" }}
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                transition={{ duration: 0.75, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                className="block"
-              >
-                Ship with{" "}
-                <span
-                  style={{
-                    background: "linear-gradient(135deg, #00F0FF 0%, #79b7ff 55%, #a78bfa 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  confidence.
-                </span>
-              </motion.span>
-            </motion.h1>
-
-            {/* Description */}
-            <motion.p
-              initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
-              animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-              className="max-w-xl text-base md:text-lg text-white/52 mb-10 leading-relaxed"
-            >
-              Model APIs, workflows, data, and infrastructure in one visual studio.
-              Generate portable architecture artifacts and production-ready scaffolding
-              without losing the system design behind your code.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
-              animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-              className="flex flex-wrap items-center gap-4"
-            >
-              <motion.button
-                type="button"
-                onClick={() => router.push("/login")}
-                className="shimmer-btn magnetic-btn hover-trail bg-white text-black px-8 py-4 rounded-full text-base font-semibold cursor-pointer"
-                style={{ x: primarySpringX, y: primarySpringY }}
-                onMouseMove={(event) => applyTrail(event, primaryX, primaryY)}
-                onMouseLeave={() => resetMagnetic(primaryX, primaryY)}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: "0 0 36px rgba(255,255,255,0.38)",
+                transition={{
+                  duration: 0.65,
+                  delay: 0.1 + i * 0.09,
+                  ease: [0.16, 1, 0.3, 1],
                 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               >
-                Start building free
-              </motion.button>
-              <motion.button
-                type="button"
-                onClick={() => router.push("/login")}
-                className="glass-panel magnetic-btn hover-trail flex items-center gap-3 px-8 py-4 rounded-full text-white/80 hover:text-white text-base font-medium cursor-pointer border border-white/[0.1] hover:border-white/[0.18] transition-colors"
-                style={{ x: secondarySpringX, y: secondarySpringY }}
-                onMouseMove={(event) => applyTrail(event, secondaryX, secondaryY)}
-                onMouseLeave={() => resetMagnetic(secondaryX, secondaryY)}
-                whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(255,255,255,0.05)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <span className="w-6 h-6 rounded-full bg-white/[0.08] flex items-center justify-center shrink-0">
-                  <Play size={10} className="text-white/80 ml-0.5" fill="rgba(255,255,255,0.8)" />
-                </span>
-                Watch demo
-              </motion.button>
-            </motion.div>
+                {word}
+              </motion.span>
+            ))}
+          </motion.h1>
 
-            {/* Feature badges */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.52, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-wrap items-center gap-2 mt-6"
-            >
-              {[
-                "AI architecture guidance",
-                "One-click runtime scaffolding",
-                "Production-ready exports",
-              ].map((chip, index) => (
-                <motion.span
-                  key={chip}
-                  className="feature-badge-v2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.58 + index * 0.08, duration: 0.45 }}
-                  whileHover={{ y: -1 }}
-                >
-                  {chip}
-                </motion.span>
-              ))}
-            </motion.div>
+          {/* Description */}
+          <motion.p
+            initial={{ y: 30, opacity: 0, filter: "blur(8px)" }}
+            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.38 }}
+            className="mx-auto max-w-[600px] text-lg text-white/55 mb-10 leading-relaxed"
+          >
+            Your AI-native toolkit to stop writing boilerplate. Design visually.
+            Deploy instantly. Scale infinitely.
+          </motion.p>
 
-            {/* Social proof */}
-            <motion.div
-              initial={{ y: 24, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
-              className="flex flex-wrap items-center gap-5 mt-5"
+          {/* CTAs — centered row */}
+          <motion.div
+            initial={{ y: 30, opacity: 0, filter: "blur(8px)" }}
+            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.48 }}
+            className="flex flex-wrap items-center justify-center gap-4"
+          >
+            <motion.button
+              type="button"
+              onClick={() => router.push("/login")}
+              className="shimmer-btn magnetic-btn hover-trail bg-white text-black px-8 py-4 rounded-full text-base font-semibold cursor-pointer"
+              style={{ x: primarySpringX, y: primarySpringY }}
+              onMouseMove={(event) => applyTrail(event, primaryX, primaryY)}
+              onMouseLeave={() => resetMagnetic(primaryX, primaryY)}
+              whileHover={{ scale: 1.05, boxShadow: "0 0 36px rgba(255,255,255,0.38)" }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="flex items-center gap-3">
-                <div className="flex -space-x-2.5">
-                  {[
-                    "from-cyan-400 to-blue-500",
-                    "from-violet-400 to-purple-600",
-                    "from-emerald-400 to-teal-600",
-                    "from-amber-400 to-orange-500",
-                    "from-rose-400 to-pink-600",
-                  ].map((gradient, i) => (
-                    <div
-                      key={i}
-                      className={`w-7 h-7 rounded-full border-[2px] border-black bg-gradient-to-br ${gradient} shrink-0`}
-                      style={{ zIndex: 5 - i }}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-white/40">
-                  <span className="text-white/72 font-semibold">3,200+</span>{" "}
-                  engineers this month
-                </span>
+              Start free trial →
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={() => router.push("/login")}
+              className="cyber-glass magnetic-btn hover-trail flex items-center gap-3 px-8 py-4 rounded-full text-white/80 hover:text-white text-base font-medium cursor-pointer border border-white/[0.1] hover:border-white/[0.2] transition-colors"
+              style={{ x: secondarySpringX, y: secondarySpringY }}
+              onMouseMove={(event) => applyTrail(event, secondaryX, secondaryY)}
+              onMouseLeave={() => resetMagnetic(secondaryX, secondaryY)}
+              whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(255,255,255,0.05)" }}
+              transition={{ duration: 0.2 }}
+            >
+              <span className="w-7 h-7 rounded-full bg-white/[0.08] border border-white/[0.1] flex items-center justify-center shrink-0">
+                <Play size={11} className="text-white/80 ml-0.5" fill="rgba(255,255,255,0.8)" />
+              </span>
+              Watch demo
+            </motion.button>
+          </motion.div>
+
+          {/* Social proof — centered */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.62 }}
+            className="flex flex-wrap items-center justify-center gap-5 mt-8"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2.5">
+                {[
+                  "from-cyan-400 to-blue-500",
+                  "from-violet-400 to-purple-600",
+                  "from-emerald-400 to-teal-600",
+                  "from-amber-400 to-orange-500",
+                  "from-rose-400 to-pink-600",
+                ].map((gradient, i) => (
+                  <div
+                    key={i}
+                    className={`w-7 h-7 rounded-full border-[2px] border-black bg-gradient-to-br ${gradient} shrink-0`}
+                    style={{ zIndex: 5 - i }}
+                  />
+                ))}
               </div>
-              <div className="hidden md:block h-4 w-px bg-white/[0.12]" />
-              <div className="flex items-center gap-1.5 text-sm text-white/35">
-                <span className="tracking-tight" style={{ color: "#FFD700" }}>
-                  ★★★★★
-                </span>
-                <span className="text-white/60 font-semibold">4.9</span>
-                <span>/ 5 rating</span>
-              </div>
-            </motion.div>
-          </div>
+              <span className="text-sm text-white/40">
+                <span className="text-white/72 font-semibold">3,200+</span> engineers this month
+              </span>
+            </div>
+            <div className="hidden sm:block h-4 w-px bg-white/[0.12]" />
+            <div className="flex items-center gap-1.5 text-sm text-white/35">
+              <span className="tracking-tight" style={{ color: "#FFD700" }}>★★★★★</span>
+              <span className="text-white/60 font-semibold">4.9</span>
+              <span>/ 5 rating</span>
+            </div>
+          </motion.div>
         </div>
       </motion.div>
 
