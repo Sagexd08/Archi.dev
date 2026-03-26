@@ -359,7 +359,7 @@ export function WorkspaceCanvas({
     };
   }, []);
   return (
-    <div style={{ display: "flex", flex: 1, minHeight: 0, height: "100%", overflow: "hidden", position: "relative" }}>
+    <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", position: "relative" }}>
       {isNarrowViewport && (!isLeftSidebarCollapsed || !isInspectorCollapsed) && (
         <button
           type="button"
@@ -517,34 +517,44 @@ export function WorkspaceCanvas({
             ‹
           </button>
           <aside
-            className="sidebar-scroll sidebar-panel"
-            onWheel={(e) => {
-              const target = e.currentTarget;
-              const isScrollable = target.scrollHeight > target.clientHeight;
-              if (isScrollable) {
-                e.stopPropagation();
-              }
-            }}
+            className="sidebar-panel"
             style={{
               width: leftSidebarWidth,
               maxWidth: isNarrowViewport ? "calc(100vw - 32px)" : undefined,
               flexShrink: 0,
-              height: "100%",
-              maxHeight: "100%",
               minHeight: 0,
+              overflow: "hidden",
               borderRight: "1px solid color-mix(in srgb, var(--border) 84%, transparent)",
               background:
                 "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), color-mix(in srgb, var(--panel) 95%, #08111d 5%)",
-              paddingTop: isNarrowViewport ? 48 : 10,
-              paddingRight: 8,
-              paddingBottom: 12,
-              paddingLeft: 10,
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-              scrollbarGutter: "stable",
             }}
           >
+            <div
+              className="sidebar-scroll"
+              onWheel={(e) => {
+                const target = e.currentTarget;
+                const isScrollable = target.scrollHeight > target.clientHeight;
+                if (isScrollable) {
+                  e.stopPropagation();
+                }
+              }}
+              style={{
+                paddingTop: isNarrowViewport ? 48 : 10,
+                paddingRight: 8,
+                paddingBottom: 12,
+                paddingLeft: 10,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                minHeight: 0,
+                flex: 1,
+                overflowY: "auto",
+                overflowX: "hidden",
+                overscrollBehaviorY: "contain",
+                WebkitOverflowScrolling: "touch",
+                scrollbarGutter: "stable",
+              }}
+            >
             <div className="studio-card" style={{ borderRadius: 14, padding: "10px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
               <span style={{ fontSize: 11, fontWeight: 700, color: "var(--foreground)", letterSpacing: "0.02em" }}>{workspaceCopy.eyebrow}</span>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -874,6 +884,7 @@ export function WorkspaceCanvas({
                 </div>
               ))
             )}
+            </div>
           </aside>
         </div>
       )}
