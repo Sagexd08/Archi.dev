@@ -108,6 +108,8 @@
 @theme inline {
   --font-heading: var(--font-heading), 'Instrument Serif', serif;
   --font-body: var(--font-body), 'Barlow', sans-serif;
+  --font-inter: var(--font-inter), 'Inter', sans-serif;
+  --font-space: var(--font-space), 'Space Grotesk', sans-serif;
   --color-background: #050505;
   --color-foreground: #fafafa;
   --color-panel: #0a0a0a;
@@ -1384,6 +1386,126 @@ aside {
   color: var(--foreground);
   border-color: color-mix(in srgb, var(--border) 100%, transparent);
   background: color-mix(in srgb, var(--floating) 60%, transparent);
+}
+
+/* ============================================
+   Liquid Glass + Feature Cards — v5
+   ============================================ */
+
+/* Liquid glass — cards, modals, nav surfaces */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 50%,
+    rgba(0, 240, 255, 0.04) 100%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Purple glow variant */
+.liquid-glass-purple {
+  background: rgba(138, 43, 226, 0.08);
+  border: 1px solid rgba(138, 43, 226, 0.25);
+  box-shadow:
+    0 0 40px rgba(138, 43, 226, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Dark feature card (used on white-background sections) */
+.feature-card {
+  background: linear-gradient(135deg, #111118 0%, #0d0d18 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+.feature-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, rgba(0, 240, 255, 0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Scroll fade-up reveal */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  animation: fadeUp 0.6s ease forwards;
+  animation-play-state: paused;
+}
+
+.reveal.visible {
+  animation-play-state: running;
+}
+
+/* Hero pre-heading pill badge */
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  background: rgba(0, 240, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 240, 255, 0.85);
+  letter-spacing: 0.02em;
+  cursor: default;
+  user-select: none;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.hero-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00F0FF;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+/* Page entry blur transition */
+@keyframes page-enter {
+  from { opacity: 0; filter: blur(10px); }
+  to   { opacity: 1; filter: blur(0px); }
+}
+
+.page-enter {
+  animation: page-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Mini SVG node graph edges — animated flow */
+.node-edge-flow {
+  stroke-dasharray: 4 3;
+  animation: edge-flow 1.8s linear infinite;
 }
 
 /* Navbar account avatar button */

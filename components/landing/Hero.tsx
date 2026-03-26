@@ -108,7 +108,13 @@ export default function Hero() {
           enableMouseInteraction={false}
         />
       </div>
-      <div className="bg-architect-grid absolute inset-0 pointer-events-none opacity-40" />
+      <div
+        className="bg-architect-grid absolute inset-0 pointer-events-none opacity-40"
+        style={{
+          maskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
+        }}
+      />
       <div className="bg-noise absolute inset-0" />
 
       {/* Ambient glow orbs */}
@@ -143,26 +149,47 @@ export default function Hero() {
 
           {/* ── Left column: content ── */}
           <div>
+            {/* Pre-heading pill */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+              className="mb-6"
+            >
+              <span className="hero-pill">
+                <span className="hero-pill-dot" />
+                Visual Compiler for Backend Infrastructure
+              </span>
+            </motion.div>
+
             {/* Headline */}
             <motion.h1
               initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
               animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-2xl font-medium tracking-tight leading-[0.94] mb-6"
+              className="max-w-2xl font-medium tracking-tight leading-[0.92] mb-6"
               style={{ fontSize: "clamp(2.8rem, 6vw, 5.2rem)", color: "#fff" }}
             >
               <motion.span
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.1 }}
+                initial={{ y: 20, opacity: 0, filter: "blur(6px)" }}
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                transition={{ duration: 0.75, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
                 className="block"
               >
-                Design the backend.
+                Design the
               </motion.span>
               <motion.span
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                initial={{ y: 20, opacity: 0, filter: "blur(6px)" }}
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                transition={{ duration: 0.75, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="block"
+              >
+                backend.
+              </motion.span>
+              <motion.span
+                initial={{ y: 20, opacity: 0, filter: "blur(6px)" }}
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                transition={{ duration: 0.75, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
                 className="block"
               >
                 Ship with{" "}

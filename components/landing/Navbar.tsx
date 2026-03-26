@@ -142,6 +142,15 @@ export default function Navbar() {
             >
               Archi.dev
             </span>
+            {/* Pulsing neon cyan status dot */}
+            <span
+              className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+              style={{
+                background: "#00F0FF",
+                boxShadow: "0 0 8px #00F0FF, 0 0 16px rgba(0,240,255,0.4)",
+                animation: "dot-pulse 2s ease-in-out infinite",
+              }}
+            />
           </button>
 
           {/* Nav links */}

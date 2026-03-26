@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Barlow } from "next/font/google";
+import { Instrument_Serif, Barlow, Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -13,6 +13,20 @@ const barlow = Barlow({
   weight: ["300", "400", "500", "600"],
   variable: "--font-body",
   subsets: ["latin"],
+});
+
+const inter = Inter({
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space",
+  subsets: ["latin"],
+  display: "swap",
 });
 export const metadata: Metadata = {
   title: "Archi.dev - Visual Backend Architecture Studio",
@@ -53,7 +67,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${instrumentSerif.variable} ${barlow.variable} bg-black text-white`}
+      className={`${instrumentSerif.variable} ${barlow.variable} ${inter.variable} ${spaceGrotesk.variable} bg-black text-white`}
     >
       <body suppressHydrationWarning className="antialiased min-h-screen font-body">
         {children}

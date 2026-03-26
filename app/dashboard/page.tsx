@@ -91,6 +91,55 @@ const analyticsWidgets = [
   },
 ];
 
+function MiniNodeGraph({ color, nodeCount = 5 }: { color: string; nodeCount?: number }) {
+  const configs: Record<number, { nodes: {cx: number; cy: number}[]; edges: [number, number][] }> = {
+    5: {
+      nodes: [{ cx: 16, cy: 28 }, { cx: 44, cy: 12 }, { cx: 72, cy: 20 }, { cx: 84, cy: 44 }, { cx: 50, cy: 44 }],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,0],[1,4]],
+    },
+    7: {
+      nodes: [{ cx: 10, cy: 32 }, { cx: 28, cy: 12 }, { cx: 54, cy: 8 }, { cx: 76, cy: 20 }, { cx: 88, cy: 44 }, { cx: 60, cy: 50 }, { cx: 30, cy: 46 }],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,0],[1,6],[3,5]],
+    },
+    9: {
+      nodes: [{ cx: 10, cy: 28 }, { cx: 26, cy: 10 }, { cx: 50, cy: 6 }, { cx: 74, cy: 10 }, { cx: 88, cy: 28 }, { cx: 80, cy: 48 }, { cx: 56, cy: 54 }, { cx: 30, cy: 48 }, { cx: 50, cy: 30 }],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[0,8],[2,8],[4,8],[6,8]],
+    },
+    14: {
+      nodes: [{ cx: 8, cy: 30 }, { cx: 22, cy: 10 }, { cx: 44, cy: 6 }, { cx: 66, cy: 10 }, { cx: 82, cy: 28 }, { cx: 80, cy: 50 }, { cx: 58, cy: 56 }, { cx: 34, cy: 54 }, { cx: 16, cy: 46 }, { cx: 36, cy: 28 }, { cx: 56, cy: 22 }, { cx: 68, cy: 36 }, { cx: 48, cy: 38 }, { cx: 28, cy: 40 }],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],[9,10],[10,11],[11,12],[12,13],[13,9],[1,9],[3,10],[5,11],[7,12]],
+    },
+    22: {
+      nodes: [{ cx: 8, cy: 30 }, { cx: 20, cy: 10 }, { cx: 40, cy: 4 }, { cx: 62, cy: 8 }, { cx: 80, cy: 22 }, { cx: 88, cy: 42 }, { cx: 76, cy: 56 }, { cx: 54, cy: 58 }, { cx: 30, cy: 56 }, { cx: 12, cy: 46 }, { cx: 28, cy: 28 }, { cx: 50, cy: 20 }, { cx: 68, cy: 30 }, { cx: 62, cy: 44 }, { cx: 38, cy: 40 }],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,0],[10,11],[11,12],[12,13],[13,14],[14,10],[1,10],[3,11],[5,12],[7,13],[9,14]],
+    },
+  };
+  const closest = [5,7,9,14,22].reduce((prev, curr) =>
+    Math.abs(curr - nodeCount) < Math.abs(prev - nodeCount) ? curr : prev
+  );
+  const { nodes, edges } = configs[closest];
+  return (
+    <svg width="100%" height="100%" viewBox="0 0 98 62" fill="none" preserveAspectRatio="xMidYMid meet">
+      {edges.map(([from, to], i) => (
+        <line
+          key={i}
+          x1={nodes[from].cx} y1={nodes[from].cy}
+          x2={nodes[to].cx} y2={nodes[to].cy}
+          stroke={color}
+          strokeWidth="0.75"
+          strokeOpacity="0.25"
+        />
+      ))}
+      {nodes.map((n, i) => (
+        <circle key={i} cx={n.cx} cy={n.cy} r={i === 0 ? 3.5 : 2.2}
+          fill={color} fillOpacity={i === 0 ? 0.9 : 0.5}
+          style={i === 0 ? { filter: `drop-shadow(0 0 4px ${color})` } : undefined}
+        />
+      ))}
+    </svg>
+  );
+}
+
 function AnimatedCounter({
   value,
   suffix,
@@ -294,6 +343,22 @@ export default function DashboardPage() {
                   whileHover={{ y: -2, transition: { duration: 0.2 } }}
                   onClick={() => router.push("/studio")}
                 >
+                  {/* Mini node graph preview */}
+                  <div
+                    className="w-full h-16 rounded-xl mb-4 overflow-hidden relative"
+                    style={{ background: `${project.tabColor}08`, border: `1px solid ${project.tabColor}18` }}
+                  >
+                    <div className="absolute inset-0 opacity-60">
+                      <MiniNodeGraph color={project.tabColor} nodeCount={project.nodes} />
+                    </div>
+                    <div
+                      className="absolute inset-0 rounded-xl"
+                      style={{
+                        background: `radial-gradient(ellipse 60% 80% at 50% 50%, ${project.tabColor}10 0%, transparent 70%)`,
+                      }}
+                    />
+                  </div>
+
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div
