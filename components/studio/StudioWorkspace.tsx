@@ -13,7 +13,7 @@ type StudioWorkspaceProps = {
 };
 export function StudioWorkspace({ activeTab, resetLayoutSignal }: StudioWorkspaceProps) {
   return (
-    <div style={{ display: "flex", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden" }}>
       {activeTab === "agent" ? (
         <AgentWorkspace />
       ) : (
