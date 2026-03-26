@@ -22,13 +22,13 @@ export function StudioFooter({
   const creditTone = creditUsedPercent >= 85 ? "warning" : "success";
   return (
     <footer
+      className="studio-footer-glow"
       style={{
         flexShrink: 0,
-        borderTop: "1px solid color-mix(in srgb, var(--border) 84%, transparent)",
         background:
-          "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), color-mix(in srgb, var(--panel) 94%, #09111a 6%)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
+          "linear-gradient(180deg, rgba(255,255,255,0.018) 0%, rgba(255,255,255,0) 100%), color-mix(in srgb, var(--panel) 93%, #06101e 7%)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         padding: isCompactViewport ? "10px 12px" : "10px 18px",
       }}
     >
@@ -48,7 +48,14 @@ export function StudioFooter({
             minWidth: 0,
           }}
         >
-          <span className="status-pill">
+          <span
+            className="status-pill"
+            style={{
+              borderColor: "rgba(58, 214, 159, 0.3)",
+              background: "rgba(58, 214, 159, 0.06)",
+              color: "var(--success)",
+            }}
+          >
             <span className="status-dot success" />
             Studio live
           </span>
