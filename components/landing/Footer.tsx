@@ -1,167 +1,227 @@
 "use client";
 import { motion } from "framer-motion";
-import { Github, Twitter, Linkedin, Mail, ArrowUp, type LucideIcon } from "lucide-react";
+import { Github, Twitter, MessageCircle } from "lucide-react";
 
-const footerLinks = {
-  product: [
-    { name: "Features", href: "#features" },
-    { name: "Pricing", href: "/pricing" },
-    { name: "API", href: "#api" },
-    { name: "Studio", href: "/studio" },
-    { name: "Documentation", href: "/docs" },
-  ],
-  company: [
-    { name: "Blog", href: "/blog" },
-    { name: "Changelog", href: "/changelog" },
-    { name: "Status", href: "/status" },
-    { name: "Contact", href: "/contact" },
-  ],
-  legal: [
-    { name: "Privacy", href: "/privacy" },
-    { name: "Terms", href: "/terms" },
-    { name: "Refund Policy", href: "/refund-policy" },
-    { name: "Cancellation Policy", href: "/cancellation-policy" },
-    { name: "Shipping Policy", href: "/shipping-policy" },
-  ],
-};
-
-const socialLinks = [
-  { name: "Twitter", href: "#", icon: Twitter },
-  { name: "GitHub", href: "#", icon: Github },
-  { name: "LinkedIn", href: "#", icon: Linkedin },
-  { name: "Email", href: "#", icon: Mail },
+const productLinks = [
+  { name: "Studio", href: "/studio" },
+  { name: "Templates", href: "/#templates" },
+  { name: "Integrations", href: "/#integrations" },
+  { name: "Pricing", href: "/pricing" },
 ];
 
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <motion.a
-      href={href}
-      whileHover={{ x: 4 }}
-      transition={{ duration: 0.2 }}
-      className="text-white/40 hover:text-white/80 transition-colors duration-200 text-sm"
-    >
-      {children}
-    </motion.a>
-  );
-}
+const developerLinks = [
+  { name: "Documentation", href: "/docs" },
+  { name: "GitHub", href: "https://github.com" },
+  { name: "API Reference", href: "/docs#api" },
+  { name: "Community", href: "/#community" },
+];
 
-function SocialIcon({ href, icon: Icon, name }: { href: string; icon: LucideIcon; name: string }) {
-  return (
-    <motion.a
-      href={href}
-      aria-label={name}
-      whileHover={{ scale: 1.1, y: -2 }}
-      whileTap={{ scale: 0.95 }}
-      className="w-10 h-10 rounded-full glass-panel border border-white/[0.06] flex items-center justify-center text-white/60 hover:text-white hover:border-white/[0.20] transition-all duration-300"
-    >
-      <Icon className="w-4 h-4" />
-    </motion.a>
-  );
-}
+const socialLinks = [
+  { name: "X (Twitter)", href: "#", icon: Twitter },
+  { name: "GitHub", href: "https://github.com", icon: Github },
+  { name: "Discord", href: "#", icon: MessageCircle },
+];
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="relative bg-black border-t border-white/[0.06] overflow-hidden">
-      {/* Ambient background effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[400px] h-[400px] rounded-full bg-[#00F0FF]/3 blur-3xl opacity-20" />
-        <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] rounded-full bg-[#8A2BE2]/3 blur-3xl opacity-20" />
-      </div>
+    <footer
+      className="relative overflow-hidden"
+      style={{
+        background: "#050505",
+        padding: "60px 64px 32px",
+        borderTop: "1px solid rgba(255,255,255,0.05)",
+      }}
+    >
+      {/* Ambient glow */}
+      <div
+        className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full pointer-events-none"
+        style={{
+          background: "radial-gradient(circle, rgba(0,240,255,0.03) 0%, transparent 70%)",
+          filter: "blur(60px)",
+        }}
+      />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-16 xl:px-24 py-16">
-        {/* Main footer content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
-          {/* Brand section */}
-          <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="relative w-8 h-8">
-                  <div className="absolute inset-0 rounded-full bg-[#00F0FF] opacity-20 animate-pulse" />
-                  <div className="relative w-8 h-8 rounded-full bg-[#00F0FF]/20 flex items-center justify-center">
-                    <div className="w-4 h-4 rounded-full bg-[#00F0FF]" />
-                  </div>
-                </div>
-                <span className="font-semibold text-lg tracking-tight text-white">
-                  Archi.dev
-                </span>
-              </div>
-              
-              <p className="text-white/40 leading-relaxed mb-6 max-w-sm">
-                Visual backend architecture platform. Design, generate, and ship production-ready systems in minutes, not weeks.
-              </p>
-
-              <div className="flex gap-3">
-                {socialLinks.map((social) => (
-                  <SocialIcon key={social.name} {...social} />
-                ))}
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Links sections */}
-          {Object.entries(footerLinks).map(([category, links], categoryIndex) => (
-            <motion.div
-              key={category}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
-            >
-              <h3 className="text-white font-semibold text-sm uppercase tracking-[0.15em] mb-4">
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </h3>
-              <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link.name}>
-                    <FooterLink href={link.href}>{link.name}</FooterLink>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Bottom section */}
-        <div className="pt-8 border-t border-white/[0.06]">
+      <div className="relative max-w-7xl mx-auto">
+        {/* 3-column grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+          {/* Column 1 — Brand */}
           <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col md:flex-row justify-between items-center gap-6"
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="text-white/40 text-sm">
-              © {currentYear} Archi.dev. All rights reserved.
+            <div className="flex items-center gap-2 mb-4">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <polygon
+                  points="12,2 20,7 20,17 12,22 4,17 4,7"
+                  stroke="#00F0FF"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                  fill="none"
+                  opacity="0.9"
+                />
+                <circle cx="12" cy="12" r="2" fill="#00F0FF" opacity="0.8" />
+              </svg>
+              <span
+                className="font-bold text-base tracking-tight"
+                style={{ color: "#FFFFFF" }}
+              >
+                Archi.dev
+              </span>
             </div>
+            <p
+              style={{
+                fontFamily: "var(--font-geist, system-ui, sans-serif)",
+                fontSize: "14px",
+                color: "rgba(255,255,255,0.4)",
+                lineHeight: "1.6",
+                maxWidth: "240px",
+              }}
+            >
+              The visual compiler for backend infrastructure.
+            </p>
+          </motion.div>
 
-            <div className="flex items-center gap-6">
-              <FooterLink href="/privacy">Privacy</FooterLink>
-              <FooterLink href="/terms">Terms</FooterLink>
-              <FooterLink href="/refund-policy">Refunds</FooterLink>
-              <FooterLink href="/contact">Contact</FooterLink>
-            </div>
+          {/* Column 2 — Product */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h3
+              style={{
+                fontFamily: "var(--font-geist-mono, ui-monospace, monospace)",
+                fontSize: "12px",
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.6)",
+                marginBottom: "16px",
+              }}
+            >
+              Product
+            </h3>
+            <ul className="space-y-3">
+              {productLinks.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    style={{
+                      fontFamily: "var(--font-geist, system-ui, sans-serif)",
+                      fontSize: "14px",
+                      color: "rgba(255,255,255,0.4)",
+                      transition: "color 200ms ease",
+                      textDecoration: "none",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color = "#FFFFFF";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color =
+                        "rgba(255,255,255,0.4)";
+                    }}
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Column 3 — Developers */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h3
+              style={{
+                fontFamily: "var(--font-geist-mono, ui-monospace, monospace)",
+                fontSize: "12px",
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.6)",
+                marginBottom: "16px",
+              }}
+            >
+              Developers
+            </h3>
+            <ul className="space-y-3">
+              {developerLinks.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    target={link.href.startsWith("http") ? "_blank" : undefined}
+                    rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    style={{
+                      fontFamily: "var(--font-geist, system-ui, sans-serif)",
+                      fontSize: "14px",
+                      color: "rgba(255,255,255,0.4)",
+                      transition: "color 200ms ease",
+                      textDecoration: "none",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color = "#FFFFFF";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color =
+                        "rgba(255,255,255,0.4)";
+                    }}
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </motion.div>
         </div>
-      </div>
 
-      {/* Back to top button */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="absolute bottom-8 right-8 w-12 h-12 rounded-full glass-panel border border-white/[0.06] flex items-center justify-center text-white/60 hover:text-white hover:border-white/[0.20] transition-all duration-300 z-30"
-      >
-        <ArrowUp className="w-5 h-5" />
-      </motion.button>
+        {/* Bottom bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-geist, system-ui, sans-serif)",
+              fontSize: "13px",
+              color: "rgba(255,255,255,0.35)",
+            }}
+          >
+            © 2026 Archi.dev. All rights reserved.
+          </span>
+
+          <div className="flex items-center gap-4">
+            {socialLinks.map((social) => (
+              <motion.a
+                key={social.name}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.name}
+                whileHover={{ scale: 1.15, y: -1 }}
+                transition={{ duration: 0.18 }}
+                style={{ color: "rgba(255,255,255,0.35)" }}
+                className="hover:text-white transition-colors duration-200"
+              >
+                <social.icon className="w-4 h-4" />
+              </motion.a>
+            ))}
+          </div>
+        </motion.div>
+      </div>
     </footer>
   );
 }

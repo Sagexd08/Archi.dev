@@ -70,15 +70,41 @@ export default function CTAFooter() {
           opacity
         }}
       />
-      <motion.video
+      {/* Pure CSS ambient glow orbs — replaces video background */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
         style={{ y: backgroundY, scale }}
-        src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-network-connections-loop-28828-large.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-[0.25] mix-blend-screen pointer-events-none"
-      />
+        aria-hidden="true"
+      >
+        <motion.div
+          className="absolute rounded-full"
+          style={{
+            width: 700,
+            height: 700,
+            top: "50%",
+            left: "50%",
+            x: "-50%",
+            y: "-50%",
+            background: "radial-gradient(circle, rgba(138,43,226,0.18) 0%, transparent 70%)",
+            filter: "blur(80px)",
+          }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute rounded-full"
+          style={{
+            width: 400,
+            height: 400,
+            bottom: "10%",
+            right: "15%",
+            background: "radial-gradient(circle, rgba(0,240,255,0.1) 0%, transparent 70%)",
+            filter: "blur(60px)",
+          }}
+          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
+      </motion.div>
       <div
         className="absolute inset-0 pointer-events-none"
         style={{

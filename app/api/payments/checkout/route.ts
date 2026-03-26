@@ -30,10 +30,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const razorpayKeyId = process.env.RAZORPAY_KEY_ID ?? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
   const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
   if (!razorpayKeyId || !razorpayKeySecret) {
-    return NextResponse.json({ error: "payment_config_missing" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "payment_config_missing",
+        message: "Missing Razorpay credentials. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.",
+      },
+      { status: 500 },
+    );
   }
 
   const plan = planCatalog[parsed.data.plan];
@@ -63,6 +69,25 @@ export async function POST(req: NextRequest) {
   if (!orderResponse.ok) {
     const errorText = await orderResponse.text();
     console.error("[/api/payments/checkout] Razorpay order error:", errorText);
+
+    try {
+      const razorpayError = JSON.parse(errorText) as {
+        error?: { code?: string; description?: string };
+      };
+
+      if (razorpayError.error?.description === "Authentication failed") {
+        return NextResponse.json(
+          {
+            error: "payment_auth_failed",
+            message: "Razorpay authentication failed. Check that RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET belong to the same account and mode.",
+          },
+          { status: 500 },
+        );
+      }
+    } catch {
+      // Ignore JSON parsing errors and return a generic upstream failure below.
+    }
+
     return NextResponse.json({ error: "checkout_unavailable" }, { status: 502 });
   }
 
