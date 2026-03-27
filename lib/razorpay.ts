@@ -5,6 +5,16 @@ import { addCredits, ensureUser } from "./credit";
 // Credits granted per Pro plan payment
 export const PRO_PLAN_CREDITS = Number(process.env.PRO_PLAN_CREDITS ?? 5000);
 
+/**
+ * Constant-time string comparison that returns false (instead of throwing)
+ * when the two strings have different lengths — e.g. a truncated or
+ * non-hex signature submitted by an attacker.
+ */
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
 /** Verify client-side payment signature.
  *  HMAC-SHA256( razorpay_order_id + "|" + razorpay_payment_id , KEY_SECRET )
  */
@@ -18,7 +28,7 @@ export function verifyPaymentSignature(
     .createHmac("sha256", keySecret)
     .update(`${orderId}|${paymentId}`)
     .digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  return safeEqual(expected, signature);
 }
 
 /** Verify Razorpay webhook signature.
@@ -33,7 +43,7 @@ export function verifyWebhookSignature(
     .createHmac("sha256", webhookSecret)
     .update(rawBody)
     .digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  return safeEqual(expected, signature);
 }
 
 export type ProvisionResult =
