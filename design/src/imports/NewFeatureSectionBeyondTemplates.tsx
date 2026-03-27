@@ -76,7 +76,7 @@ function Button() {
   const [pressed, setPressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePos({
       x: (e.clientX - rect.left) / rect.width,
@@ -450,7 +450,7 @@ function Button1() {
   const [pressed, setPressed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePos({
       x: (e.clientX - rect.left) / rect.width,
