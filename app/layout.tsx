@@ -14,6 +14,19 @@ const barlow = Barlow({
   variable: "--font-body",
   subsets: ["latin"],
 });
+
+const inter = Inter({
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Archi.dev - Visual Backend Architecture Studio",
   description: "Visually construct backend architectures, generate production-grade code instantly, and deploy with one click. AI-powered scaffolding for modern applications.",
