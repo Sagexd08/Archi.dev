@@ -10,7 +10,9 @@
       "Bash(node:*)",
       "Bash(npm test:*)",
       "Bash(pnpm install:*)",
-      "Bash(pnpm test:*)"
+      "Bash(pnpm test:*)",
+      "Bash(grep -r \"razorpay\\\\|Razorpay\" \"D:\\\\Oxify Lab Prijects\\\\Archi.dev\" --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.js\" --include=\"*.jsx\" --exclude-dir=node_modules --exclude-dir=.next 2>/dev/null | head -20)",
+      "Bash(grep -r \"webhook\\\\|verify\\\\|signature\" \"D:\\\\Oxify Lab Prijects\\\\Archi.dev/app/api\" --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -30)"
     ]
   }
 }

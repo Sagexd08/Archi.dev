@@ -22,6 +22,7 @@ enum TransactionKind {
   monthly_free_grant
   manual_topup
   dummy_payment
+  razorpay_payment
   usage
   refund
 }
@@ -97,6 +98,20 @@ model CreditTransaction {
   amount    BigInt
   note      String?
   createdAt DateTime        @default(now())
+}
+
+// Idempotency guard — one row per razorpay_payment_id, prevents double-crediting
+model RazorpayPayment {
+  id                String    @id @default(cuid())
+  razorpayPaymentId String    @unique
+  razorpayOrderId   String
+  userId            String
+  plan              String
+  amountPaise       Int
+  status            String    @default("pending") // pending | captured | failed
+  processedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 model Document {

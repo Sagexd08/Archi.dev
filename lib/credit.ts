@@ -99,7 +99,7 @@ export async function requireCredits(userId: string, amount: number) {
 export async function addCredits(
   userId: string,
   amount: number,
-  kind: "dummy_payment" | "manual_topup" | "refund" = "dummy_payment",
+  kind: "dummy_payment" | "manual_topup" | "razorpay_payment" | "refund" = "dummy_payment",
   note?: string,
 ) {
   if (amount <= 0) {

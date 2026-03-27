@@ -4,7 +4,7 @@ Archi.dev is a visual backend architecture studio for designing APIs, workflows,
 
 It combines a multi-tab canvas, deterministic graph models, architecture validation, optional AI-assisted graph generation, OpenAPI export, and runtime simulation in a single Next.js application.
 
-![Preview](public/preview.png)
+<!-- ![Preview](public/preview.png) -->
 
 ## Overview
 

@@ -153,7 +153,33 @@ function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) 
         theme: {
           color: "#00F0FF",
         },
-        callback_url: checkout.callbackUrl,
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            const verifyRes = await fetch("/api/payments/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                plan: plan.checkoutPlan,
+              }),
+            });
+            if (verifyRes.ok) {
+              router.push(`/pricing?checkout=success&plan=${plan.checkoutPlan ?? ""}`);
+            } else {
+              console.error("Payment verification failed", await verifyRes.text());
+              router.push("/pricing?checkout=failed");
+            }
+          } catch (err) {
+            console.error("Payment verify request failed", err);
+            router.push("/pricing?checkout=failed");
+          }
+        },
       });
       razorpay.open();
     } catch (error) {
