@@ -12,10 +12,10 @@ type NavUser = {
 };
 
 const navLinks = [
-  { label: "Product", href: "/#product" },
-  { label: "Solutions", href: "/#solutions" },
-  { label: "Docs", href: "/docs" },
+  { label: "Studio",  href: "/studio"  },
   { label: "Pricing", href: "/pricing" },
+  { label: "Docs",    href: "/docs"    },
+  { label: "Blog",    href: "/blog"    },
 ];
 
 export default function Navbar() {
@@ -144,7 +144,7 @@ export default function Navbar() {
             </span>
             {/* Pulsing neon cyan status dot */}
             <span
-              className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+              className="w-1.5 h-1.5 rounded-full shrink-0"
               style={{
                 background: "#00F0FF",
                 boxShadow: "0 0 8px #00F0FF, 0 0 16px rgba(0,240,255,0.4)",
@@ -271,7 +271,7 @@ export default function Navbar() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
-                className="block w-full text-left text-white/70 hover:text-white py-3.5 text-base font-medium border-b border-white/[0.06] last:border-0 transition-colors"
+                className="block w-full text-left text-white/70 hover:text-white py-3.5 text-base font-medium border-b border-white/6 last:border-0 transition-colors"
                 onClick={() => {
                   setActiveLink(label);
                   setMobileOpen(false);
@@ -292,7 +292,7 @@ export default function Navbar() {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                  className="mt-5 w-full bg-white/[0.08] border border-white/[0.1] text-white py-3 rounded-full text-sm font-semibold"
+                  className="mt-5 w-full bg-white/8 border border-white/10 text-white py-3 rounded-full text-sm font-semibold"
                 >
                   Dashboard
                 </motion.button>
