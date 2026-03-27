@@ -62,14 +62,17 @@ function getActionStyle(
     width: variant === "menu" ? "100%" : undefined,
     textAlign: variant === "menu" ? "left" : "center",
     border: isPrimary
-      ? "1px solid color-mix(in srgb, var(--primary) 40%, var(--border) 60%)"
-      : "1px solid color-mix(in srgb, var(--border) 88%, transparent)",
+      ? "1px solid color-mix(in srgb, var(--primary) 50%, var(--border) 50%)"
+      : "1px solid color-mix(in srgb, var(--border) 85%, transparent)",
     background: isPrimary
-      ? "linear-gradient(135deg, color-mix(in srgb, var(--primary) 30%, var(--floating) 70%), color-mix(in srgb, var(--primary-strong) 18%, var(--panel) 82%))"
-      : "color-mix(in srgb, var(--floating) 90%, #09111a 10%)",
-    color: action.isLoading ? "var(--muted)" : "var(--foreground)",
+      ? "linear-gradient(135deg, color-mix(in srgb, var(--primary) 28%, var(--floating) 72%) 0%, color-mix(in srgb, var(--primary-strong) 15%, var(--panel) 85%) 100%)"
+      : "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)), color-mix(in srgb, var(--floating) 90%, #09111a 10%)",
+    color: action.isLoading ? "var(--muted)" : isPrimary ? "#e0faff" : "var(--foreground)",
     opacity: action.isLoading ? 0.6 : 1,
-    boxShadow: isPrimary ? "var(--shadow-glow)" : "none",
+    boxShadow: isPrimary
+      ? "0 0 0 1px rgba(0,240,255,0.18), 0 6px 20px rgba(0,240,255,0.16), inset 0 1px 0 rgba(255,255,255,0.08)"
+      : "inset 0 1px 0 rgba(255,255,255,0.03)",
+    textShadow: isPrimary ? "0 0 18px rgba(0,240,255,0.45)" : undefined,
   };
 }
 function HeaderTabs({
@@ -168,14 +171,17 @@ function HeaderTabs({
               whiteSpace: "nowrap",
               background:
                 activeTab === tab
-                  ? "linear-gradient(135deg, color-mix(in srgb, var(--primary) 18%, var(--floating) 82%), color-mix(in srgb, var(--primary) 10%, var(--panel) 90%))"
+                  ? "linear-gradient(135deg, rgba(0,240,255,0.14) 0%, rgba(0,240,255,0.06) 100%)"
                   : "transparent",
-              color: activeTab === tab ? "var(--foreground)" : "var(--muted)",
-              boxShadow: activeTab === tab ? "var(--shadow-glow)" : "none",
+              color: activeTab === tab ? "#e0faff" : "var(--muted)",
+              boxShadow: activeTab === tab
+                ? "0 0 0 1px rgba(0,240,255,0.22), 0 4px 14px rgba(0,240,255,0.12), inset 0 1px 0 rgba(255,255,255,0.06)"
+                : "none",
               borderColor:
                 activeTab === tab
-                  ? "color-mix(in srgb, var(--primary) 34%, transparent)"
+                  ? "rgba(0,240,255,0.3)"
                   : "transparent",
+              textShadow: activeTab === tab ? "0 0 16px rgba(0,240,255,0.4)" : undefined,
             }}
           >
             {tabLabel[tab]}
@@ -231,23 +237,29 @@ type HeaderActionButtonsProps = {
 function HeaderActionButtons({ actions, variant }: HeaderActionButtonsProps) {
   return (
     <>
-      {actions.map((action) => (
-        <button
-          key={action.id}
-          type="button"
-          onClick={action.onClick}
-          onMouseMove={handleInteractiveMove}
-          onMouseLeave={handleInteractiveLeave}
-          title={action.title}
-          disabled={action.isLoading}
-          className="magnetic-btn hover-trail"
-          style={getActionStyle(action, variant)}
-        >
-          {action.isLoading && action.id === "gen"
-            ? "Generating…"
-            : action.label}
-        </button>
-      ))}
+      {actions.map((action) => {
+        const isPrimary = action.id === "gen" || action.highlighted;
+        const extraClass = isPrimary && variant === "desktop"
+          ? "magnetic-btn hover-trail shimmer-btn gen-code-btn"
+          : "magnetic-btn hover-trail";
+        return (
+          <button
+            key={action.id}
+            type="button"
+            onClick={action.onClick}
+            onMouseMove={handleInteractiveMove}
+            onMouseLeave={handleInteractiveLeave}
+            title={action.title}
+            disabled={action.isLoading}
+            className={extraClass}
+            style={getActionStyle(action, variant)}
+          >
+            {action.isLoading && action.id === "gen"
+              ? "Generating…"
+              : action.label}
+          </button>
+        );
+      })}
     </>
   );
 }
@@ -635,13 +647,14 @@ export function StudioHeader({
   ];
   return (
     <header
+      className="studio-header-gradient-border"
       style={{
-        borderBottom:
-          "1px solid color-mix(in srgb, var(--border) 84%, transparent)",
         background:
-          "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), color-mix(in srgb, var(--panel) 94%, #09111a 6%)",
+          "linear-gradient(180deg, rgba(0,240,255,0.018) 0%, rgba(255,255,255,0.012) 50%, rgba(255,255,255,0) 100%), color-mix(in srgb, var(--panel) 93%, #06101e 7%)",
         padding: isCompactViewport ? "12px" : "14px 18px",
         flexShrink: 0,
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
       }}
     >
       <div

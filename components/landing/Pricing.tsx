@@ -138,7 +138,14 @@ function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) 
         return;
       }
       if (!response.ok) {
-        throw new Error("checkout_order_failed");
+        let serverError = "checkout_order_failed";
+        try {
+          const payload = await response.json() as { error?: string; message?: string };
+          serverError = payload.message ?? payload.error ?? serverError;
+        } catch {
+          // Ignore non-JSON error payloads.
+        }
+        throw new Error(serverError);
       }
       const checkout = await response.json();
       const razorpay = new window.Razorpay({

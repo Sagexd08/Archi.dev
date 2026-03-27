@@ -1,510 +1,329 @@
 "use client";
-import { useRef, useState, useEffect, type ReactNode } from "react";
-import { motion, useInView } from "framer-motion";
-import { Globe3D, type GlobeMarker } from "@/components/ui/3d-globe";
+import { motion } from "framer-motion";
+import {
+  Cpu, Database, Zap, Code2, Globe, Shield,
+  GitBranch, Terminal, Layers, ArrowRight, Bot,
+  CheckCircle2, Cloud, Server,
+} from "lucide-react";
 
-const globeMarkers: GlobeMarker[] = [
-  { lat: 40.7128, lng: -74.006, src: "https://assets.aceternity.com/avatars/1.webp", label: "New York" },
-  { lat: 51.5074, lng: -0.1278, src: "https://assets.aceternity.com/avatars/2.webp", label: "London" },
-  { lat: 35.6762, lng: 139.6503, src: "https://assets.aceternity.com/avatars/3.webp", label: "Tokyo" },
-  { lat: -33.8688, lng: 151.2093, src: "https://assets.aceternity.com/avatars/4.webp", label: "Sydney" },
-  { lat: 48.8566, lng: 2.3522, src: "https://assets.aceternity.com/avatars/5.webp", label: "Paris" },
-  { lat: 28.6139, lng: 77.209, src: "https://assets.aceternity.com/avatars/6.webp", label: "New Delhi" },
-  { lat: 55.7558, lng: 37.6173, src: "https://assets.aceternity.com/avatars/7.webp", label: "Moscow" },
-  { lat: -22.9068, lng: -43.1729, src: "https://assets.aceternity.com/avatars/8.webp", label: "Rio de Janeiro" },
-  { lat: 31.2304, lng: 121.4737, src: "https://assets.aceternity.com/avatars/9.webp", label: "Shanghai" },
-  { lat: 25.2048, lng: 55.2708, src: "https://assets.aceternity.com/avatars/10.webp", label: "Dubai" },
-  { lat: -34.6037, lng: -58.3816, src: "https://assets.aceternity.com/avatars/11.webp", label: "Buenos Aires" },
-  { lat: 1.3521, lng: 103.8198, src: "https://assets.aceternity.com/avatars/12.webp", label: "Singapore" },
-  { lat: 37.5665, lng: 126.978, src: "https://assets.aceternity.com/avatars/13.webp", label: "Seoul" },
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+const deployCommands = [
+  { cmd: "archi deploy --target aws --region us-east-1", out: "Provisioning EKS cluster...", status: "→ EC2, RDS, ELB spun up." },
+  { cmd: "archi deploy --target railway", out: "Building Docker image...", status: "→ Live at api.yourapp.app" },
 ];
-const terminalLines = [
-  { text: "$ archi deploy --env production", color: "rgba(255,255,255,0.28)" },
-  { text: "✓ Building Docker image…", color: "#00F0FF" },
-  { text: "  → Layers cached (12/12)", color: "rgba(255,255,255,0.45)" },
-  { text: "✓ Pushing to registry…", color: "#00F0FF" },
-  { text: "  → archi.dev/app:sha-a1b2c3d", color: "rgba(255,255,255,0.45)" },
-  { text: "✓ Deploying to edge…", color: "#00F0FF" },
-  { text: "✓ Live  https://api.yourdomain.com", color: "#28C840" },
-  { text: "  Deploy complete in 58s", color: "rgba(255,255,255,0.22)" },
+
+const features = [
+  {
+    icon: Bot,
+    title: "Custom AI Agents",
+    description: "Build LLM-powered agents as first-class backend nodes. Connect Claude, GPT-4, or Gemini to any database or API in your graph.",
+    accent: "#8A2BE2",
+    size: "xl:col-span-2",
+  },
+  {
+    icon: Database,
+    title: "Auto-Scaling PostgreSQL",
+    description: "Provision Postgres with connection pooling, read replicas, and automated failover — all from a single node on the canvas.",
+    accent: "#28C840",
+  },
+  {
+    icon: Globe,
+    title: "Vector DB Provisioning",
+    description: "Add Pinecone, pgvector, or Weaviate nodes and wire them to your AI agents for semantic search and embeddings.",
+    accent: "#00F0FF",
+  },
+  {
+    icon: Code2,
+    title: "Auto-Generated OpenAPI",
+    description: "Every API gateway node produces a live, typed OpenAPI 3.1 spec. SDKs and docs generated automatically.",
+    accent: "#F5A623",
+    size: "xl:col-span-2",
+  },
+  {
+    icon: Zap,
+    title: "Real-time Webhook Engine",
+    description: "Stripe, GitHub, Twilio — any webhook endpoint auto-wired with retry logic, dead-letter queues, and delivery guarantees.",
+    accent: "#FF6B82",
+  },
+  {
+    icon: Shield,
+    title: "Zero Vendor Lock-in",
+    description: "Export raw Terraform, Dockerfiles, or OpenAPI specs anytime. Your architecture belongs to you.",
+    accent: "#00F0FF",
+  },
 ];
-function Terminal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const [visibleLines, setVisibleLines] = useState(0);
-  useEffect(() => {
-    if (!inView || visibleLines >= terminalLines.length) return;
-    const id = setTimeout(
-      () => setVisibleLines((v) => v + 1),
-      visibleLines === 0 ? 400 : 280
-    );
-    return () => clearTimeout(id);
-  }, [inView, visibleLines]);
-  return (
-    <div
-      ref={ref}
-      className="mt-6 rounded-xl overflow-hidden border border-white/[0.08] font-mono"
-    >
-      <div className="bg-[#141414] px-4 py-2.5 flex items-center gap-2 border-b border-white/[0.06]">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
-        <span className="ml-3 text-[11px] text-white/30 select-none">
-          archi.dev — deploy
-        </span>
-      </div>
-      <div className="bg-[#070707] p-4 text-[12px] space-y-1.5 leading-relaxed min-h-[148px]">
-        {terminalLines.slice(0, visibleLines).map((line, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -6 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.25 }}
-            style={{ color: line.color }}
-          >
-            {line.text}
-          </motion.div>
-        ))}
-        {visibleLines < terminalLines.length && inView && (
-          <motion.span
-            className="inline-block w-[7px] h-[14px] rounded-[1px]"
-            style={{ background: "#00F0FF" }}
-            animate={{ opacity: [1, 0, 1] }}
-            transition={{ duration: 0.9, repeat: Infinity }}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-function DockerVisual() {
-  const lines = [
-    { text: "FROM node:20-alpine", color: "#00F0FF" },
-    { text: "WORKDIR /app", color: "rgba(255,255,255,0.48)" },
-    { text: "COPY package*.json ./", color: "rgba(255,255,255,0.48)" },
-    { text: "RUN npm ci --omit=dev", color: "rgba(255,255,255,0.48)" },
-    { text: "COPY . .", color: "rgba(255,255,255,0.48)" },
-    { text: "EXPOSE 3000", color: "rgba(255,255,255,0.48)" },
-    { text: 'CMD ["node", "index.js"]', color: "#28C840" },
-  ];
-  return (
-    <div className="mt-5 rounded-lg border border-white/[0.08] bg-[#070707] p-4 font-mono text-[11px] space-y-1.5 leading-relaxed overflow-hidden">
-      {lines.map((l, i) => (
-        <motion.div
-          key={l.text}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: i * 0.06, duration: 0.3 }}
-          viewport={{ once: true }}
-          style={{ color: l.color }}
-        >
-          {l.text}
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-function SwaggerMock() {
-  const endpoints = [
-    { method: "GET", path: "/api/v1/users", color: "#61affe" },
-    { method: "POST", path: "/api/v1/users", color: "#49cc90" },
-    { method: "PUT", path: "/api/v1/users/{id}", color: "#fca130" },
-    { method: "DELETE", path: "/api/v1/users/{id}", color: "#f93e3e" },
-    { method: "GET", path: "/api/v1/orders", color: "#61affe" },
-    { method: "POST", path: "/api/v1/orders", color: "#49cc90" },
-  ];
-  return (
-    <div className="mt-5 space-y-1.5 font-mono text-[11px]">
-      {endpoints.map((ep, i) => (
-        <motion.div
-          key={`${ep.method}-${ep.path}`}
-          initial={{ opacity: 0, y: 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.055, duration: 0.3 }}
-          viewport={{ once: true }}
-          className="flex items-center gap-3 rounded-md px-3 py-2 border border-white/[0.05] group"
-          style={{ background: "rgba(255,255,255,0.025)" }}
-          whileHover={{ background: "rgba(255,255,255,0.04)" }}
-        >
-          <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded min-w-[48px] text-center shrink-0"
-            style={{
-              color: ep.color,
-              backgroundColor: `${ep.color}1A`,
-            }}
-          >
-            {ep.method}
-          </span>
-          <span className="text-white/45 group-hover:text-white/60 transition-colors">
-            {ep.path}
-          </span>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-function RegionStatusPanel() {
-  const regions = [
-    { name: "iad1", label: "Virginia", latency: 23, color: "#00F0FF" },
-    { name: "fra1", label: "Frankfurt", latency: 34, color: "#8A2BE2" },
-    { name: "sin1", label: "Singapore", latency: 41, color: "#28C840" },
-    { name: "gru1", label: "Sao Paulo", latency: 52, color: "#F5A623" },
-  ];
 
-  return (
-    <div className="bento-card relative overflow-hidden rounded-[1.75rem] p-5">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,240,255,0.14),transparent_58%)] opacity-60" />
-      <div className="relative z-10">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/35">
-              Fleet
-            </p>
-            <h4 className="mt-1 text-lg font-semibold tracking-tight text-white">
-              Region health
-            </h4>
-          </div>
-          <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
-            Stable
-          </div>
-        </div>
+const integrationCards = [
+  {
+    name: "AWS",
+    sub: "EC2 · EKS · RDS · Lambda",
+    color: "#FF9900",
+    detail: "Full IaC generation for every AWS service. One-click provisioning with least-privilege IAM.",
+    spec: "20+ services",
+  },
+  {
+    name: "Railway",
+    sub: "Zero-config cloud",
+    color: "#7C3AED",
+    detail: "Instant deploys from your Archi.dev canvas. Auto-scaling, custom domains, Postgres included.",
+    spec: "Global edge",
+  },
+  {
+    name: "Vercel",
+    sub: "Next.js & Edge Functions",
+    color: "#FFFFFF",
+    detail: "Deploy API routes and serverless functions from your graph with automatic preview deploys.",
+    spec: "Edge network",
+  },
+  {
+    name: "Supabase",
+    sub: "Postgres + Realtime + Auth",
+    color: "#3ECF8E",
+    detail: "Database, auth, storage, and Realtime wired to your nodes. RLS rules auto-generated.",
+    spec: "Multi-region",
+  },
+];
 
-        <div className="space-y-3">
-          {regions.map((region, index) => (
-            <motion.div
-              key={region.name}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08, duration: 0.35 }}
-              viewport={{ once: true }}
-              className="rounded-2xl border border-white/[0.06] bg-black/30 p-3"
-            >
-              <div className="mb-2 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className="h-2.5 w-2.5 rounded-full"
-                    style={{
-                      backgroundColor: region.color,
-                      boxShadow: `0 0 14px ${region.color}`,
-                    }}
-                  />
-                  <div>
-                    <div className="text-sm font-medium text-white/90">
-                      {region.label}
-                    </div>
-                    <div className="text-[10px] uppercase tracking-[0.22em] text-white/30">
-                      {region.name}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-sm font-semibold text-white/70">
-                  {region.latency}ms
-                </div>
-              </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-                <motion.div
-                  className="h-full rounded-full"
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${Math.max(24, 100 - region.latency)}%` }}
-                  transition={{ delay: 0.15 + index * 0.08, duration: 0.7 }}
-                  viewport={{ once: true }}
-                  style={{
-                    background: `linear-gradient(90deg, ${region.color}, rgba(255,255,255,0.85))`,
-                    boxShadow: `0 0 18px ${region.color}55`,
-                  }}
-                />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {[
-            { label: "P95 cold start", value: "410ms" },
-            { label: "Error budget", value: "99.98%" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3"
-            >
-              <div className="text-[10px] uppercase tracking-[0.22em] text-white/28">
-                {item.label}
-              </div>
-              <div className="mt-1 text-base font-semibold text-white/85">
-                {item.value}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-function SpotlightCard({
-  children,
-  colSpan = "",
-  className = "",
-  accentColor = "rgba(0,240,255,0.07)",
-}: {
-  children: ReactNode;
-  colSpan?: string;
-  className?: string;
-  accentColor?: string;
-}) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const [hovered, setHovered] = useState(false);
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-  return (
-    <motion.div
-      ref={cardRef}
-      className={`glass-panel rounded-3xl p-5 md:p-8 group relative overflow-hidden cursor-default ${colSpan} ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      viewport={{ once: true, margin: "-60px" }}
-      whileHover={{ y: -2 }}
-    >
-      {/* Spotlight radial */}
-      <motion.div
-        className="pointer-events-none absolute inset-0"
-        animate={{ opacity: hovered ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
-        style={{
-          background: `radial-gradient(480px circle at ${mouse.x}px ${mouse.y}px, ${accentColor}, transparent 65%)`,
-        }}
-      />
-      {/* Hover border glow */}
-      <motion.div
-        className="pointer-events-none absolute inset-0 rounded-3xl"
-        animate={{ opacity: hovered ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
-        style={{
-          boxShadow: `inset 0 0 0 1px ${accentColor.replace(/[\d.]+\)$/, "0.35)")}`,
-        }}
-      />
-      {/* Top highlight line */}
-      <div
-        className="absolute top-0 left-6 right-6 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${accentColor.replace(/[\d.]+\)$/, "0.6)")}, transparent)`,
-        }}
-      />
-      {children}
-    </motion.div>
-  );
-}
 export default function BentoGrid() {
   return (
-    <section id="product" className="py-20 md:py-32 px-6 md:px-16 xl:px-24 relative z-20">
-      <div className="section-top-line" />
-
-      {/* Ambient section glow */}
+    <section className="relative w-full py-24 px-6 bg-black overflow-hidden">
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,240,255,0.035) 0%, transparent 60%)",
-        }}
+        style={{ background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(138,43,226,0.05) 0%, transparent 60%)" }}
       />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        <motion.div
-          initial={{ y: 40, opacity: 0, filter: "blur(10px)" }}
-          whileInView={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          viewport={{ once: true }}
-          className="mb-10 md:mb-16"
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <span className="section-line-accent" />
-            <p className="text-[#00F0FF] text-xs font-semibold uppercase tracking-[0.2em]">
-              Platform
-            </p>
-          </div>
-          <h2
-            className="text-gradient-vivid font-medium tracking-tighter leading-[0.87] mb-5"
-            style={{ fontSize: "clamp(2rem, 7vw, 5rem)" }}
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: EASE }}
+            className="mb-4"
           >
-            Visually construct
-            <br />
-            <span style={{
-              background: "linear-gradient(135deg, #00F0FF 0%, #79b7ff 60%, #a78bfa 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}>
-              the impossible.
+            <span className="inline-flex items-center gap-2 glass-panel px-5 py-2 rounded-full text-primary text-xs font-semibold uppercase tracking-[0.2em] border border-white/6">
+              <Layers size={11} className="text-primary" />
+              Platform Features
             </span>
-          </h2>
-          <p className="text-white/35 text-lg max-w-xl leading-relaxed">
-            Every feature you need to design, generate, and ship backend systems — in one canvas.
-          </p>
-        </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <SpotlightCard
-            colSpan="md:col-span-2"
-            accentColor="rgba(0,240,255,0.07)"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-1 h-3.5 rounded-full bg-[#00F0FF] opacity-80" />
-              <span className="text-[10px] font-bold text-[#00F0FF] uppercase tracking-[0.22em]">Deploy</span>
-            </div>
-            <h3 className="text-xl font-semibold text-white tracking-tight">
-              True One-Click Deployments.
-            </h3>
-            <p className="text-sm text-white/40 mt-2 leading-relaxed">
-              From canvas to production in under 60 seconds. No YAML, no config
-              hell — just ship.
-            </p>
-            <Terminal />
-          </SpotlightCard>
-          <SpotlightCard accentColor="rgba(138,43,226,0.09)">
-            <video
-              src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screens-41716-large.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-[0.18] mix-blend-luminosity pointer-events-none"
-            />
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-1 h-3.5 rounded-full bg-[#8A2BE2] opacity-80" />
-                <span className="text-[10px] font-bold text-[#8A2BE2] uppercase tracking-[0.22em]">AI</span>
-              </div>
-              <h3 className="text-xl font-semibold text-white tracking-tight">
-                AI Agent Workflows.
-              </h3>
-              <p className="text-sm text-white/40 mt-2 leading-relaxed">
-                Let AI scaffold your entire architecture from a single natural
-                language prompt.
-              </p>
-              <div className="mt-6 space-y-3">
-                {["Understand intent", "Plan architecture", "Generate code", "Deploy"].map(
-                  (step, i) => (
-                    <motion.div
-                      key={step}
-                      className="flex items-center gap-3"
-                      initial={{ opacity: 0, x: -8 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: 0.3 + i * 0.07,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                      viewport={{ once: true }}
-                    >
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0"
-                        style={{
-                          border: "1px solid rgba(138,43,226,0.5)",
-                          color: "#8A2BE2",
-                        }}
-                      >
-                        {i + 1}
-                      </div>
-                      <span className="text-xs text-white/50">{step}</span>
-                    </motion.div>
-                  )
-                )}
-              </div>
-            </div>
-          </SpotlightCard>
-          <SpotlightCard accentColor="rgba(255,255,255,0.04)">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-1 h-3.5 rounded-full bg-white/25" />
-              <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.22em]">Export</span>
-            </div>
-            <h3 className="text-xl font-semibold text-white tracking-tight">
-              No Lock-in.
-            </h3>
-            <p className="text-sm text-white/40 mt-2 leading-relaxed">
-              Export clean Dockerfiles and JSON configs. Your architecture, your
-              infrastructure, forever.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {["Dockerfile", "docker-compose.yml", "openapi.json", "schema.prisma", "deploy.zip"].map((fmt) => (
-                <span key={fmt} className="format-badge">{fmt}</span>
-              ))}
-            </div>
-            <DockerVisual />
-          </SpotlightCard>
-          <SpotlightCard
-            colSpan="md:col-span-2"
-            accentColor="rgba(0,240,255,0.06)"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-1 h-3.5 rounded-full bg-[#00F0FF] opacity-80" />
-              <span className="text-[10px] font-bold text-[#00F0FF] uppercase tracking-[0.22em]">API</span>
-            </div>
-            <h3 className="text-xl font-semibold text-white tracking-tight">
-              Auto-Generated OpenAPI.
-            </h3>
-            <p className="text-sm text-white/40 mt-2 leading-relaxed">
-              Every node generates a fully-typed, Swagger-ready API spec. Zero
-              effort, full coverage.
-            </p>
-            <SwaggerMock />
-          </SpotlightCard>
+          </motion.div>
 
-          <SpotlightCard
-            colSpan="md:col-span-3"
-            accentColor="rgba(0,240,255,0.05)"
-            className="overflow-hidden"
+          <motion.h2
+            initial={{ y: 20, opacity: 0, filter: "blur(8px)" }}
+            whileInView={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, ease: EASE, delay: 0.1 }}
+            className="text-gradient font-medium tracking-tighter leading-[0.9] mb-5"
+            style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)" }}
           >
-            <div className="grid items-center gap-6 lg:gap-8 lg:grid-cols-[0.9fr_1.15fr_0.8fr]">
+            Visually construct<br />the impossible.
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
+            className="text-white/40 text-base max-w-xl mx-auto leading-relaxed"
+          >
+            Replace scattered YAML files and fragile deploy scripts with an intelligent canvas. Archi.dev generates deployment-ready infrastructure instantly.
+          </motion.p>
+        </div>
+
+        {/* Deploy terminal — full width hero card */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="bento-card rounded-2xl overflow-hidden mb-4"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-white/5">
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-1 h-3.5 rounded-full bg-[#00F0FF] opacity-80" />
-                  <span className="text-[10px] font-bold text-[#00F0FF] uppercase tracking-[0.22em]">Global</span>
+                <div className="flex items-center gap-2 mb-6">
+                  <Terminal size={14} className="text-primary" />
+                  <span className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">One-Click Deploy</span>
                 </div>
-                <h3 className="text-xl font-semibold text-white tracking-tight">
-                  Deploy Anywhere, Instantly.
-                </h3>
-                <p className="text-sm text-white/40 mt-2 leading-relaxed">
-                  Infrastructure available across every major region. Ship to the edge closest to your users — no extra config required.
+                <h3 className="text-white font-semibold text-2xl tracking-tight mb-3">Deploy to AWS or Railway<br />from your canvas.</h3>
+                <p className="text-white/40 text-sm leading-relaxed">
+                  Connect AWS credentials or Railway tokens once. Every deploy derives from your visual graph — no Terraform hand-holding required.
                 </p>
-                <div className="mt-4 grid grid-cols-2 gap-2 lg:flex lg:flex-col lg:gap-2.5">
-                  {["13 global regions", "Sub-50ms cold starts", "Automatic failover", "Zero-downtime deploys"].map((feat) => (
-                    <div key={feat} className="flex items-center gap-2.5 text-xs text-white/50">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] shrink-0" />
-                      {feat}
+              </div>
+              <div className="flex flex-wrap gap-2 mt-6">
+                {["EC2", "EKS", "RDS", "Lambda", "S3", "Railway Postgres"].map(tag => (
+                  <span key={tag} className="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-white/4 border border-white/6 text-white/40">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="bg-[#0A0A0F] rounded-xl border border-white/6 overflow-hidden font-mono text-xs">
+                <div className="flex items-center gap-1.5 px-4 py-2.5 bg-white/3 border-b border-white/5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]" />
+                  <span className="ml-3 text-white/30 text-[10px]">archi — deploy</span>
+                </div>
+                <div className="p-5 space-y-4">
+                  {deployCommands.map((cmd, i) => (
+                    <div key={i}>
+                      <div className="flex items-start gap-2">
+                        <span className="text-primary">~</span>
+                        <span className="text-white/80">{cmd.cmd}</span>
+                      </div>
+                      <div className="text-white/35 mt-1 ml-4">{cmd.out}</div>
+                      <div className="text-emerald-400 mt-0.5 ml-4 flex items-center gap-1.5">
+                        <CheckCircle2 size={10} />
+                        {cmd.status}
+                      </div>
                     </div>
                   ))}
+                  <div className="flex items-center gap-1 mt-2">
+                    <span className="text-primary">~</span>
+                    <span className="w-2 h-4 bg-primary/70 animate-pulse inline-block" />
+                  </div>
                 </div>
               </div>
-
-              <div className="relative w-full">
-                <div className="absolute inset-x-10 inset-y-12 rounded-full bg-[radial-gradient(circle,rgba(0,240,255,0.16),transparent_64%)] blur-3xl" />
-                <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.06] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))]">
-                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.08),transparent_42%)]" />
-                  <Globe3D
-                    markers={globeMarkers}
-                    config={{
-                      showAtmosphere: false,
-                      bumpScale: 4,
-                      autoRotateSpeed: 0.22,
-                      enableZoom: false,
-                      enablePan: false,
-                      ambientIntensity: 0.85,
-                      pointLightIntensity: 1.8,
-                    }}
-                    className="h-[220px] md:h-[300px] lg:h-[380px]"
-                  />
-                </div>
-              </div>
-
-              <RegionStatusPanel />
             </div>
-          </SpotlightCard>
+          </div>
+        </motion.div>
+
+        {/* Features grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-4">
+          {features.map((feat, i) => {
+            const Icon = feat.icon;
+            return (
+              <motion.div
+                key={feat.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.6, ease: EASE, delay: i * 0.06 }}
+                whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                className={`bento-card rounded-2xl p-6 group relative overflow-hidden cursor-pointer ${feat.size ?? ""}`}
+              >
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+                  style={{ background: `radial-gradient(300px circle at 50% 40%, ${feat.accent}0d, transparent 70%)` }}
+                />
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                  style={{ backgroundColor: `${feat.accent}18`, border: `1px solid ${feat.accent}25` }}
+                >
+                  <Icon size={18} style={{ color: feat.accent }} />
+                </div>
+                <h3 className="text-white font-semibold text-sm tracking-tight mb-2">{feat.title}</h3>
+                <p className="text-white/40 text-xs leading-relaxed mb-4">{feat.description}</p>
+                <div
+                  className="flex items-center gap-1 text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ color: feat.accent }}
+                >
+                  Learn more <ArrowRight size={10} />
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
+
+        {/* Integrations */}
+        <div className="mb-4">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="flex items-center gap-3 mb-4"
+          >
+            <span className="section-line-accent" />
+            <p className="text-white/40 text-xs font-semibold uppercase tracking-[0.2em]">Deploy anywhere</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {integrationCards.map((intg, i) => (
+              <motion.div
+                key={intg.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: EASE, delay: i * 0.07 }}
+                whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                className="bento-card rounded-2xl p-6 group relative overflow-hidden cursor-pointer flex flex-col"
+              >
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+                  style={{ background: `radial-gradient(250px circle at 50% 30%, ${intg.color}0c, transparent 70%)` }}
+                />
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: intg.color, boxShadow: `0 0 6px ${intg.color}80` }} />
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                    style={{ color: intg.color, backgroundColor: `${intg.color}18` }}
+                  >
+                    {intg.spec}
+                  </span>
+                </div>
+                <h3 className="text-white font-semibold text-base tracking-tight mb-0.5">{intg.name}</h3>
+                <p className="text-white/30 text-xs mb-3">{intg.sub}</p>
+                <p className="text-white/40 text-xs leading-relaxed flex-1">{intg.detail}</p>
+                <div
+                  className="flex items-center gap-1 mt-4 text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ color: intg.color }}
+                >
+                  View integration <ArrowRight size={10} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Agent Builder highlight */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.8, ease: EASE }}
+          className="bento-card rounded-2xl overflow-hidden"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="p-8 border-b md:border-b-0 md:border-r border-white/5 flex flex-col justify-center">
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-2 h-2 rounded-full bg-violet animate-pulse" />
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet">AI Agents — v3</span>
+              </div>
+              <h3 className="text-white font-semibold text-2xl tracking-tight mb-3">
+                Prompt your backend.<br />Ship it instantly.
+              </h3>
+              <p className="text-white/40 text-sm leading-relaxed mb-6">
+                Type "A scalable real-time chat backend with Redis pub/sub and WebSockets" and watch Archi.dev draw the entire graph, wire the nodes, and generate the Terraform — in seconds.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {["Claude 3.5", "GPT-4o", "Gemini 1.5 Pro", "Llama 3"].map(model => (
+                  <span key={model} className="text-[10px] font-mono font-semibold px-2.5 py-1 rounded-md bg-violet/10 border border-violet/20 text-violet/80">
+                    {model}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6 flex flex-col gap-3">
+              {[
+                { step: "01", text: "Describe your architecture in plain English", color: "text-primary" },
+                { step: "02", text: "AI draws nodes, edges, and config automatically", color: "text-violet" },
+                { step: "03", text: "Review the graph — add, remove, or edit any node", color: "text-primary" },
+                { step: "04", text: "Deploy to AWS or Railway with one click", color: "text-emerald-400" },
+              ].map((s) => (
+                <div key={s.step} className="flex items-start gap-4 p-4 rounded-xl bg-white/2.5 border border-white/5">
+                  <span className={`text-xs font-bold font-mono ${s.color} shrink-0 mt-0.5`}>{s.step}</span>
+                  <p className="text-white/60 text-xs leading-relaxed">{s.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

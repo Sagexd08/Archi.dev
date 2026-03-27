@@ -108,6 +108,8 @@
 @theme inline {
   --font-heading: var(--font-heading), 'Instrument Serif', serif;
   --font-body: var(--font-body), 'Barlow', sans-serif;
+  --font-inter: var(--font-inter), 'Inter', sans-serif;
+  --font-space: var(--font-space), 'Space Grotesk', sans-serif;
   --color-background: #050505;
   --color-foreground: #fafafa;
   --color-panel: #0a0a0a;
@@ -273,12 +275,7 @@ textarea::placeholder {
   stroke-width: 1.8;
 }
 
-.react-flow__edge.selected .react-flow__edge-path,
-.react-flow__edge:focus .react-flow__edge-path,
-.react-flow__edge:hover .react-flow__edge-path {
-  stroke: var(--primary);
-  stroke-width: 2.5;
-}
+/* Edge hover/selected overridden in Studio Enhancements v4 */
 
 /* Connection Line */
 .react-flow__connection-line {
@@ -400,15 +397,7 @@ aside {
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
 }
 
-.ermiz-node:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-1px);
-}
-
-.ermiz-node.selected {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary), var(--shadow-float);
-}
+/* ermiz-node:hover and .selected overridden in Studio Enhancements v4 */
 
 .ermiz-node-header {
   display: flex;
@@ -649,31 +638,7 @@ aside {
   box-shadow: var(--shadow-glow);
 }
 
-.studio-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
-  border-radius: 999px;
-  padding: 5px 10px;
-  background: rgba(8, 15, 25, 0.56);
-  color: var(--secondary);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
-  border-radius: 999px;
-  padding: 4px 10px;
-  background: rgba(8, 15, 25, 0.5);
-  color: var(--secondary);
-  font-size: 11px;
-}
+/* studio-badge and status-pill defined in Studio Enhancements v4 below */
 
 .status-dot {
   width: 7px;
@@ -684,30 +649,13 @@ aside {
   flex-shrink: 0;
 }
 
-.status-dot.success {
-  background: var(--success);
-}
-
-.status-dot.warning {
-  background: var(--warning);
-}
-
-.status-dot.danger {
-  background: var(--destructive);
-}
-
 .progress-track {
   width: 100%;
-  height: 8px;
+  height: 6px;
   overflow: hidden;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--success) 38%, var(--primary) 62%));
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
 }
 
 .panel-handle {
@@ -1124,6 +1072,241 @@ aside {
   pointer-events: none;
 }
 
+/* ============================================
+   Studio UI Enhancements — v4
+   ============================================ */
+
+/* Pulsing ring for live status dot */
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(58, 214, 159, 0.55), 0 0 0 5px rgba(255,255,255,0.02); }
+  50%       { box-shadow: 0 0 0 5px rgba(58, 214, 159, 0), 0 0 8px rgba(58, 214, 159, 0.35); }
+}
+
+@keyframes dot-pulse-warn {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 191, 91, 0.55); }
+  50%       { box-shadow: 0 0 0 5px rgba(255, 191, 91, 0); }
+}
+
+@keyframes dot-pulse-danger {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 130, 0.7); }
+  50%       { box-shadow: 0 0 0 5px rgba(255, 107, 130, 0); }
+}
+
+.status-dot.success {
+  background: var(--success);
+  animation: dot-pulse 2.4s ease-in-out infinite;
+}
+
+.status-dot.warning {
+  background: var(--warning);
+  animation: dot-pulse-warn 2.2s ease-in-out infinite;
+}
+
+.status-dot.danger {
+  background: var(--destructive);
+  animation: dot-pulse-danger 1.8s ease-in-out infinite;
+}
+
+/* Moving shimmer on progress fill */
+@keyframes progress-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    color-mix(in srgb, var(--success) 50%, var(--primary) 50%),
+    var(--primary)
+  );
+  background-size: 200% auto;
+  animation: progress-shimmer 3.5s linear infinite;
+}
+
+/* Validation bar top accent line */
+.studio-validation-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.studio-validation-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 240, 255, 0.45) 25%,
+    rgba(58, 214, 159, 0.35) 75%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Enhanced studio shell — stronger ambient glow */
+.studio-shell::before {
+  background:
+    radial-gradient(900px 320px at 18% 0%, rgba(0, 240, 255, 0.13), transparent 70%),
+    radial-gradient(1000px 360px at 82% 0%, rgba(58, 214, 159, 0.07), transparent 72%),
+    radial-gradient(600px 200px at 50% 100%, rgba(138, 43, 226, 0.06), transparent 70%);
+}
+
+/* Enhanced raised card with inner top highlight */
+.studio-card-raised {
+  border: 1px solid color-mix(in srgb, var(--border-strong) 72%, transparent);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0)),
+    color-mix(in srgb, var(--floating) 92%, #0a111a 8%);
+  box-shadow:
+    var(--shadow-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.065);
+}
+
+/* Enhanced studio badge */
+.studio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: rgba(0, 240, 255, 0.05);
+  color: rgba(0, 240, 255, 0.75);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.06);
+}
+
+/* Enhanced status pill with backdrop blur */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: rgba(8, 15, 25, 0.55);
+  color: var(--secondary);
+  font-size: 11px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* Selected node: vivid glow */
+.ermiz-node.selected {
+  border-color: var(--primary);
+  box-shadow:
+    0 0 0 1px var(--primary),
+    0 0 24px rgba(0, 240, 255, 0.22),
+    var(--shadow-float);
+}
+
+/* Hover node: lift + glow */
+.ermiz-node:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1.5px);
+  box-shadow:
+    0 0 14px rgba(0, 240, 255, 0.1),
+    var(--shadow-soft);
+}
+
+/* Selected / hovered edge: neon glow */
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--primary);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.5));
+}
+
+/* Studio nav link */
+.studio-nav-link {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 7px 11px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.studio-nav-link:hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--floating) 90%, transparent);
+  border-color: color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+/* Footer top separator glow */
+.studio-footer-glow {
+  border-top: 1px solid transparent;
+  background:
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    linear-gradient(90deg, transparent 0%, rgba(0,240,255,0.25) 40%, rgba(138,43,226,0.2) 70%, transparent 100%) border-box;
+}
+
+/* Canvas controls: glass floating panel */
+.react-flow__controls {
+  background: color-mix(in srgb, var(--floating) 92%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 75%, transparent) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-float), 0 0 30px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  overflow: hidden !important;
+}
+
+/* Header border: gradient bottom line */
+.studio-header-gradient-border {
+  border-bottom: none !important;
+  position: relative;
+}
+
+.studio-header-gradient-border::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 240, 255, 0.3) 30%,
+    rgba(255, 255, 255, 0.1) 60%,
+    transparent 100%
+  );
+}
+
+/* Generate Code button: shimmer + glow pulse */
+@keyframes btn-glow-pulse {
+  0%, 100% { box-shadow: var(--shadow-glow); }
+  50%       { box-shadow: 0 0 0 1px rgba(0,240,255,0.3), 0 8px 32px rgba(0,240,255,0.28); }
+}
+
+.gen-code-btn {
+  animation: btn-glow-pulse 3s ease-in-out infinite;
+}
+
+.gen-code-btn.shimmer-btn::after {
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 70%
+  );
+  animation: shimmer-slide 2.8s ease-in-out infinite;
+}
+
 /* Separator with glow */
 .separator-glow {
   height: 1px;
@@ -1204,6 +1387,126 @@ aside {
   color: var(--foreground);
   border-color: color-mix(in srgb, var(--border) 100%, transparent);
   background: color-mix(in srgb, var(--floating) 60%, transparent);
+}
+
+/* ============================================
+   Liquid Glass + Feature Cards — v5
+   ============================================ */
+
+/* Liquid glass — cards, modals, nav surfaces */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 50%,
+    rgba(0, 240, 255, 0.04) 100%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Purple glow variant */
+.liquid-glass-purple {
+  background: rgba(138, 43, 226, 0.08);
+  border: 1px solid rgba(138, 43, 226, 0.25);
+  box-shadow:
+    0 0 40px rgba(138, 43, 226, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Dark feature card (used on white-background sections) */
+.feature-card {
+  background: linear-gradient(135deg, #111118 0%, #0d0d18 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+.feature-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, rgba(0, 240, 255, 0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Scroll fade-up reveal */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  animation: fadeUp 0.6s ease forwards;
+  animation-play-state: paused;
+}
+
+.reveal.visible {
+  animation-play-state: running;
+}
+
+/* Hero pre-heading pill badge */
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  background: rgba(0, 240, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 240, 255, 0.85);
+  letter-spacing: 0.02em;
+  cursor: default;
+  user-select: none;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.hero-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00F0FF;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+/* Page entry blur transition */
+@keyframes page-enter {
+  from { opacity: 0; filter: blur(10px); }
+  to   { opacity: 1; filter: blur(0px); }
+}
+
+.page-enter {
+  animation: page-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Mini SVG node graph edges — animated flow */
+.node-edge-flow {
+  stroke-dasharray: 4 3;
+  animation: edge-flow 1.8s linear infinite;
 }
 
 /* Navbar account avatar button */

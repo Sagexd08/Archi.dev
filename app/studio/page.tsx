@@ -604,16 +604,16 @@ export function StudioPage({ initialTab = "api" }: StudioPageProps) {
         }}
       />
       <div
-        className="workspace-fade-up"
+        className="workspace-fade-up studio-validation-bar"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: 12,
-          padding: "10px 18px",
-          borderBottom: "1px solid color-mix(in srgb, var(--border) 84%, transparent)",
+          padding: "9px 18px",
+          borderBottom: "1px solid color-mix(in srgb, var(--border) 70%, transparent)",
           background:
-            "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), color-mix(in srgb, var(--panel) 94%, #0f1623 6%)",
+            "linear-gradient(180deg, rgba(0,240,255,0.025) 0%, rgba(255,255,255,0) 100%), color-mix(in srgb, var(--panel) 92%, #060d18 8%)",
           fontSize: 11,
           color: "var(--secondary)",
           flexShrink: 0,
@@ -631,7 +631,18 @@ export function StudioPage({ initialTab = "api" }: StudioPageProps) {
             {passiveValidation.warnings.length} warning{passiveValidation.warnings.length !== 1 ? "s" : ""}
           </span>
         </div>
-        <span className="status-pill">
+        <span
+          className="status-pill"
+          style={passiveValidation.ok ? {
+            borderColor: "rgba(58, 214, 159, 0.3)",
+            background: "rgba(58, 214, 159, 0.06)",
+            color: "var(--success)",
+          } : {
+            borderColor: "rgba(255, 191, 91, 0.3)",
+            background: "rgba(255, 191, 91, 0.06)",
+            color: "var(--warning)",
+          }}
+        >
           <span className={`status-dot ${passiveValidation.ok ? "success" : "warning"}`} />
           {passiveValidation.ok ? "Ready to generate" : "Canvas needs attention"}
         </span>
